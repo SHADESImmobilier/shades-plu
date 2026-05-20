@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Fiche bien — Analyse IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5}
+body{font-family:'Outfit',sans-serif;color:var(--dark);background:var(--light);font-size:13px}
+/* SBAR */
+.sbar{display:flex;height:2px}
+/* HDR */
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-bottom:.5px solid rgba(26,25,22,.08);background:var(--light);position:sticky;top:0;z-index:100}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:17px;letter-spacing:.25em}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-sub{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(26,25,22,.35);font-weight:300;margin-top:1px}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.hdr-addr{font-size:10px;color:rgba(26,25,22,.4);font-weight:300}
+/* MAIN TABS */
+.mtabs{display:flex;border-bottom:.5px solid rgba(26,25,22,.08);background:var(--light);overflow-x:auto}
+.mtab{flex:1;min-width:110px;padding:10px 6px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;border:none;border-bottom:2px solid transparent;background:transparent;color:rgba(26,25,22,.4);cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s;text-align:center;white-space:nowrap}
+.mtab.on{color:var(--dark);border-bottom-color:var(--gold)}
+/* LAYOUT */
+.body{display:grid;grid-template-columns:285px 1fr;min-height:calc(100vh - 100px)}
+.left{padding:16px;background:var(--wall);border-right:.5px solid rgba(26,25,22,.08);overflow-y:auto;max-height:calc(100vh - 100px)}
+.right{padding:16px;overflow-y:auto;max-height:calc(100vh - 100px)}
+/* FORM */
+.ct{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(26,25,22,.38);font-weight:300;margin-bottom:10px;padding-bottom:7px;border-bottom:.5px solid rgba(26,25,22,.07);margin-top:14px}
+.ct:first-child{margin-top:0}
+.sep{height:.5px;background:rgba(26,25,22,.08);margin:11px 0}
+.field{margin-bottom:9px}
+.lbl{font-size:10px;font-weight:300;color:rgba(26,25,22,.55);margin-bottom:3px;display:flex;justify-content:space-between}
+.inp{width:100%;padding:6px 9px;border:.5px solid rgba(26,25,22,.18);border-radius:3px;font-size:11px;font-family:'Outfit',sans-serif;background:#fff;color:var(--dark);outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+.ir{display:flex;align-items:center;gap:5px}
+.ir .inp{flex:1}
+.u{font-size:9px;color:rgba(26,25,22,.38);flex-shrink:0}
+.rtabs{display:flex;gap:3px;flex-wrap:wrap}
+.rtab{padding:4px 8px;font-size:8px;letter-spacing:.06em;text-transform:uppercase;font-weight:300;border:.5px solid rgba(26,25,22,.15);background:transparent;color:rgba(26,25,22,.45);border-radius:3px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s}
+.rtab.on{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+/* PANELS */
+.panel{display:none}
+.panel.on{display:block}
+/* SCORE HERO */
+.score-hero{background:var(--dark);border-radius:10px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
+.sc{width:70px;height:70px;border-radius:50%;border:3px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;transition:all .4s}
+.sc-n{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;line-height:1}
+.sc-m{font-size:8px;opacity:.5}
+.sc-label{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:#f4f2ee;margin-bottom:3px}
+.sc-sub{font-size:9px;color:rgba(244,242,238,.42);font-weight:300;line-height:1.5}
+/* KPIs */
+.kg{display:grid;gap:6px;margin-bottom:12px}
+.kg2{grid-template-columns:1fr 1fr}
+.kg3{grid-template-columns:1fr 1fr 1fr}
+.kg4{grid-template-columns:1fr 1fr 1fr 1fr}
+.kpi{padding:10px 11px;background:var(--wall);border-radius:5px;border:.5px solid rgba(26,25,22,.07);transition:all .3s}
+.kpi.good{background:#eaf3de;border-color:rgba(56,110,17,.15)}
+.kpi.warn{background:#faeeda;border-color:rgba(186,117,23,.2)}
+.kpi.bad{background:#fcebeb;border-color:rgba(226,75,74,.15)}
+.kpi.dark{background:var(--dark)}
+.kpi.gold{background:rgba(184,146,42,.08);border-color:rgba(184,146,42,.2)}
+.kl{font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,25,22,.38);font-weight:300;margin-bottom:2px}
+.kpi.good .kl{color:#27500a}.kpi.warn .kl{color:#633806}.kpi.bad .kl{color:#791f1f}
+.kpi.dark .kl{color:rgba(244,242,238,.4)}.kpi.gold .kl{color:rgba(184,146,42,.8)}
+.kv{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;color:var(--dark);line-height:1}
+.kpi.good .kv{color:#27500a}.kpi.warn .kv{color:#633806}.kpi.bad .kv{color:#791f1f}
+.kpi.dark .kv{color:#f4f2ee}.kpi.gold .kv{color:var(--gold)}
+.kv em{color:var(--gold);font-style:normal;font-size:11px}
+.ks{font-size:8px;color:rgba(26,25,22,.35);margin-top:1px;font-weight:300}
+.kpi.dark .ks{color:rgba(244,242,238,.3)}.kpi.good .ks{color:rgba(39,80,10,.5)}
+/* Critères */
+.crit{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--wall);border-radius:4px;border:.5px solid rgba(26,25,22,.06);margin-bottom:4px}
+.cn{font-size:10px;font-weight:300;color:rgba(26,25,22,.6);flex:1}
+.cbw{width:70px;height:4px;background:rgba(26,25,22,.1);border-radius:2px;overflow:hidden}
+.cb{height:100%;border-radius:2px;transition:width .4s}
+.cs{font-size:10px;font-weight:400;color:var(--dark);width:32px;text-align:right;flex-shrink:0}
+/* REC BOX */
+.rec{padding:11px 13px;border-radius:5px;margin-bottom:11px}
+.rec-t{font-size:8px;letter-spacing:.09em;text-transform:uppercase;font-weight:300;margin-bottom:5px}
+.rec-tx{font-size:11px;line-height:1.65;font-weight:300}
+/* TABLE */
+.table-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:.5px solid rgba(26,25,22,.05);font-size:11px}
+.table-row:last-child{border-bottom:none}
+.tr-l{color:rgba(26,25,22,.5);font-weight:300}
+.tr-r{font-weight:400}
+.tr-r.green{color:#27500a}.tr-r.red{color:#a32d2d}.tr-r.gold{color:var(--gold)}
+/* TIMELINE */
+.tl-wrap{overflow-x:auto;padding-bottom:4px}
+.tl{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;min-width:580px}
+.tl-cell{padding:7px 4px;border-radius:4px;text-align:center;border:.5px solid rgba(26,25,22,.07)}
+.tl-yr{font-size:7px;color:rgba(26,25,22,.38);font-weight:300}
+.tl-cf{font-family:'Cormorant Garamond',serif;font-size:12px;font-weight:300;margin-top:2px}
+.tl-pat{font-size:8px;margin-top:1px;color:rgba(26,25,22,.4)}
+/* MONTE CARLO */
+.mc-scenarios{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
+.mc-sc{padding:12px;border-radius:6px;border:.5px solid}
+.mc-sc.bull{background:rgba(56,110,17,.07);border-color:rgba(56,110,17,.2)}
+.mc-sc.base{background:rgba(184,146,42,.07);border-color:rgba(184,146,42,.2)}
+.mc-sc.bear{background:rgba(226,75,74,.07);border-color:rgba(226,75,74,.2)}
+.mc-label{font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;margin-bottom:6px}
+.mc-sc.bull .mc-label{color:#27500a}.mc-sc.base .mc-label{color:#b8922a}.mc-sc.bear .mc-label{color:#a32d2d}
+.mc-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300}
+.mc-sc.bull .mc-val{color:#27500a}.mc-sc.base .mc-val{color:#b8922a}.mc-sc.bear .mc-val{color:#a32d2d}
+.mc-sub{font-size:9px;margin-top:3px;font-weight:300;color:rgba(26,25,22,.45)}
+/* COMPARATEUR */
+.comp-grid{display:grid;grid-template-columns:180px repeat(3,1fr);gap:0;border:.5px solid rgba(26,25,22,.1);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.comp-cell{padding:9px 10px;border-bottom:.5px solid rgba(26,25,22,.07);border-right:.5px solid rgba(26,25,22,.07);font-size:10px}
+.comp-cell:last-child,.comp-cell:nth-child(4n){border-right:none}
+.comp-cell.hdr-cell{background:var(--dark);color:#f4f2ee;font-size:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:300}
+.comp-cell.label-cell{background:var(--wall);color:rgba(26,25,22,.5);font-weight:300;font-size:9px}
+.comp-cell.best{background:rgba(184,146,42,.07);font-weight:400;color:var(--dark)}
+/* IA RAPPORT */
+.ia-box{background:var(--wall);border-radius:8px;padding:16px;margin-bottom:12px;border:.5px solid rgba(26,25,22,.08)}
+.ia-loading{display:flex;align-items:center;gap:10px;color:rgba(26,25,22,.45);font-size:11px;font-weight:300}
+.ia-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.2s infinite}
+.ia-dot:nth-child(2){animation-delay:.2s}.ia-dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{transform:scale(0);opacity:.3}40%{transform:scale(1);opacity:1}}
+.ia-report{font-size:11px;line-height:1.8;font-weight:300;color:rgba(26,25,22,.8);white-space:pre-wrap}
+.ia-section{margin-bottom:14px}
+.ia-section-title{font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;color:var(--gold);margin-bottom:6px}
+/* MARCHE */
+.mkt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:12px}
+.mkt-cell{padding:8px 9px;background:var(--wall);border-radius:4px;border:.5px solid rgba(26,25,22,.07)}
+.mkt-cell.hl{border-color:rgba(184,146,42,.4);background:rgba(184,146,42,.06)}
+.mkt-name{font-size:8px;color:rgba(26,25,22,.45);font-weight:300}
+.mkt-val{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--dark);margin-top:1px}
+.mkt-loyer{font-size:8px;color:rgba(26,25,22,.38);margin-top:1px}
+/* BTNS */
+.cta-row{display:flex;gap:6px;margin-top:10px}
+.btn-d{flex:1;padding:10px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;background:var(--dark);color:#f4f2ee;border:none;border-radius:3px;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .2s}
+.btn-d:hover{opacity:.82}
+.btn-g{flex:1;padding:10px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;background:transparent;color:var(--gold);border:.5px solid rgba(184,146,42,.4);border-radius:3px;cursor:pointer;font-family:'Outfit',sans-serif;transition:background .2s}
+.btn-g:hover{background:rgba(184,146,42,.07)}
+.btn-sm{padding:7px 14px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:300;border:none;border-radius:3px;cursor:pointer;font-family:'Outfit',sans-serif}
+/* ENCADREMENT LOYERS */
+.enc-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:2px;font-size:9px;font-weight:300;margin-bottom:10px}
+.enc-ok{background:#eaf3de;color:#27500a;border:.5px solid rgba(56,110,17,.2)}
+.enc-warn{background:#faeeda;color:#633806;border:.5px solid rgba(186,117,23,.2)}
+/* PRINT */
+@media print{
+  /* Masquer l interface */
+  .hdr,.mtabs,.left,.cta-row,.btn-d,.btn-g,.btn-sm,#ia-angles{display:none!important}
+  .body{grid-template-columns:1fr!important}
+  .right{max-height:none!important;overflow:visible!important;padding:0!important}
+  body{background:#fff!important;color:#000!important;font-size:10pt}
+  /* Afficher TOUS les panels */
+  .panel{display:block!important;page-break-after:always;padding:20px 0}
+  .panel:last-of-type{page-break-after:avoid}
+  /* En-tête de page */
+  .panel::before{content:attr(data-title);display:block;font-family:"Cormorant Garamond",serif;font-size:14pt;font-weight:300;color:#1a1916;border-bottom:0.5px solid #b8922a;padding-bottom:8px;margin-bottom:16px;letter-spacing:.05em}
+  /* Couleurs pour l impression */
+  .score-hero{background:#1a1916!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .kpi{border:0.5px solid #ddd!important}
+  .tl-bar{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  /* Eviter coupures dans les elements */
+  .kpi,.table-row,.crit,.mkt-cell,.tl-item{page-break-inside:avoid}
+}
+.pdf-header{ display:none; padding:0 0 18px; border-bottom:2px solid #b8922a; margin-bottom:18px; }
+.pdf-footer{ display:none; padding:14px 0 0; border-top:.5px solid rgba(26,25,22,.1); margin-top:18px; font-size:9px; color:rgba(26,25,22,.38); font-weight:300; }
+.pdf-header-logo{ font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:300; letter-spacing:.2em; color:#1a1916; }
+.pdf-header-logo em{ color:#b8922a; font-style:normal; }
+.pdf-header-sub{ font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:rgba(26,25,22,.38); margin-top:2px; }
+.pdf-header-info{ font-size:10px; color:rgba(26,25,22,.45); font-weight:300; text-align:right; }
+
+
+.tunnel-bar{position:sticky;bottom:0;z-index:100;background:#1a1916;border-top:.5px solid rgba(184,146,42,.25);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tunnel-label{font-size:10px;color:rgba(244,242,238,.4);letter-spacing:.06em}
+.tunnel-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--gold, #b8922a);color:#1a1916;text-decoration:none;border-radius:3px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;font-family:inherit;border:none;cursor:pointer}
+.tunnel-btn:hover{opacity:.85}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+</style>
+  <meta name="description" content="Fiche bien & scoring SHADES — Score /100, Monte Carlo, analyse 200+ villes, rapport IA complet.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+
+<div class="sbar">
+  <span style="flex:1;background:#e8e4dc"></span><span style="flex:1;background:#c4c0b8"></span>
+  <span style="flex:1;background:#b8922a"></span><span style="flex:1;background:#585856"></span>
+  <span style="flex:1;background:#1e1e1c"></span>
+</div>
+
+<div class="hdr">
+  <div>
+    <div class="logo">SHADES<em>.</em></div>
+    <div class="hdr-sub">Fiche bien & analyse IA · Paris 2025-2026</div>
+  </div>
+  <div class="hdr-r">
+    <span class="hdr-addr" id="hdr-addr">—</span>
+    <button class="btn-sm" style="background:var(--dark);color:#f4f2ee" onclick="genIA()">⚡ Analyse IA</button>
+    <button class="btn-sm" style="background:var(--wall);color:var(--dark);border:.5px solid rgba(26,25,22,.15)" onclick="exporterRapport()">↓ Exporter PDF</button>
+  </div>
+</div>
+
+<div class="mtabs">
+  <button class="mtab on" onclick="setTab('score',this)">Score & analyse</button>
+  <button class="mtab" onclick="setTab('marche',this)">Marché</button>
+  <button class="mtab" onclick="setTab('projection',this)">Projection 10 ans</button>
+  <button class="mtab" onclick="setTab('monte',this)">Monte Carlo</button>
+  <button class="mtab" onclick="setTab('financement',this)">Financement LMNP</button>
+  <button class="mtab" onclick="setTab('comparateur',this)">Comparateur</button>
+  <button class="mtab" onclick="setTab('ia',this)">Rapport IA ✦</button>
+</div>
+
+<div class="body">
+  <!-- GAUCHE : SAISIE -->
+  <div class="left">
+    <div class="ct">Identification</div>
+    <div class="field"><div class="lbl">Adresse</div><input class="inp" id="adresse" type="text" placeholder="Ex : Rue de la Paix, Paris 2e" oninput="upd()"></div>
+    <div class="field">
+      <div class="lbl">Localisation</div>
+      <select class="inp" id="arrdt" onchange="upd()">
+        <optgroup label="── Paris (75) ──">
+          <option value="p1">Paris 1er</option><option value="p2">Paris 2e</option><option value="p3">Paris 3e</option><option value="p4">Paris 4e</option><option value="p5">Paris 5e</option><option value="p6">Paris 6e</option><option value="p7">Paris 7e</option><option value="p8">Paris 8e</option><option value="p9" selected>Paris 9e</option><option value="p10">Paris 10e</option><option value="p11">Paris 11e</option><option value="p12">Paris 12e</option><option value="p13">Paris 13e</option><option value="p14">Paris 14e</option><option value="p15">Paris 15e</option><option value="p16">Paris 16e</option><option value="p17">Paris 17e</option><option value="p18">Paris 18e</option><option value="p19">Paris 19e</option><option value="p20">Paris 20e</option>
+        </optgroup>
+        <optgroup label="── Hauts-de-Seine (92) ──">
+          <option value="antony">Antony</option><option value="asnieres">Asnières-sur-Seine</option><option value="bagneux">Bagneux</option><option value="bois-colombes">Bois-Colombes</option><option value="boulogne">Boulogne-Billancourt</option><option value="bourg-la-reine">Bourg-la-Reine</option><option value="chatenay">Châtenay-Malabry</option><option value="chatillon">Châtillon</option><option value="chaville">Chaville</option><option value="clamart">Clamart</option><option value="clichy">Clichy</option><option value="colombes">Colombes</option><option value="courbevoie">Courbevoie</option><option value="fontenay-aux-roses">Fontenay-aux-Roses</option><option value="garches">Garches</option><option value="la-garenne-colombes">La Garenne-Colombes</option><option value="gennevilliers">Gennevilliers</option><option value="issy">Issy-les-Moulineaux</option><option value="levallois">Levallois-Perret</option><option value="malakoff">Malakoff</option><option value="marnes-la-coquette">Marnes-la-Coquette</option><option value="meudon">Meudon</option><option value="montrouge">Montrouge</option><option value="nanterre">Nanterre</option><option value="neuilly">Neuilly-sur-Seine</option><option value="plessis-robinson">Le Plessis-Robinson</option><option value="puteaux">Puteaux</option><option value="rueil">Rueil-Malmaison</option><option value="saint-cloud">Saint-Cloud</option><option value="sceaux">Sceaux</option><option value="sevres">Sèvres</option><option value="suresnes">Suresnes</option><option value="vanves">Vanves</option><option value="vaucresson">Vaucresson</option><option value="ville-davray">Ville-d'Avray</option><option value="villeneuve-la-garenne">Villeneuve-la-Garenne</option>
+        </optgroup>
+        <optgroup label="── Seine-Saint-Denis (93) ──">
+          <option value="aubervilliers">Aubervilliers</option><option value="aulnay">Aulnay-sous-Bois</option><option value="bagnolet">Bagnolet</option><option value="bobigny">Bobigny</option><option value="bondy">Bondy</option><option value="clichy-sous-bois">Clichy-sous-Bois</option><option value="drancy">Drancy</option><option value="epinay">Épinay-sur-Seine</option><option value="gagny">Gagny</option><option value="la-courneuve">La Courneuve</option><option value="le-blanc-mesnil">Le Blanc-Mesnil</option><option value="le-bourget">Le Bourget</option><option value="le-raincy">Le Raincy</option><option value="les-lilas">Les Lilas</option><option value="livry-gargan">Livry-Gargan</option><option value="montfermeil">Montfermeil</option><option value="montreuil">Montreuil</option><option value="neuilly-plaisance">Neuilly-Plaisance</option><option value="neuilly-sur-marne">Neuilly-sur-Marne</option><option value="noisy-le-grand">Noisy-le-Grand</option><option value="noisy-le-sec">Noisy-le-Sec</option><option value="pantin">Pantin</option><option value="pierrefitte">Pierrefitte-sur-Seine</option><option value="pre-saint-gervais">Le Pré-Saint-Gervais</option><option value="romainville">Romainville</option><option value="rosny-sous-bois">Rosny-sous-Bois</option><option value="saint-denis">Saint-Denis</option><option value="saint-ouen">Saint-Ouen-sur-Seine</option><option value="sevran">Sevran</option><option value="stains">Stains</option><option value="tremblay">Tremblay-en-France</option><option value="villemomble">Villemomble</option><option value="villepinte">Villepinte</option>
+        </optgroup>
+        <optgroup label="── Val-de-Marne (94) ──">
+          <option value="alfortville">Alfortville</option><option value="arcueil">Arcueil</option><option value="boissy-saint-leger">Boissy-Saint-Léger</option><option value="bry-sur-marne">Bry-sur-Marne</option><option value="cachan">Cachan</option><option value="champigny">Champigny-sur-Marne</option><option value="charenton">Charenton-le-Pont</option><option value="chennevieres">Chennevières-sur-Marne</option><option value="chevilly">Chevilly-Larue</option><option value="choisy">Choisy-le-Roi</option><option value="creteil">Créteil</option><option value="fontenay">Fontenay-sous-Bois</option><option value="fresnes">Fresnes</option><option value="gentilly">Gentilly</option><option value="ivry">Ivry-sur-Seine</option><option value="joinville">Joinville-le-Pont</option><option value="kremlin-bicetre">Le Kremlin-Bicêtre</option><option value="l-hay-les-roses">L'Haÿ-les-Roses</option><option value="maisons-alfort">Maisons-Alfort</option><option value="nogent">Nogent-sur-Marne</option><option value="orly">Orly</option><option value="perreux">Le Perreux-sur-Marne</option><option value="rungis">Rungis</option><option value="saint-maur">Saint-Maur-des-Fossés</option><option value="saint-mande">Saint-Mandé</option><option value="santeny">Santeny</option><option value="sucy">Sucy-en-Brie</option><option value="thiais">Thiais</option><option value="valenton">Valenton</option><option value="villejuif">Villejuif</option><option value="villeneuve-le-roi">Villeneuve-le-Roi</option><option value="villeneuve-saint-georges">Villeneuve-Saint-Georges</option><option value="villers">Villiers-sur-Marne</option><option value="vincennes">Vincennes</option><option value="vitry">Vitry-sur-Seine</option>
+        </optgroup>
+        <optgroup label="── Yvelines (78) ──">
+          <option value="versailles">Versailles</option><option value="saint-germain">Saint-Germain-en-Laye</option><option value="marly">Marly-le-Roi</option><option value="le-chesnay">Le Chesnay-Rocquencourt</option><option value="poissy">Poissy</option><option value="sartrouville">Sartrouville</option><option value="mantes">Mantes-la-Jolie</option><option value="rambouillet">Rambouillet</option>
+        </optgroup>
+        <optgroup label="── Essonne (91) ──">
+          <option value="massy">Massy</option><option value="palaiseau">Palaiseau</option><option value="evry">Évry-Courcouronnes</option><option value="corbeil">Corbeil-Essonnes</option><option value="gif">Gif-sur-Yvette</option><option value="juvisy">Juvisy-sur-Orge</option><option value="longjumeau">Longjumeau</option>
+        </optgroup>
+        <optgroup label="── Val-d'Oise (95) ──">
+          <option value="argenteuil">Argenteuil</option><option value="bezons">Bezons</option><option value="beaumont">Beaumont-sur-Oise</option><option value="cergy">Cergy</option><option value="cormeilles">Cormeilles-en-Parisis</option><option value="deuil">Deuil-la-Barre</option><option value="domont">Domont</option><option value="eaubonne">Éaubonne</option><option value="enghien">Enghien-les-Bains</option><option value="ermont">Ermont</option><option value="ezanville">Ézanville</option><option value="franconville">Franconville</option><option value="garges">Garges-lès-Gonesse</option><option value="goussainville">Goussainville</option><option value="herblay">Herblay-sur-Seine</option><option value="l-isle-adam">L'Isle-Adam</option><option value="montmorency">Montmorency</option><option value="osny">Osny</option><option value="persan">Persan</option><option value="pontoise">Pontoise</option><option value="saint-gratien">Saint-Gratien</option><option value="saint-leu">Saint-Leu-la-Forêt</option><option value="sannois">Sannois</option><option value="sarcelles">Sarcelles</option><option value="soisy">Soisy-sous-Montmorency</option><option value="taverny">Taverny</option><option value="villiers-le-bel">Villiers-le-Bel</option>
+        </optgroup>
+        <optgroup label="── Seine-et-Marne (77) ──">
+          <option value="meaux">Meaux</option><option value="melun">Melun</option><option value="chelles">Chelles</option><option value="torcy">Torcy</option>
+        </optgroup>
+        <optgroup label="── 10 grandes villes France ──">
+          <option value="lyon">Lyon</option><option value="marseille">Marseille</option><option value="toulouse">Toulouse</option><option value="nice">Nice</option><option value="nantes">Nantes</option><option value="strasbourg">Strasbourg</option><option value="montpellier">Montpellier</option><option value="bordeaux">Bordeaux</option><option value="lille">Lille</option><option value="rennes">Rennes</option>
+        </optgroup>
+        <optgroup label="── Autres grandes villes ──">
+          <option value="grenoble">Grenoble</option><option value="aix">Aix-en-Provence</option><option value="annecy">Annecy</option><option value="toulon">Toulon</option><option value="brest">Brest</option><option value="nimes">Nîmes</option><option value="reims">Reims</option><option value="dijon">Dijon</option><option value="angers">Angers</option><option value="tours">Tours</option><option value="caen">Caen</option><option value="clermont">Clermont-Ferrand</option><option value="le-havre">Le Havre</option><option value="metz">Metz</option><option value="rouen">Rouen</option><option value="nancy">Nancy</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field">
+      <div class="lbl">Type</div>
+      <select class="inp" id="type" onchange="upd()"><option value="studio">Studio</option><option value="t1">T1</option><option value="t2" selected>T2</option><option value="t3">T3</option><option value="t4">T4+</option></select>
+    </div>
+    <div class="field"><div class="lbl">Surface</div><div class="ir"><input class="inp" id="surface" type="number" value="45" min="5" oninput="upd()"><span class="u">m²</span></div></div>
+    <div class="field">
+      <div class="lbl">Étage</div>
+      <select class="inp" id="etage" onchange="upd()">
+        <option value="0">RDC</option>
+        <option value="1">1er–2e</option>
+        <option value="2" selected>3e–5e</option>
+        <option value="3">6e+</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="lbl" style="margin-bottom:5px">Ascenseur</div>
+      <div class="rtabs">
+        <button class="rtab on" onclick="setV('asc','oui',this)">Oui</button>
+        <button class="rtab" onclick="setV('asc','non',this)">Non</button>
+        <button class="rtab" onclick="setV('asc','rdc',this)">RDC / sans objet</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="lbl">Nombre de pièces</div>
+      <select class="inp" id="nb-pieces" onchange="upd()">
+        <option value="0">Non précisé</option>
+        <option value="1">1 pièce (studio)</option>
+        <option value="2" selected>2 pièces (T2)</option>
+        <option value="3">3 pièces (T3)</option>
+        <option value="4">4 pièces (T4)</option>
+        <option value="5">5 pièces (T5)</option>
+        <option value="6">6 pièces et +</option>
+      </select>
+    </div>
+
+    <div class="ct">Type de projet</div>
+    <div class="field">
+      <div class="lbl" style="margin-bottom:5px">Stratégie</div>
+      <div class="rtabs">
+        <button class="rtab on" id="proj-lmnp" onclick="setProjet('lmnp',this)">🏠 Locatif LMNP</button>
+        <button class="rtab" id="proj-patri" onclick="setProjet('patrimonial',this)">🏛 Patrimonial</button>
+        <button class="rtab" id="proj-mdb" onclick="setProjet('marchand',this)">🔨 Marchand de biens</button>
+      </div>
+    </div>
+    <div class="field" id="field-quartier">
+      <div class="lbl">Quartier / Micro-zone</div>
+      <input class="inp" id="quartier" type="text" placeholder="— Non précisé —" list="quartier-list" oninput="upd()" autocomplete="off" style="cursor:text">
+      <datalist id="quartier-list"></datalist>
+    </div>
+
+    <div class="ct">Finances</div>
+    <div class="field"><div class="lbl">Prix d'achat affiché</div><div class="ir"><input class="inp" id="prix" type="number" value="280000" min="0" oninput="upd()"><span class="u">€</span></div></div>
+    <div class="field"><div class="lbl">Budget travaux</div><div class="ir"><input class="inp" id="travaux" type="number" value="20000" min="0" oninput="upd()"><span class="u">€</span></div></div>
+    <div class="field"><div class="lbl">Loyer mensuel visé</div><div class="ir"><input class="inp" id="loyer" type="number" value="1200" min="0" oninput="upd()"><span class="u">€/mois</span></div></div>
+    <div class="field"><div class="lbl">Charges copro/mois</div><div class="ir"><input class="inp" id="charges" type="number" value="150" min="0" oninput="upd()"><span class="u">€/mois</span></div></div>
+    <div class="field"><div class="lbl">Taxe foncière/an</div><div class="ir"><input class="inp" id="tf" type="number" value="800" min="0" oninput="upd()"><span class="u">€/an</span></div></div>
+    <div class="field"><div class="lbl">Apport</div><div class="ir"><input class="inp" id="apport" type="number" value="20" min="0" max="100" oninput="upd()"><span class="u">%</span></div></div>
+    <div class="field"><div class="lbl">Taux crédit</div><div class="ir"><input class="inp" id="taux" type="number" value="3.5" step="0.1" min="0" oninput="upd()"><span class="u">%</span></div></div>
+    <div class="field"><div class="lbl">Durée crédit</div><div class="ir"><input class="inp" id="duree" type="number" value="25" min="5" max="30" oninput="upd()"><span class="u">ans</span></div></div>
+    <div class="field"><div class="lbl">TMI</div><div class="ir"><input class="inp" id="tmi" type="number" value="30" min="0" max="45" oninput="upd()"><span class="u">%</span></div></div>
+
+    <div class="sep"></div>
+    <div class="ct">Options</div>
+    <div class="field">
+      <div class="lbl" style="margin-bottom:5px">Encadrement des loyers</div>
+      <div class="rtabs">
+        <button class="rtab on" id="enc-on" onclick="setEncadr(true,this)">Appliqué</button>
+        <button class="rtab" id="enc-off" onclick="setEncadr(false,this)">Ignoré</button>
+      </div>
+      <div style="font-size:9px;color:rgba(26,25,22,.38);font-weight:300;margin-top:5px;line-height:1.5" id="enc-note">L'alerte légale s'affichera si le loyer dépasse le plafond Paris.</div>
+    </div>
+
+    <div class="ct">Critères qualitatifs</div>
+    <div class="field"><div class="lbl" style="margin-bottom:5px">DPE</div>
+      <div class="rtabs"><button class="rtab" onclick="setV('dpe','A',this)">A</button><button class="rtab" onclick="setV('dpe','B',this)">B</button><button class="rtab" onclick="setV('dpe','C',this)">C</button><button class="rtab on" onclick="setV('dpe','D',this)">D</button><button class="rtab" onclick="setV('dpe','E',this)">E</button><button class="rtab" onclick="setV('dpe','F',this)">F</button><button class="rtab" onclick="setV('dpe','G',this)">G</button></div>
+    </div>
+    <div class="field"><div class="lbl" style="margin-bottom:5px">État général</div>
+      <div class="rtabs"><button class="rtab" onclick="setV('etat','neuf',this)">Neuf</button><button class="rtab on" onclick="setV('etat','bon',this)">Bon état</button><button class="rtab" onclick="setV('etat','moyen',this)">À rafraîchir</button><button class="rtab" onclick="setV('etat','renover',this)">À rénover</button></div>
+    </div>
+    <div class="field"><div class="lbl" style="margin-bottom:5px">Distance métro</div>
+      <div class="rtabs"><button class="rtab on" onclick="setV('metro','m2',this)">< 2 min</button><button class="rtab" onclick="setV('metro','m5',this)">2–5 min</button><button class="rtab" onclick="setV('metro','m10',this)">5–10 min</button><button class="rtab" onclick="setV('metro','m15',this)">> 10 min</button></div>
+    </div>
+    <div class="field"><div class="lbl" style="margin-bottom:5px">Tension locative</div>
+      <div class="rtabs"><button class="rtab on" onclick="setV('tension','tres_forte',this)">Très forte</button><button class="rtab" onclick="setV('tension','forte',this)">Forte</button><button class="rtab" onclick="setV('tension','moyenne',this)">Moyenne</button><button class="rtab" onclick="setV('tension','faible',this)">Faible</button></div>
+    </div>
+    <div class="field"><div class="lbl" style="margin-bottom:5px">Luminosité</div>
+      <div class="rtabs"><button class="rtab on" onclick="setV('lum','excel',this)">Excellente</button><button class="rtab" onclick="setV('lum','bonne',this)">Bonne</button><button class="rtab" onclick="setV('lum','moy',this)">Moyenne</button><button class="rtab" onclick="setV('lum','faible',this)">Faible</button></div>
+    </div>
+    <div class="field"><div class="lbl" style="margin-bottom:5px">Atouts du bien</div>
+      <div class="rtabs" style="flex-wrap:wrap">
+        <button class="rtab on" id="a-haus" onclick="togA('haus',this)">Haussmannien</button>
+        <button class="rtab" id="a-balc" onclick="togA('balc',this)">Balcon/Terrasse</button>
+        <button class="rtab" id="a-park" onclick="togA('park',this)">Parking/Box</button>
+        <button class="rtab" id="a-cave" onclick="togA('cave',this)">Cave</button>
+        <button class="rtab" id="a-gard" onclick="togA('gard',this)">Gardien</button>
+        <button class="rtab" id="a-diag" onclick="togA('diag',this)">Diag récents</button>
+        <button class="rtab" id="a-parq" onclick="togA('parq',this)">Parquet</button>
+        <button class="rtab" id="a-doub" onclick="togA('doub',this)">Double vitrage</button>
+        <button class="rtab" id="a-asc" onclick="togA('asc',this)">Ascenseur</button>
+        <button class="rtab" id="a-piere" onclick="togA('piere',this)">Pierre de taille</button>
+        <button class="rtab" id="a-mod" onclick="togA('mod',this)">Rénovation récente</button>
+        <button class="rtab" id="a-vue" onclick="togA('vue',this)">Belle vue</button>
+        <button class="rtab" id="a-calme" onclick="togA('calme',this)">Calme absolu</button>
+        <button class="rtab" id="a-fibre" onclick="togA('fibre',this)">Fibre</button>
+        <button class="rtab" id="a-dpe" onclick="togA('dpe',this)">Bon DPE</button>
+        <button class="rtab" id="a-piscine" onclick="togA('piscine',this)">Piscine</button>
+      </div>
+      <div style="margin-top:7px">
+        <input style="width:100%;padding:6px 9px;border:.5px solid rgba(26,25,22,.15);border-radius:3px;font-size:10px;font-family:inherit;outline:none" 
+          id="a-custom" placeholder="Atout personnalisé (ex: vue Notre-Dame, terrasse 30m²...)" oninput="updateScore()">
+      </div>
+    </div>
+  </div>
+
+  <!-- DROITE : PANELS -->
+  <div class="right">
+
+    <!-- SCORE -->
+    <div class="panel on" id="panel-score" data-title="Score & Analyse">
+      <div class="pdf-header" id="pdf-header">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div class="pdf-header-logo">SHADES<em>.</em></div>
+            <div class="pdf-header-sub">Fiche d'analyse · Investissement immobilier</div>
+          </div>
+          <div class="pdf-header-info" id="pdf-header-info">—</div>
+        </div>
+      </div>
+      <div class="ct" style="margin-top:0">Score SHADES · 9 critères pondérés</div>
+      <div class="score-hero">
+        <div class="sc" id="sc-circle"><div class="sc-n" id="sc-n">—</div><div class="sc-m">/100</div></div>
+        <div><div class="sc-label" id="sc-label">—</div><div class="sc-sub" id="sc-sub">—</div></div>
+      </div>
+      <div class="kg kg4" id="score-kpis"></div>
+      <div class="ct">Détail scoring</div>
+      <div id="crits"></div>
+      <div class="rec" id="rec"></div>
+    <div class="field"><div class="lbl">Vigilances / Points négatifs</div><textarea style="width:100%;padding:6px 9px;border:.5px solid rgba(26,25,22,.15);border-radius:3px;font-size:10px;font-family:inherit;resize:vertical;min-height:45px" id="negatifs" placeholder="Nuisances sonores, copro difficile, travaux à prévoir..." oninput="updateScore()"></textarea></div>
+      <div class="pdf-footer" id="pdf-footer">
+        <div style="display:flex;justify-content:space-between">
+          <span>SHADES · Apporteur d'affaire immobilier · Paris & IDF</span>
+          <span>Analyse générée le <span id="pdf-date">—</span> · Données DVF 2025 · À titre indicatif</span>
+        </div>
+      </div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="genIA()">⚡ Générer rapport IA complet</button>
+        <button class="btn-g" onclick="exporterRapport()">↓ Exporter fiche PDF</button>
+      </div>
+    </div>
+
+    <!-- MARCHÉ -->
+    <div class="panel" id="panel-marche" data-title="Analyse Marché">
+      <div class="ct" style="margin-top:0">Marché Paris 2025 · Arrondissements proches</div>
+      <div class="mkt-grid" id="mkt-grid"></div>
+      <div class="ct">Encadrement des loyers Paris 2025</div>
+      <div id="enc-zone"></div>
+      <div class="ct">Positionnement du bien</div>
+      <div class="kg kg3" id="mkt-pos"></div>
+      <div class="rec" id="mkt-rec"></div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="genIA()">⚡ Analyse IA marché</button>
+        <button class="btn-g" onclick="setTab('comparateur',document.querySelectorAll('.mtab')[5])">Comparer des biens →</button>
+      </div>
+    </div>
+
+    <!-- PROJECTION -->
+    <div class="panel" id="panel-projection" data-title="Projection 10 ans">
+      <div class="ct" style="margin-top:0">Projection cashflow · 10 ans · LMNP réel</div>
+      <div class="kg kg3" id="proj-kpi"></div>
+      <div class="ct">Cashflow mensuel & patrimoine net</div>
+      <div class="tl-wrap"><div class="tl" id="tl"></div></div>
+      <div class="ct" style="margin-top:12px">Cumuls</div>
+      <div id="proj-recap"></div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="setTab('monte',document.querySelectorAll('.mtab')[3])">Simulation Monte Carlo →</button>
+        <button class="btn-g" onclick="genIA()">⚡ Analyse IA projection</button>
+      </div>
+    </div>
+
+    <!-- MONTE CARLO -->
+    <div class="panel" id="panel-monte" data-title="Monte Carlo">
+      <div class="ct" style="margin-top:0">Monte Carlo · 3 scénarios probabilistes sur 10 ans</div>
+      <div class="mc-scenarios" id="mc-scenarios"></div>
+      <div class="ct">Variables simulées</div>
+      <div class="kg kg3" id="mc-vars"></div>
+      <div class="ct">Cashflow par scénario</div>
+      <div class="tl-wrap"><div class="tl" id="mc-tl"></div></div>
+      <div class="rec" id="mc-rec"></div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="genIA()">⚡ Analyse IA risques</button>
+        <button class="btn-g" onclick="setTab('financement',document.querySelectorAll('.mtab')[4])">Optimiser financement →</button>
+      </div>
+    </div>
+
+    <!-- FINANCEMENT LMNP -->
+    <div class="panel" id="panel-financement" data-title="Financement LMNP">
+      <div class="ct" style="margin-top:0">Financement & fiscalité LMNP au réel</div>
+      <div class="kg kg3" id="fin-kpi"></div>
+      <div class="ct">Détail mensuel</div>
+      <div id="fin-rows"></div>
+      <div class="ct" style="margin-top:10px">Amortissements LMNP déductibles</div>
+      <div id="fin-amort"></div>
+      <div class="rec" id="fin-rec"></div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="genIA()">⚡ Optimisation fiscale IA</button>
+        <button class="btn-g" onclick="window.print()">↓ Exporter PDF</button>
+      </div>
+    </div>
+
+    <!-- COMPARATEUR -->
+    <div class="panel" id="panel-comparateur" data-title="Comparateur">
+      <div class="ct" style="margin-top:0">Comparateur · jusqu'à 3 biens côte à côte</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">
+        <div>
+          <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,25,22,.4);margin-bottom:6px">Bien 2</div>
+          <div class="field"><input class="inp" id="c2-nom" type="text" placeholder="Nom / adresse" oninput="updComp()"></div>
+          <div class="field"><div class="ir"><input class="inp" id="c2-prix" type="number" min="0" value="320000" placeholder="Prix" oninput="updComp()"><span class="u">€</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c2-surf" type="number" min="0" value="52" placeholder="Surface" oninput="updComp()"><span class="u">m²</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c2-loyer" type="number" min="0" value="1400" placeholder="Loyer" oninput="updComp()"><span class="u">€/mois</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c2-trav" type="number" min="0" value="15000" placeholder="Travaux" oninput="updComp()"><span class="u">€</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c2-charges" type="number" min="0" value="180" placeholder="Charges" oninput="updComp()"><span class="u">€/mois</span></div></div>
+        </div>
+        <div>
+          <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,25,22,.4);margin-bottom:6px">Bien 3</div>
+          <div class="field"><input class="inp" id="c3-nom" type="text" placeholder="Nom / adresse" oninput="updComp()"></div>
+          <div class="field"><div class="ir"><input class="inp" id="c3-prix" type="number" min="0" value="195000" placeholder="Prix" oninput="updComp()"><span class="u">€</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c3-surf" type="number" min="0" value="30" placeholder="Surface" oninput="updComp()"><span class="u">m²</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c3-loyer" type="number" min="0" value="850" placeholder="Loyer" oninput="updComp()"><span class="u">€/mois</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c3-trav" type="number" min="0" value="30000" placeholder="Travaux" oninput="updComp()"><span class="u">€</span></div></div>
+          <div class="field"><div class="ir"><input class="inp" id="c3-charges" type="number" min="0" value="100" placeholder="Charges" oninput="updComp()"><span class="u">€/mois</span></div></div>
+        </div>
+        <div>
+          <div style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,25,22,.4);margin-bottom:6px">Options</div>
+          <div style="font-size:10px;color:rgba(26,25,22,.5);font-weight:300;line-height:1.7">Bien 1 = données saisies à gauche.<br>Remplissez Bien 2 et Bien 3 pour comparer.</div>
+        </div>
+      </div>
+      <div class="comp-grid" id="comp-table"></div>
+      <div class="rec" id="comp-rec"></div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="genIA()">⚡ Analyse IA comparaison</button>
+        <button class="btn-g" onclick="exporterRapport()">↓ Exporter PDF</button>
+      </div>
+    </div>
+
+    <!-- RAPPORT IA -->
+    <div class="panel" id="panel-ia" data-title="Rapport IA">
+      <div class="ct" style="margin-top:0">Rapport IA · Analyse multi-angles SHADES</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:12px" id="ia-angles">
+        <div class="ia-angle on" onclick="setIaAngle('lmnp',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(184,146,42,.4);background:rgba(184,146,42,.08);cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🏠</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);font-weight:300;line-height:1.3">LMNP</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('lmp',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">📋</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">LMP Pro</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('nue',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🏡</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Location nue</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('coloc',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">👥</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Colocation</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('court',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">✈️</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Court séjour</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('airbnb',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🏨</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Para-hôtelier</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('deficit',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🔄</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Déficit foncier</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('patrimonial',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🏛</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Patrimonial</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('nue_prop',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">💼</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Nue-propriété</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('marchand',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🔨</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Marchand</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('flip',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">💰</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Achat-Revente</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('division',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">✂️</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Division lot</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('vefa',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🏗️</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">VEFA / Neuf</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('viager',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">👴</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Viager</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('sci',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🏢</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">SCI</div>
+        </div>
+        <div class="ia-angle" onclick="setIaAngle('renov',this)" style="padding:7px 3px;border-radius:4px;border:.5px solid rgba(26,25,22,.1);background:;cursor:pointer;text-align:center">
+          <div style="font-size:12px;margin-bottom:2px">🌿</div>
+          <div style="font-size:7px;letter-spacing:.04em;text-transform:uppercase;color:rgba(26,25,22,.45);font-weight:300;line-height:1.3">Réno énergétique</div>
+        </div>
+      </div>
+      <div class="ia-box" id="ia-box">
+        <div style="font-size:11px;color:rgba(26,25,22,.45);font-weight:300;text-align:center;padding:20px 0">
+          Chargement de l'analyse...
+        </div>
+      </div>
+      <div class="cta-row">
+        <button class="btn-d" onclick="genIA()">⚡ Générer le rapport IA</button>
+        <button class="btn-g" onclick="window.print()">↓ Exporter PDF</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DONNÉES MARCHÉ PARIS + IDF COMPLET + FRANCE 2025-2026
+// Sources: DVF DGFiP 2024-2025, Efficity Avr.2026, prix-m2.fr, Meilleurs Agents
+// ═══════════════════════════════════════════════════════
+var MARCHE = {
+  // PARIS
+  'p1':{m2:13200,loyer_m2:35.5,nom:'Paris 1er',zone:'enc_1',dept:'Paris'},
+  'p2':{m2:11800,loyer_m2:33,nom:'Paris 2e',zone:'enc_1',dept:'Paris'},
+  'p3':{m2:12400,loyer_m2:34,nom:'Paris 3e',zone:'enc_1',dept:'Paris'},
+  'p4':{m2:13500,loyer_m2:36,nom:'Paris 4e',zone:'enc_1',dept:'Paris'},
+  'p5':{m2:12800,loyer_m2:35,nom:'Paris 5e',zone:'enc_1',dept:'Paris'},
+  'p6':{m2:14900,loyer_m2:38,nom:'Paris 6e',zone:'enc_1',dept:'Paris'},
+  'p7':{m2:15200,loyer_m2:37.5,nom:'Paris 7e',zone:'enc_1',dept:'Paris'},
+  'p8':{m2:13800,loyer_m2:36,nom:'Paris 8e',zone:'enc_1',dept:'Paris'},
+  'p9':{m2:10800,loyer_m2:30,nom:'Paris 9e',zone:'enc_2',dept:'Paris'},
+  'p10':{m2:9800,loyer_m2:28,nom:'Paris 10e',zone:'enc_2',dept:'Paris'},
+  'p11':{m2:10200,loyer_m2:29,nom:'Paris 11e',zone:'enc_2',dept:'Paris'},
+  'p12':{m2:9400,loyer_m2:27,nom:'Paris 12e',zone:'enc_3',dept:'Paris'},
+  'p13':{m2:8800,loyer_m2:25,nom:'Paris 13e',zone:'enc_3',dept:'Paris'},
+  'p14':{m2:9600,loyer_m2:27,nom:'Paris 14e',zone:'enc_3',dept:'Paris'},
+  'p15':{m2:9900,loyer_m2:27.5,nom:'Paris 15e',zone:'enc_3',dept:'Paris'},
+  'p16':{m2:11800,loyer_m2:30,nom:'Paris 16e',zone:'enc_2',dept:'Paris'},
+  'p17':{m2:10200,loyer_m2:28,nom:'Paris 17e',zone:'enc_2',dept:'Paris'},
+  'p18':{m2:9200,loyer_m2:27,nom:'Paris 18e',zone:'enc_3',dept:'Paris'},
+  'p19':{m2:7800,loyer_m2:24,nom:'Paris 19e',zone:'enc_4',dept:'Paris'},
+  'p20':{m2:8400,loyer_m2:25,nom:'Paris 20e',zone:'enc_4',dept:'Paris'},
+  // HAUTS-DE-SEINE (92) — 36 communes complètes — Efficity Avr.2026 + DVF
+  'antony':{m2:5500,loyer_m2:18,nom:'Antony',zone:'idf_free',dept:'92'},
+  'asnieres':{m2:6000,loyer_m2:20,nom:'Asnières-sur-Seine',zone:'idf_free',dept:'92'},
+  'bagneux':{m2:4800,loyer_m2:17,nom:'Bagneux',zone:'idf_free',dept:'92'},
+  'bois-colombes':{m2:5800,loyer_m2:19,nom:'Bois-Colombes',zone:'idf_free',dept:'92'},
+  'boulogne':{m2:8100,loyer_m2:24,nom:'Boulogne-Billancourt',zone:'idf_free',dept:'92'},
+  'bourg-la-reine':{m2:5900,loyer_m2:19,nom:'Bourg-la-Reine',zone:'idf_free',dept:'92'},
+  'chatenay':{m2:5200,loyer_m2:17,nom:'Châtenay-Malabry',zone:'idf_free',dept:'92'},
+  'chatillon':{m2:5800,loyer_m2:19,nom:'Châtillon',zone:'idf_free',dept:'92'},
+  'chaville':{m2:5600,loyer_m2:19,nom:'Chaville',zone:'idf_free',dept:'92'},
+  'clamart':{m2:5600,loyer_m2:19,nom:'Clamart',zone:'idf_free',dept:'92'},
+  'clichy':{m2:6900,loyer_m2:21,nom:'Clichy',zone:'idf_free',dept:'92'},
+  'colombes':{m2:5000,loyer_m2:17,nom:'Colombes',zone:'idf_free',dept:'92'},
+  'courbevoie':{m2:6600,loyer_m2:21,nom:'Courbevoie',zone:'idf_free',dept:'92'},
+  'fontenay-aux-roses':{m2:5700,loyer_m2:19,nom:'Fontenay-aux-Roses',zone:'idf_free',dept:'92'},
+  'garches':{m2:6800,loyer_m2:21,nom:'Garches',zone:'idf_free',dept:'92'},
+  'la-garenne-colombes':{m2:6200,loyer_m2:20,nom:'La Garenne-Colombes',zone:'idf_free',dept:'92'},
+  'gennevilliers':{m2:4500,loyer_m2:16,nom:'Gennevilliers',zone:'idf_free',dept:'92'},
+  'issy':{m2:7400,loyer_m2:23,nom:'Issy-les-Moulineaux',zone:'idf_free',dept:'92'},
+  'levallois':{m2:8800,loyer_m2:26,nom:'Levallois-Perret',zone:'idf_free',dept:'92'},
+  'malakoff':{m2:6200,loyer_m2:20,nom:'Malakoff',zone:'idf_free',dept:'92'},
+  'marnes-la-coquette':{m2:7500,loyer_m2:22,nom:'Marnes-la-Coquette',zone:'idf_free',dept:'92'},
+  'meudon':{m2:5800,loyer_m2:19,nom:'Meudon',zone:'idf_free',dept:'92'},
+  'montrouge':{m2:7000,loyer_m2:22,nom:'Montrouge',zone:'idf_free',dept:'92'},
+  'nanterre':{m2:5000,loyer_m2:18,nom:'Nanterre',zone:'idf_free',dept:'92'},
+  'neuilly':{m2:10300,loyer_m2:28,nom:'Neuilly-sur-Seine',zone:'idf_free',dept:'92'},
+  'plessis-robinson':{m2:5200,loyer_m2:17,nom:'Le Plessis-Robinson',zone:'idf_free',dept:'92'},
+  'puteaux':{m2:7200,loyer_m2:22,nom:'Puteaux',zone:'idf_free',dept:'92'},
+  'rueil':{m2:5600,loyer_m2:19,nom:'Rueil-Malmaison',zone:'idf_free',dept:'92'},
+  'saint-cloud':{m2:7200,loyer_m2:22,nom:'Saint-Cloud',zone:'idf_free',dept:'92'},
+  'sceaux':{m2:6300,loyer_m2:20,nom:'Sceaux',zone:'idf_free',dept:'92'},
+  'sevres':{m2:6800,loyer_m2:21,nom:'Sèvres',zone:'idf_free',dept:'92'},
+  'suresnes':{m2:6600,loyer_m2:21,nom:'Suresnes',zone:'idf_free',dept:'92'},
+  'vanves':{m2:6800,loyer_m2:21,nom:'Vanves',zone:'idf_free',dept:'92'},
+  'vaucresson':{m2:6500,loyer_m2:20,nom:'Vaucresson',zone:'idf_free',dept:'92'},
+  'ville-davray':{m2:6200,loyer_m2:20,nom:"Ville-d'Avray",zone:'idf_free',dept:'92'},
+  'villeneuve-la-garenne':{m2:4200,loyer_m2:15,nom:'Villeneuve-la-Garenne',zone:'idf_free',dept:'92'},
+  // SEINE-SAINT-DENIS (93) — 33 communes — DVF 2024, prix-m2.fr
+  'aubervilliers':{m2:3800,loyer_m2:14,nom:'Aubervilliers',zone:'idf_free',dept:'93'},
+  'aulnay':{m2:3200,loyer_m2:13,nom:'Aulnay-sous-Bois',zone:'idf_free',dept:'93'},
+  'bagnolet':{m2:5200,loyer_m2:17,nom:'Bagnolet',zone:'idf_free',dept:'93'},
+  'bobigny':{m2:3400,loyer_m2:13,nom:'Bobigny',zone:'idf_free',dept:'93'},
+  'bondy':{m2:2900,loyer_m2:12,nom:'Bondy',zone:'idf_free',dept:'93'},
+  'clichy-sous-bois':{m2:2300,loyer_m2:11,nom:'Clichy-sous-Bois',zone:'idf_free',dept:'93'},
+  'drancy':{m2:3300,loyer_m2:13,nom:'Drancy',zone:'idf_free',dept:'93'},
+  'epinay':{m2:2900,loyer_m2:12,nom:'Épinay-sur-Seine',zone:'idf_free',dept:'93'},
+  'gagny':{m2:3100,loyer_m2:12,nom:'Gagny',zone:'idf_free',dept:'93'},
+  'la-courneuve':{m2:3100,loyer_m2:13,nom:'La Courneuve',zone:'idf_free',dept:'93'},
+  'le-blanc-mesnil':{m2:3200,loyer_m2:13,nom:'Le Blanc-Mesnil',zone:'idf_free',dept:'93'},
+  'le-bourget':{m2:3500,loyer_m2:13,nom:'Le Bourget',zone:'idf_free',dept:'93'},
+  'le-raincy':{m2:3800,loyer_m2:14,nom:'Le Raincy',zone:'idf_free',dept:'93'},
+  'les-lilas':{m2:6500,loyer_m2:20,nom:'Les Lilas',zone:'idf_free',dept:'93'},
+  'livry-gargan':{m2:2900,loyer_m2:12,nom:'Livry-Gargan',zone:'idf_free',dept:'93'},
+  'montfermeil':{m2:2700,loyer_m2:11,nom:'Montfermeil',zone:'idf_free',dept:'93'},
+  'montreuil':{m2:5600,loyer_m2:18,nom:'Montreuil',zone:'idf_free',dept:'93'},
+  'neuilly-plaisance':{m2:4000,loyer_m2:15,nom:'Neuilly-Plaisance',zone:'idf_free',dept:'93'},
+  'neuilly-sur-marne':{m2:3200,loyer_m2:13,nom:'Neuilly-sur-Marne',zone:'idf_free',dept:'93'},
+  'noisy-le-grand':{m2:3900,loyer_m2:15,nom:'Noisy-le-Grand',zone:'idf_free',dept:'93'},
+  'noisy-le-sec':{m2:4200,loyer_m2:15,nom:'Noisy-le-Sec',zone:'idf_free',dept:'93'},
+  'pantin':{m2:5500,loyer_m2:18,nom:'Pantin',zone:'idf_free',dept:'93'},
+  'pierrefitte':{m2:2800,loyer_m2:12,nom:'Pierrefitte-sur-Seine',zone:'idf_free',dept:'93'},
+  'pre-saint-gervais':{m2:6200,loyer_m2:19,nom:'Le Pré-Saint-Gervais',zone:'idf_free',dept:'93'},
+  'romainville':{m2:4500,loyer_m2:16,nom:'Romainville',zone:'idf_free',dept:'93'},
+  'rosny-sous-bois':{m2:3600,loyer_m2:14,nom:'Rosny-sous-Bois',zone:'idf_free',dept:'93'},
+  'saint-denis':{m2:3900,loyer_m2:14,nom:'Saint-Denis',zone:'idf_free',dept:'93'},
+  'saint-ouen':{m2:6000,loyer_m2:19,nom:'Saint-Ouen-sur-Seine',zone:'idf_free',dept:'93'},
+  'sevran':{m2:2500,loyer_m2:11,nom:'Sevran',zone:'idf_free',dept:'93'},
+  'stains':{m2:2700,loyer_m2:12,nom:'Stains',zone:'idf_free',dept:'93'},
+  'tremblay':{m2:2800,loyer_m2:12,nom:'Tremblay-en-France',zone:'idf_free',dept:'93'},
+  'villemomble':{m2:4000,loyer_m2:15,nom:'Villemomble',zone:'idf_free',dept:'93'},
+  'villepinte':{m2:2900,loyer_m2:12,nom:'Villepinte',zone:'idf_free',dept:'93'},
+  // VAL-DE-MARNE (94) — 35 communes — DVF 2024, Efficity 2026
+  'alfortville':{m2:4800,loyer_m2:17,nom:'Alfortville',zone:'idf_free',dept:'94'},
+  'arcueil':{m2:5500,loyer_m2:18,nom:'Arcueil',zone:'idf_free',dept:'94'},
+  'boissy-saint-leger':{m2:3800,loyer_m2:14,nom:'Boissy-Saint-Léger',zone:'idf_free',dept:'94'},
+  'bry-sur-marne':{m2:5800,loyer_m2:19,nom:'Bry-sur-Marne',zone:'idf_free',dept:'94'},
+  'cachan':{m2:5600,loyer_m2:19,nom:'Cachan',zone:'idf_free',dept:'94'},
+  'champigny':{m2:3800,loyer_m2:14,nom:'Champigny-sur-Marne',zone:'idf_free',dept:'94'},
+  'charenton':{m2:7200,loyer_m2:22,nom:'Charenton-le-Pont',zone:'idf_free',dept:'94'},
+  'chennevieres':{m2:4200,loyer_m2:15,nom:'Chennevières-sur-Marne',zone:'idf_free',dept:'94'},
+  'chevilly':{m2:4000,loyer_m2:15,nom:'Chevilly-Larue',zone:'idf_free',dept:'94'},
+  'choisy':{m2:3500,loyer_m2:14,nom:'Choisy-le-Roi',zone:'idf_free',dept:'94'},
+  'creteil':{m2:3800,loyer_m2:15,nom:'Créteil',zone:'idf_free',dept:'94'},
+  'fontenay':{m2:5300,loyer_m2:18,nom:'Fontenay-sous-Bois',zone:'idf_free',dept:'94'},
+  'fresnes':{m2:3600,loyer_m2:14,nom:'Fresnes',zone:'idf_free',dept:'94'},
+  'gentilly':{m2:5800,loyer_m2:19,nom:'Gentilly',zone:'idf_free',dept:'94'},
+  'ivry':{m2:4900,loyer_m2:17,nom:'Ivry-sur-Seine',zone:'idf_free',dept:'94'},
+  'joinville':{m2:7000,loyer_m2:21,nom:'Joinville-le-Pont',zone:'idf_free',dept:'94'},
+  'kremlin-bicetre':{m2:6000,loyer_m2:19,nom:'Le Kremlin-Bicêtre',zone:'idf_free',dept:'94'},
+  'l-hay-les-roses':{m2:5000,loyer_m2:17,nom:"L'Haÿ-les-Roses",zone:'idf_free',dept:'94'},
+  'maisons-alfort':{m2:5400,loyer_m2:18,nom:'Maisons-Alfort',zone:'idf_free',dept:'94'},
+  'nogent':{m2:7400,loyer_m2:22,nom:'Nogent-sur-Marne',zone:'idf_free',dept:'94'},
+  'orly':{m2:2800,loyer_m2:12,nom:'Orly',zone:'idf_free',dept:'94'},
+  'perreux':{m2:5600,loyer_m2:19,nom:'Le Perreux-sur-Marne',zone:'idf_free',dept:'94'},
+  'rungis':{m2:3200,loyer_m2:13,nom:'Rungis',zone:'idf_free',dept:'94'},
+  'saint-maur':{m2:5800,loyer_m2:19,nom:'Saint-Maur-des-Fossés',zone:'idf_free',dept:'94'},
+  'saint-mande':{m2:9200,loyer_m2:26,nom:'Saint-Mandé',zone:'idf_free',dept:'94'},
+  'santeny':{m2:3000,loyer_m2:12,nom:'Santeny',zone:'idf_free',dept:'94'},
+  'sucy':{m2:4500,loyer_m2:16,nom:'Sucy-en-Brie',zone:'idf_free',dept:'94'},
+  'thiais':{m2:4200,loyer_m2:15,nom:'Thiais',zone:'idf_free',dept:'94'},
+  'valenton':{m2:2900,loyer_m2:12,nom:'Valenton',zone:'idf_free',dept:'94'},
+  'villejuif':{m2:5100,loyer_m2:18,nom:'Villejuif',zone:'idf_free',dept:'94'},
+  'villeneuve-le-roi':{m2:3500,loyer_m2:14,nom:'Villeneuve-le-Roi',zone:'idf_free',dept:'94'},
+  'villeneuve-saint-georges':{m2:3200,loyer_m2:13,nom:'Villeneuve-Saint-Georges',zone:'idf_free',dept:'94'},
+  'villers':{m2:4800,loyer_m2:16,nom:'Villiers-sur-Marne',zone:'idf_free',dept:'94'},
+  'vincennes':{m2:8300,loyer_m2:25,nom:'Vincennes',zone:'idf_free',dept:'94'},
+  'vitry':{m2:4200,loyer_m2:15,nom:'Vitry-sur-Seine',zone:'idf_free',dept:'94'},
+  // YVELINES (78)
+  'versailles':{m2:5800,loyer_m2:18,nom:'Versailles',zone:'idf_free',dept:'78'},
+  'saint-germain':{m2:6200,loyer_m2:19,nom:'Saint-Germain-en-Laye',zone:'idf_free',dept:'78'},
+  'marly':{m2:4800,loyer_m2:16,nom:'Marly-le-Roi',zone:'idf_free',dept:'78'},
+  'le-chesnay':{m2:5200,loyer_m2:17,nom:'Le Chesnay-Rocquencourt',zone:'idf_free',dept:'78'},
+  'poissy':{m2:3800,loyer_m2:14,nom:'Poissy',zone:'idf_free',dept:'78'},
+  'sartrouville':{m2:3600,loyer_m2:14,nom:'Sartrouville',zone:'idf_free',dept:'78'},
+  'mantes':{m2:2500,loyer_m2:11,nom:'Mantes-la-Jolie',zone:'idf_free',dept:'78'},
+  'rambouillet':{m2:3200,loyer_m2:13,nom:'Rambouillet',zone:'idf_free',dept:'78'},
+  // ESSONNE (91)
+  'massy':{m2:4100,loyer_m2:15,nom:'Massy',zone:'idf_free',dept:'91'},
+  'palaiseau':{m2:4300,loyer_m2:15,nom:'Palaiseau',zone:'idf_free',dept:'91'},
+  'evry':{m2:2500,loyer_m2:12,nom:'Évry-Courcouronnes',zone:'idf_free',dept:'91'},
+  'corbeil':{m2:2200,loyer_m2:11,nom:'Corbeil-Essonnes',zone:'idf_free',dept:'91'},
+  'gif':{m2:3800,loyer_m2:14,nom:'Gif-sur-Yvette',zone:'idf_free',dept:'91'},
+  'juvisy':{m2:3400,loyer_m2:14,nom:'Juvisy-sur-Orge',zone:'idf_free',dept:'91'},
+  'longjumeau':{m2:3200,loyer_m2:13,nom:'Longjumeau',zone:'idf_free',dept:'91'},
+  // VAL-D'OISE (95)
+  'cergy':{m2:2800,loyer_m2:13,nom:'Cergy',zone:'idf_free',dept:'95'},
+  'argenteuil':{m2:3100,loyer_m2:13,nom:'Argenteuil',zone:'idf_free',dept:'95'},
+  'sarcelles':{m2:2400,loyer_m2:11,nom:'Sarcelles',zone:'idf_free',dept:'95'},
+  'pontoise':{m2:3200,loyer_m2:13,nom:'Pontoise',zone:'idf_free',dept:'95'},
+  'garges':{m2:2300,loyer_m2:11,nom:'Garges-lès-Gonesse',zone:'idf_free',dept:'95'},
+  'goussainville':{m2:2400,loyer_m2:11,nom:'Goussainville',zone:'idf_free',dept:'95'},
+  'ermont':{m2:3200,loyer_m2:13,nom:'Ermont',zone:'idf_free',dept:'95'},
+  'eaubonne':{m2:3100,loyer_m2:13,nom:'Eaubonne',zone:'idf_free',dept:'95'},
+  'enghien':{m2:4500,loyer_m2:16,nom:'Enghien-les-Bains',zone:'idf_free',dept:'95'},
+  'saint-gratien':{m2:3800,loyer_m2:14,nom:'Saint-Gratien',zone:'idf_free',dept:'95'},
+  'franconville':{m2:3000,loyer_m2:13,nom:'Franconville',zone:'idf_free',dept:'95'},
+  'montmorency':{m2:3400,loyer_m2:14,nom:'Montmorency',zone:'idf_free',dept:'95'},
+  'taverny':{m2:3100,loyer_m2:13,nom:'Taverny',zone:'idf_free',dept:'95'},
+  'deuil':{m2:3300,loyer_m2:14,nom:'Deuil-la-Barre',zone:'idf_free',dept:'95'},
+  'soisy':{m2:3000,loyer_m2:13,nom:'Soisy-sous-Montmorency',zone:'idf_free',dept:'95'},
+  'osny':{m2:2800,loyer_m2:12,nom:'Osny',zone:'idf_free',dept:'95'},
+  'herblay':{m2:2900,loyer_m2:12,nom:'Herblay-sur-Seine',zone:'idf_free',dept:'95'},
+  'sannois':{m2:3100,loyer_m2:13,nom:'Sannois',zone:'idf_free',dept:'95'},
+  'bezons':{m2:3800,loyer_m2:15,nom:'Bezons',zone:'idf_free',dept:'95'},
+  'cormeilles':{m2:3500,loyer_m2:14,nom:'Cormeilles-en-Parisis',zone:'idf_free',dept:'95'},
+  'saint-leu':{m2:2900,loyer_m2:12,nom:'Saint-Leu-la-Foret',zone:'idf_free',dept:'95'},
+  'domont':{m2:2900,loyer_m2:12,nom:'Domont',zone:'idf_free',dept:'95'},
+  'villiers-le-bel':{m2:2700,loyer_m2:12,nom:'Villiers-le-Bel',zone:'idf_free',dept:'95'},
+  'persan':{m2:2400,loyer_m2:11,nom:'Persan',zone:'idf_free',dept:'95'},
+  'l-isle-adam':{m2:3000,loyer_m2:13,nom:'L-Isle-Adam',zone:'idf_free',dept:'95'},
+  'beaumont':{m2:2500,loyer_m2:11,nom:'Beaumont-sur-Oise',zone:'idf_free',dept:'95'},
+  'ezanville':{m2:3000,loyer_m2:12,nom:'Ezanville',zone:'idf_free',dept:'95'},
+  'ecouen':{m2:2900,loyer_m2:12,nom:'Ecouen',zone:'idf_free',dept:'95'},
+  // SEINE-ET-MARNE (77)
+  'meaux':{m2:2900,loyer_m2:13,nom:'Meaux',zone:'idf_free',dept:'77'},
+  'melun':{m2:2500,loyer_m2:12,nom:'Melun',zone:'idf_free',dept:'77'},
+  'chelles':{m2:3100,loyer_m2:13,nom:'Chelles',zone:'idf_free',dept:'77'},
+  'torcy':{m2:3300,loyer_m2:13,nom:'Torcy',zone:'idf_free',dept:'77'},
+  // GRANDES VILLES FRANCE — DVF 2025, Journal de l'Agence 2026
+  'lyon':{m2:4800,loyer_m2:17,nom:'Lyon',zone:'idf_free',dept:'69'},
+  'marseille':{m2:3200,loyer_m2:14.5,nom:'Marseille',zone:'idf_free',dept:'13'},
+  'toulouse':{m2:3400,loyer_m2:14,nom:'Toulouse',zone:'idf_free',dept:'31'},
+  'nice':{m2:4650,loyer_m2:18,nom:'Nice',zone:'idf_free',dept:'06'},
+  'nantes':{m2:3600,loyer_m2:13,nom:'Nantes',zone:'idf_free',dept:'44'},
+  'strasbourg':{m2:3900,loyer_m2:14,nom:'Strasbourg',zone:'idf_free',dept:'67'},
+  'montpellier':{m2:3600,loyer_m2:14.8,nom:'Montpellier',zone:'idf_free',dept:'34'},
+  'bordeaux':{m2:4600,loyer_m2:16,nom:'Bordeaux',zone:'idf_free',dept:'33'},
+  'lille':{m2:3600,loyer_m2:14,nom:'Lille',zone:'idf_free',dept:'59'},
+  'rennes':{m2:3800,loyer_m2:13.7,nom:'Rennes',zone:'idf_free',dept:'35'},
+  'grenoble':{m2:2600,loyer_m2:12.4,nom:'Grenoble',zone:'idf_free',dept:'38'},
+  'aix':{m2:4800,loyer_m2:17,nom:'Aix-en-Provence',zone:'idf_free',dept:'13'},
+  'annecy':{m2:5400,loyer_m2:18,nom:'Annecy',zone:'idf_free',dept:'74'},
+  'toulon':{m2:2900,loyer_m2:13,nom:'Toulon',zone:'idf_free',dept:'83'},
+  'brest':{m2:2200,loyer_m2:11,nom:'Brest',zone:'idf_free',dept:'29'},
+  'nimes':{m2:2100,loyer_m2:11,nom:'Nîmes',zone:'idf_free',dept:'30'},
+  'reims':{m2:2400,loyer_m2:12,nom:'Reims',zone:'idf_free',dept:'51'},
+  'dijon':{m2:2500,loyer_m2:12,nom:'Dijon',zone:'idf_free',dept:'21'},
+  'angers':{m2:2800,loyer_m2:12,nom:'Angers',zone:'idf_free',dept:'49'},
+  'tours':{m2:2600,loyer_m2:12,nom:'Tours',zone:'idf_free',dept:'37'},
+  'caen':{m2:2500,loyer_m2:12,nom:'Caen',zone:'idf_free',dept:'14'},
+  'clermont':{m2:2200,loyer_m2:11,nom:'Clermont-Ferrand',zone:'idf_free',dept:'63'},
+  'le-havre':{m2:2000,loyer_m2:10,nom:'Le Havre',zone:'idf_free',dept:'76'},
+  'metz':{m2:2300,loyer_m2:11,nom:'Metz',zone:'idf_free',dept:'57'},
+  'rouen':{m2:2500,loyer_m2:12,nom:'Rouen',zone:'idf_free',dept:'76'},
+  'nancy':{m2:2100,loyer_m2:11,nom:'Nancy',zone:'idf_free',dept:'54'}};
+
+// Encadrement loyers Paris (zones DRIHL)
+var ENCADREMENT = {
+  'enc_1':{ref_m2:32,plafond_m2:38.4,label:'Centre Paris (1-8e)'},
+  'enc_2':{ref_m2:28,plafond_m2:33.6,label:'Paris central (9-12e, 16-17e)'},
+  'enc_3':{ref_m2:25,plafond_m2:30,label:'Paris moyen (12-15e, 18e)'},
+  'enc_4':{ref_m2:22,plafond_m2:26.4,label:'Paris peripherique (19-20e)'},
+  'idf_free':{ref_m2:null,plafond_m2:null,label:'Pas d encadrement applicable'}};
+
+var vals={dpe:'D',etat:'bon',metro:'m2',tension:'tres_forte',lum:'excel',asc:'oui'};
+var encadrApplique=true;
+var typeProjet='lmnp'; // lmnp | patrimonial | marchand
+
+// ─── QUARTIERS PAR LOCALISATION ───
+var QUARTIERS = {
+  'p1':['Palais-Royal','Les Halles','Louvre','Saint-Honoré'],
+  'p2':['Bonne-Nouvelle','Sentier','Vivienne','Mail'],
+  'p3':['Temple','Archives','Arts-et-Métiers','Enfants-Rouges'],
+  'p4':['Saint-Gervais','Saint-Merri','Île Saint-Louis','Marais Nord'],
+  'p5':['Panthéon','Sorbonne','Val-de-Grâce','Jardin des Plantes'],
+  'p6':['Saint-Germain-des-Prés','Odéon','Notre-Dame-des-Champs','Luxembourg'],
+  'p7':['Invalides','Gros-Caillou','Champ-de-Mars','École Militaire'],
+  'p8':['Champs-Élysées','Madeleine','Batignolles (limite)','Europe'],
+  'p9':['Pigalle','Rochechouart','Chaussée-d-Antin','Opéra','Saint-Georges','Lorette'],
+  'p10':['Canal Saint-Martin','Gare du Nord','Gare de l-Est','Château-Landon','Louis-Blanc'],
+  'p11':['Bastille','Oberkampf','Charonne','Père-Lachaise','Nation (limite)','Folie-Méricourt'],
+  'p12':['Bercy','Nation','Reuilly','Bel-Air','Quinze-Vingts'],
+  'p13':['Butte-aux-Cailles','Gobelins','Ivry (limite)','Tolbiac','Olympiades'],
+  'p14':['Montparnasse','Pernety','Plaisance','Alésia','Denfert-Rochereau'],
+  'p15':['Vaugirard','Convention','Javel','Grenelle','Beaugrenelle'],
+  'p16':['Trocadéro','Passy','Auteuil','Muette','Victor-Hugo','Porte-Maillot'],
+  'p17':['Batignolles','Ternes','Plaine Monceau','Épinettes','Brochant'],
+  'p18':['Montmartre','Goutte-d-Or','Clignancourt','Championnet','La Chapelle'],
+  'p19':['Belleville (limite)','Villette','Amérique','Combat','Buttes-Chaumont'],
+  'p20':['Belleville','Père-Lachaise (limite)','Charonne','Réunion','Saint-Fargeau'],
+  'neuilly':['Bois de Boulogne','Sablons','Pont de Neuilly','Victor Hugo','Hôpital Américain'],
+  'levallois':['Centre-ville','Louise Michel','Anatole France','Front de Seine'],
+  'boulogne':['Centre-ville','Silly','Rhin-et-Danube','Marcel Sembat','Billancourt'],
+  'vincennes':['Centre','Fontenay (limite)','Saint-Louis','Château'],
+  'montreuil':['Centre','Croix-de-Chavaux','Branly','Ruffins'],
+  'pantin':['Centre','Quatre-Chemins','Église','Courtillières'],
+  'saint-ouen':['Centre','Garibaldi','Dock de Saint-Ouen','Les Puces'],
+  'charenton':['Centre','Bercy (limite)','École'],
+  'ivry':['Centre','Ivry-Port','Joliot-Curie'],
+  'villejuif':['Centre','Louis Aragon','Paul Vaillant-Couturier'],
+  'kremlin-bicetre':['Centre','Croix de Berny','Villejuif (limite)']};
+
+function setProjet(type, btn){
+  typeProjet = type;
+  document.querySelectorAll('#proj-lmnp,#proj-patri,#proj-mdb').forEach(function(b){
+    b.classList.remove('on');
+    b.style.background=''; b.style.color=''; b.style.borderColor='';
+  });
+  btn.classList.add('on');
+  btn.style.background='var(--dark)'; btn.style.color='#f4f2ee'; btn.style.borderColor='var(--dark)';
+  upd();
+}
+
+function updateQuartiers(arrdt){
+  var dl = document.getElementById('quartier-list');
+  if(!dl) return;
+  var quartiers = QUARTIERS[arrdt] || [];
+  var opts = '';
+  quartiers.forEach(function(q){
+    opts += '<option value="'+q+'"></option>';
+  });
+  dl.innerHTML = opts;
+  // Toujours vider le quartier quand la ville change
+  var inp = document.getElementById('quartier');
+  if(inp){ inp.value = ''; inp.placeholder = quartiers.length > 0 ? 'Chercher un quartier...' : '— Non applicable —'; }
+}
+
+function setEncadr(v,btn){encadrApplique=v;document.querySelectorAll('#enc-on,#enc-off').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');document.getElementById('enc-note').textContent=v?'L\'alerte légale s\'affichera si le loyer dépasse le plafond Paris.':'Loyer libre — pas d\'alerte d\'encadrement appliquée.';upd();}
+var atouts={haus:true,balc:false,park:false,cave:false,gard:false,diag:false};
+var curTab='score';
+var lastData={};
+
+function setTab(t,btn){
+  curTab=t;
+  document.querySelectorAll('.mtab').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  ['score','marche','projection','monte','financement','comparateur','ia'].forEach(function(p){
+    var el=document.getElementById('panel-'+p);
+    if(el) el.className='panel'+(p===t?' on':'');
+  });
+  upd();
+  // Auto-generer le rapport quand on va sur l onglet IA
+  if(t==='ia' && !_iaGen){ setTimeout(genIA, 150); }
+}
+function setV(k,v,btn){
+  vals[k]=v;
+  // Mettre à jour les classes visuellement
+  var siblings=btn.parentElement.querySelectorAll('.rtab');
+  siblings.forEach(function(b){
+    b.classList.remove('on');
+    b.style.background='';
+    b.style.color='';
+    b.style.borderColor='';
+  });
+  btn.classList.add('on');
+  btn.style.background='var(--dark)';
+  btn.style.color='#f4f2ee';
+  btn.style.borderColor='var(--dark)';
+  upd();
+}
+function togA(k,btn){
+  atouts[k]=!atouts[k];
+  btn.classList.toggle('on',atouts[k]);
+  if(atouts[k]){
+    btn.style.background='var(--dark)';btn.style.color='#f4f2ee';btn.style.borderColor='var(--dark)';
+  } else {
+    btn.style.background='';btn.style.color='';btn.style.borderColor='';
+  }
+  upd();
+}
+
+function f(n){return Math.round(n).toLocaleString('fr-FR');}
+function fK(n){return Math.abs(n)>=1000?(n/1000).toFixed(1)+'k':Math.round(n);}
+function p(n){return n.toFixed(1)+'%';}
+function mens(cap,ta,d){if(ta===0||cap===0)return cap/(d*12);var tm=ta/100/12,n=d*12;return cap*tm*Math.pow(1+tm,n)/(Math.pow(1+tm,n)-1);}
+function kpiHTML(arr){return arr.map(function(k){return '<div class="kpi '+k.c+'"><div class="kl">'+k.l+'</div><div class="kv">'+k.v+'</div>'+(k.s?'<div class="ks">'+k.s+'</div>':'')+'</div>';}).join('');}
+function rowHTML(arr){return arr.map(function(r){return '<div class="table-row"><span class="tr-l">'+r.l+'</span><span class="tr-r'+(r.c?' '+r.c:'')+'">'+r.v+'</span></div>';}).join('');}
+function recHTML(t,tx,type){var c=type==='good'?'#27500a':type==='warn'?'#633806':'#791f1f';var bg=type==='good'?'#eaf3de':type==='warn'?'#faeeda':'#fcebeb';var bd=type==='good'?'rgba(56,110,17,.18)':type==='warn'?'rgba(186,117,23,.2)':'rgba(226,75,74,.2)';return '<div style="background:'+bg+';border:.5px solid '+bd+';padding:11px 13px;border-radius:5px"><div style="font-size:8px;letter-spacing:.09em;text-transform:uppercase;font-weight:300;color:'+c+';margin-bottom:5px">'+t+'</div><div style="font-size:11px;line-height:1.65;font-weight:300;color:'+c+'">'+tx+'</div></div>';}
+
+function upd(){
+  var surface=+document.getElementById('surface').value||1;
+  // Mettre à jour les quartiers selon la localisation
+  updateQuartiers(document.getElementById('arrdt').value||'p9');
+  var quartier = (document.getElementById('quartier')||{value:''}).value || '';
+  var prix=+document.getElementById('prix').value||0;
+  var travaux=+document.getElementById('travaux').value||0;
+  var loyer=+document.getElementById('loyer').value||0;
+  var charges=+document.getElementById('charges').value||0;
+  var tf=+document.getElementById('tf').value||0;
+  var apportPct=+document.getElementById('apport').value||20;
+  var taux=+document.getElementById('taux').value||3.5;
+  var duree=+document.getElementById('duree').value||25;
+  var tmi=+document.getElementById('tmi').value||30;
+  var arrdt=document.getElementById('arrdt').value||'p9';
+  var etage=+document.getElementById('etage').value||2;
+  var nbPieces=+document.getElementById('nb-pieces').value||0;
+
+  var notaire=prix*0.08;
+  var coutTotal=prix+notaire+travaux;
+  var apport=coutTotal*apportPct/100;
+  var emprunt=coutTotal-apport;
+  var mensualite=mens(emprunt,taux,duree);
+  var loyerAn=loyer*12;
+  var chargesAn=charges*12;
+  var rBrut=prix>0?loyerAn/prix*100:0;
+  var rNet=coutTotal>0?(loyerAn-chargesAn-tf)/coutTotal*100:0;
+  var prixM2=prix/surface;
+  var mkt=MARCHE[arrdt]||MARCHE['p9'];
+  var loyerMarche=mkt.loyer_m2*surface;
+  var ecartPrix=(prixM2-mkt.m2)/mkt.m2;
+  var ecartLoyer=(loyer-loyerMarche)/loyerMarche;
+
+  // Amortissements LMNP
+  var fn=prix*0.08;
+  var amortImm=(prix*0.85-prix*0.10)/30;
+  var amortMob=prix*0.10/7;
+  var amortFN=fn/30;
+  var amortTotal=amortImm+amortMob+amortFN;
+  var fiscal=loyerAn-chargesAn-tf-amortTotal;
+  var impot=fiscal>0?fiscal*(tmi/100+0.172):0;
+  var cfMens=(loyerAn-chargesAn-tf-mensualite*12-impot)/12;
+
+  // Encadrement loyers
+  var enc=ENCADREMENT[mkt.zone]||ENCADREMENT['enc_2'];
+  var loyerPlafond=enc.plafond_m2?enc.plafond_m2*surface:null;
+  var loyerRefEncadr=enc.ref_m2?enc.ref_m2*surface:null;
+  var respEncadr=(!encadrApplique)||loyerPlafond?(!encadrApplique||loyer<=loyerPlafond):true;
+
+  // Store lastData pour l'IA
+  lastData={surface,prix,travaux,loyer,charges,tf,apportPct,taux,duree,tmi,arrdt,etage,nbPieces,ascenseur:vals.asc,
+    notaire,coutTotal,apport,emprunt,mensualite,loyerAn,chargesAn,rBrut,rNet,prixM2,
+    mkt,loyerMarche,ecartPrix,ecartLoyer,amortTotal,amortImm,amortMob,amortFN,fiscal,impot,cfMens,
+    score:0,enc,loyerPlafond,respEncadr,loyerRefEncadr};
+
+  document.getElementById('hdr-addr').textContent=(document.getElementById('adresse').value||'—')+' · '+(mkt?mkt.nom:'—')+(mkt&&mkt.dept?' ('+mkt.dept+')':'');
+
+  // ── SCORING ──
+  // ── Scoring adapté au type de projet ──
+  var sRend, sPrix, scoreProjLabel;
+  if(typeProjet==='lmnp'){
+    // Locatif : rendement et loyer prioritaires
+    sRend = rBrut>=8?22:rBrut>=6?18:rBrut>=5?13:rBrut>=4?8:4;
+    sPrix = ecartPrix<=-0.15?18:ecartPrix<=-0.08?15:ecartPrix<=0?12:ecartPrix<=0.08?8:4;
+    scoreProjLabel = 'Locatif LMNP';
+  } else if(typeProjet==='patrimonial'){
+    // Patrimonial : emplacement et valeur à long terme prioritaires
+    // Rendement moins important, prix vs marché plus important
+    sRend = rBrut>=5?14:rBrut>=4?11:rBrut>=3?8:5; // pondération réduite
+    sPrix = ecartPrix<=-0.15?22:ecartPrix<=-0.08?18:ecartPrix<=0?14:ecartPrix<=0.08?9:4; // pondération augmentée
+    scoreProjLabel = 'Patrimonial';
+  } else {
+    // Marchand de biens : décote d'achat et potentiel de revente prioritaires
+    sRend = 10; // rendement locatif moins pertinent
+    sPrix = ecartPrix<=-0.20?22:ecartPrix<=-0.12?18:ecartPrix<=-0.05?13:ecartPrix<=0?8:3; // décote forte requise
+    scoreProjLabel = 'Marchand de biens';
+  }
+  var sDpe={A:12,B:11,C:10,D:8,E:4,F:2,G:0}[vals.dpe]||8;
+  var sEtat={neuf:9,bon:7,moyen:4,renover:2}[vals.etat]||5;
+  var sMetro={m2:10,m5:8,m10:5,m15:2}[vals.metro]||5;
+  var sTension={tres_forte:8,forte:6,moyenne:4,faible:2}[vals.tension]||4;
+  var sLum={excel:5,bonne:4,moy:2,faible:1}[vals.lum]||3;
+  // Ascenseur : malus si étage élevé sans ascenseur
+  var ascPenalty = (etage>=2 && vals.asc==='non') ? -3 : 0;
+  var sEtage=([0,1,2,3][etage]||0) + (vals.asc==='oui'&&etage>=2?1:0) + ascPenalty;
+  var sLE=Math.min(8,Math.max(0,sLum+sEtage));
+  var sAt=Math.min(7,(atouts.haus?1.5:0)+(atouts.balc?2:0)+(atouts.park?1.5:0)+(atouts.cave?0.5:0)+(atouts.gard?0.5:0)+(atouts.diag?1:0));
+  var score=Math.min(100,Math.round(sRend+sPrix+sDpe+sEtat+sMetro+sTension+sLE+sAt));
+  lastData.score=score;
+
+  var scC=score>=75?'#27500a':score>=55?'#b8922a':'#791f1f';
+  var scBg=score>=75?'rgba(56,110,17,.15)':score>=55?'rgba(184,146,42,.15)':'rgba(226,75,74,.12)';
+  var scLabel=score>=85?'Excellent dossier':score>=75?'Très bon investissement':score>=60?'Bon potentiel':score>=45?'Potentiel limité':'Dossier risqué';
+
+  if(curTab==='score'){
+    var sc=document.getElementById('sc-circle');
+    sc.style.cssText='width:70px;height:70px;border-radius:50%;border:3px solid '+scC+';display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;background:'+scBg;
+    document.getElementById('sc-n').style.color=scC;
+    document.getElementById('sc-n').textContent=score;
+    document.getElementById('sc-label').textContent=scLabel;
+    var piecesTxt = nbPieces>0 ? ['','Studio','T2','T3','T4','T5','T6+'][nbPieces]||'' : '';
+    var ascTxt = etage>=2 ? (vals.asc==='oui'?' · Avec ascenseur':' · Sans ascenseur ⚠️') : '';
+    var projetEmoji = typeProjet==='lmnp'?'🏠':typeProjet==='patrimonial'?'🏛':'🔨';
+    var quartierTxt = (document.getElementById('quartier')||{value:''}).value;
+    document.getElementById('sc-sub').textContent=vals.dpe==='G'?'⚠️ DPE G : location interdite janv. 2025':
+      projetEmoji+' '+scoreProjLabel+' · '+(piecesTxt?piecesTxt+' · ':'')+surface+'m²'+ascTxt+(quartierTxt?' · '+quartierTxt:'');
+
+    document.getElementById('score-kpis').innerHTML=kpiHTML([
+      {l:'Rendement brut',v:p(rBrut),s:'Loyer an. / prix',c:rBrut>=6?'good':rBrut>=4?'warn':'bad'},
+      {l:'Rendement net',v:p(rNet),s:'Après charges & TF',c:rNet>=4?'good':rNet>=2?'warn':'bad'},
+      {l:'Prix / m²',v:f(prixM2)+' €/m²',s:'Marché '+arrdt+'e : '+f(mkt.m2)+' €/m²',c:ecartPrix<=-0.05?'good':ecartPrix<=0.10?'':'warn'},
+      {l:'Coût total acq.',v:f(coutTotal)+' €',s:'Prix+notaire+travaux',c:'dark'},
+    ]);
+
+    var crits=[
+      {n:'Rendement brut',s:sRend,m:22,c:'#b8922a'},
+      {n:'Prix vs marché '+(ecartPrix>0?'+':'')+Math.round(ecartPrix*100)+'%',s:sPrix,m:18,c:'#1a1916'},
+      {n:'DPE ('+vals.dpe+')',s:sDpe,m:12,c:'#27500a'},
+      {n:'Transports ('+{m2:'<2min',m5:'2-5min',m10:'5-10min',m15:'>10min'}[vals.metro]+')',s:sMetro,m:10,c:'#585856'},
+      {n:'Tension locative',s:sTension,m:8,c:'#7c7c78'},
+      {n:'État général',s:sEtat,m:9,c:'#888780'},
+      {n:'Luminosité, étage & ascenseur',s:sLE,m:8,c:'#c4c0b8'},
+      {n:'Atouts & services',s:sAt,m:7,c:'#b8922a'},
+    ];
+    document.getElementById('crits').innerHTML=crits.map(function(c){
+      return '<div class="crit"><span class="cn">'+c.n+'</span><div class="cbw"><div class="cb" style="width:'+(c.s/c.m*100).toFixed(0)+'%;background:'+c.c+'"></div></div><span class="cs">'+Math.round(c.s)+'/'+c.m+'</span></div>';
+    }).join('');
+
+    var rc,rt,rtx;
+    if(vals.dpe==='G'){rc='bad';rt='⚠️ DPE G — location interdite depuis janvier 2025';rtx='Ce bien ne peut légalement plus être mis en location. Renégocier le prix en intégrant le coût obligatoire des travaux d\'isolation (prévoir +20-50k€ selon la surface). DPE F concerné à partir de 2028.';}
+    else if(score>=75){rc='good';rt='✓ Recommandé à l\'acquisition';rtx='Dossier solide.'+(etage>=2&&vals.asc==='non'?' ⚠️ Sans ascenseur au '+['','1er','2e','3e-5e','6e+'][etage]+'e — peut limiter la demande locative. ':' ')+'Rendement Rendement brut de '+p(rBrut)+(ecartPrix<=-0.08?' · Bien sous-évalué de '+Math.round(-ecartPrix*100)+'% — opportunité à saisir rapidement':'')+'. '+(cfMens>=0?'Cashflow positif probable en LMNP (+'+f(cfMens)+'€/mois). ':'')+'Confirmer par visite et devis artisans.';}
+    else if(score>=55){rc='warn';rt='⚡ Potentiel — sous conditions';rtx=(rBrut<5?'Rendement de '+p(rBrut)+' en dessous du seuil Paris (5-6%). ':'')+(vals.dpe==='E'||vals.dpe==='F'?'DPE '+vals.dpe+' : travaux isolation à prévoir avant 2028 (+15-35k€). ':'')+(vals.etat==='renover'?'Travaux importants — devis artisans indispensables avant offre. ':'')+('Marge de négociation estimée : '+(ecartPrix>0.05?f(Math.round(Math.min(ecartPrix,0.12)*prix))+'€ possibles.':'prix déjà cohérent.'));}
+    else{rc='bad';rt='✗ Dossier difficile';rtx='Rendement de '+p(rBrut)+' insuffisant pour Paris 2025. Prix/m² de '+f(prixM2)+'€/m² vs marché '+arrdt+'e à '+f(mkt.m2)+'€/m².'+(ecartPrix>0?' Négociation de '+f(Math.round(ecartPrix*prix))+'€ nécessaire pour être dans le marché.':'');}
+    document.getElementById('rec').innerHTML=recHTML(rt,rtx,rc);
+  }
+
+  if(curTab==='marche'){
+    // Grille villes comparables (même département ou même zone)
+    var allKeys=Object.keys(MARCHE);
+    var sameDept=allKeys.filter(function(k){return k!==arrdt&&MARCHE[k].dept===mkt.dept;}).slice(0,6);
+    var toShow=[arrdt].concat(sameDept).slice(0,8);
+    document.getElementById('mkt-grid').innerHTML=toShow.map(function(k){
+      var m=MARCHE[k];
+      var isMe=k===arrdt;
+      return '<div class="mkt-cell'+(isMe?' hl':'')+'"><div class="mkt-name">'+(isMe?'▶ ':'')+m.nom+'</div><div class="mkt-val">'+f(m.m2)+' €/m²</div><div class="mkt-loyer">~'+m.loyer_m2+' €/m²/mois</div></div>';
+    }).join('');
+
+    // Encadrement
+    var encHtml='';
+    if(!encadrApplique){
+      encHtml='<div class="enc-badge" style="background:#eceae5;border:.5px solid rgba(26,25,22,.12);color:rgba(26,25,22,.45)">ℹ️ Encadrement ignoré — loyer libre</div>';
+    } else if(loyerPlafond){
+      encHtml='<div class="enc-badge '+(respEncadr?'enc-ok':'enc-warn')+'">'+(respEncadr?'✓ Loyer dans l\'encadrement':'⚠️ Loyer au-dessus du plafond legal')+' · '+enc.label+' · Plafond : '+f(loyerPlafond)+'€/mois (référence : '+f(loyerRefEncadr)+'€/mois)</div>';
+    } else {
+      encHtml='<div class="enc-badge" style="background:#eceae5;border:.5px solid rgba(26,25,22,.12);color:rgba(26,25,22,.45)">ℹ️ '+enc.label+' — Pas d\'encadrement applicable dans cette commune</div>';
+    }
+    document.getElementById('enc-zone').innerHTML=encHtml;
+
+    document.getElementById('mkt-pos').innerHTML=kpiHTML([
+      {l:'Prix / m² bien',v:f(prixM2)+' €/m²',s:(ecartPrix<=-0.05?'Sous-évalué ':'')+(ecartPrix>0.05?'Sur-évalué ':'')+Math.round(Math.abs(ecartPrix)*100)+'% vs marché',c:ecartPrix<=-0.05?'good':ecartPrix<=0.10?'':'warn'},
+      {l:'Loyer visé vs marché',v:(ecartLoyer>=0?'+':'')+Math.round(ecartLoyer*100)+'%',s:'Marché : '+f(loyerMarche)+'€/mois · '+mkt.loyer_m2+'€/m²',c:ecartLoyer>=-0.1?'good':ecartLoyer>=-0.2?'warn':'bad'},
+      {l:'Potentiel négociation',v:ecartPrix>0.05?'-'+f(Math.round(Math.min(ecartPrix,0.12)*prix))+'€':'Prix OK',s:ecartPrix>0.05?'À négocier':'Dans le marché',c:ecartPrix>0.1?'warn':'good'},
+    ]);
+
+    var mrc=ecartPrix<=-0.05?'good':ecartPrix<=0.08?'warn':'bad';
+    document.getElementById('mkt-rec').innerHTML=recHTML(
+      ecartPrix<=-0.05?'✓ Opportunité — bien sous-évalué de '+Math.round(-ecartPrix*100)+'%':'Analyse positionnement marché',
+      'Prix : '+f(prixM2)+' €/m² | Marché '+arrdt+'e : '+f(mkt.m2)+' €/m². Loyer marché estimé : '+f(loyerMarche)+'€/mois. '+(respEncadr?'Loyer visé respecte l\'encadrement (plafond : '+f(loyerPlafond)+'€/mois).':'⚠️ Loyer visé dépasse le plafond légal de '+f(loyer-loyerPlafond)+'€/mois — risque juridique.'),
+      mrc
+    );
+  }
+
+  if(curTab==='projection'){
+    var gainCumul=0,cfCumul=0,patList=[];
+    var tl='',pv_an=0.02;
+    for(var yr=1;yr<=10;yr++){
+      var fi=loyerAn-chargesAn-tf-amortTotal;
+      var imp=fi>0?fi*(tmi/100+0.172):0;
+      var cfA=loyerAn-chargesAn-tf-mensualite*12-imp;
+      var cfM=cfA/12;
+      gainCumul+=cfA; cfCumul+=cfA;
+      var vB=prix*Math.pow(1+pv_an,yr);
+      var capR=emprunt*Math.max(0,(Math.pow(1+taux/100/12,duree*12)-Math.pow(1+taux/100/12,yr*12))/(Math.pow(1+taux/100/12,duree*12)-1));
+      var pat=vB-capR;
+      patList.push(pat);
+      var bgC=cfM>=0?'rgba(56,110,17,.08)':'rgba(226,75,74,.08)';
+      var clC=cfM>=0?'#27500a':'#a32d2d';
+      tl+='<div class="tl-cell" style="background:'+bgC+'"><div class="tl-yr">An '+yr+'</div><div class="tl-cf" style="color:'+clC+'">'+(cfM>=0?'+':'')+fK(cfM)+'€</div><div class="tl-pat">Pat: '+fK(patList[yr-1]/1000)+'k</div></div>';
+    }
+    document.getElementById('tl').innerHTML=tl;
+    var vFin=prix*Math.pow(1+pv_an,10);
+    var cFin=emprunt*Math.max(0,(Math.pow(1+taux/100/12,duree*12)-Math.pow(1+taux/100/12,10*12))/(Math.pow(1+taux/100/12,duree*12)-1));
+    document.getElementById('proj-kpi').innerHTML=kpiHTML([
+      {l:'Cashflow cumulé 10 ans',v:(cfCumul>=0?'+':'')+f(cfCumul)+'€',s:'LMNP réel',c:cfCumul>=0?'good':'bad'},
+      {l:'Patrimoine net an 10',v:f(patList[9])+'€',s:'Bien valorisé +2%/an',c:'gold'},
+      {l:'Gain total (CF+PV)',v:'+'+f(cfCumul+(vFin-prix))+'€',s:'Cashflow + plus-value',c:'good'},
+    ]);
+    document.getElementById('proj-recap').innerHTML=rowHTML([
+      {l:'Cashflow cumulé 5 ans',v:(cfCumul/2>=0?'+':'')+f(cfCumul/2)+'€',c:cfCumul/2>=0?'green':'red'},
+      {l:'Cashflow cumulé 10 ans',v:(cfCumul>=0?'+':'')+f(cfCumul)+'€',c:cfCumul>=0?'green':'red'},
+      {l:'Valeur bien estimée (an 10)',v:'+'+f(vFin)+'€',c:'gold'},
+      {l:'Plus-value brute',v:'+'+f(vFin-prix)+'€',c:'gold'},
+      {l:'Capital restant dû (an 10)',v:'-'+f(cFin)+'€',c:'red'},
+      {l:'Gain total net estimé',v:'+'+f(cfCumul+(vFin-prix))+'€',c:'gold'},
+    ]);
+  }
+
+  if(curTab==='monte'){
+    // 3 scénarios : bull (+3%/an revalorisation, vacance 0.5 mois, loyer+5%), base (2%, 1 mois, 0%), bear (0%, 2 mois, loyer-10%)
+    var scenarios=[
+      {label:'Optimiste',key:'bull',pv:0.03,vac:0.5,loyerMult:1.05,tmi_mult:1,c:'bull'},
+      {label:'Central',key:'base',pv:0.02,vac:1,loyerMult:1,tmi_mult:1,c:'base'},
+      {label:'Pessimiste',key:'bear',pv:0,vac:2,loyerMult:0.9,tmi_mult:1,c:'bear'},
+    ];
+    var scHtml='',mcTL='';
+    var scData=scenarios.map(function(sc){
+      var lA=loyer*sc.loyerMult*(12-sc.vac);
+      var fiSc=lA-chargesAn-tf-amortTotal;
+      var impSc=fiSc>0?fiSc*(tmi/100+0.172):0;
+      var cfASc=lA-chargesAn-tf-mensualite*12-impSc;
+      var cfCumSc=cfASc*10;
+      var vFinSc=prix*Math.pow(1+sc.pv,10);
+      var gainSc=cfCumSc+(vFinSc-prix);
+      return {sc:sc,cfA:cfASc,cfCum:cfCumSc,vFin:vFinSc,gain:gainSc,cfM:cfASc/12};
+    });
+
+    scHtml=scData.map(function(d){
+      return '<div class="mc-sc '+d.sc.c+'"><div class="mc-label">'+d.sc.label+'</div><div class="mc-val">'+(d.cfM>=0?'+':'')+f(d.cfM)+'€/mois</div><div class="mc-sub">PV: '+f(d.vFin-prix)+'€ · Gain total: +'+f(d.gain)+'€</div></div>';
+    }).join('');
+    document.getElementById('mc-scenarios').innerHTML=scHtml;
+
+    document.getElementById('mc-vars').innerHTML=kpiHTML([
+      {l:'Revalorisation',v:'0 à +3%/an',s:'Hypothèse Paris 2025',c:''},
+      {l:'Vacance locative',v:'0.5 à 2 mois/an',s:'Selon tension',c:'warn'},
+      {l:'Variation loyer',v:'-10% à +5%',s:'Encadrement inclus',c:''},
+    ]);
+
+    // TL pour 3 scénarios (an 1-10)
+    var cells='';
+    for(var y=1;y<=10;y++){
+      var bg='rgba(184,146,42,.06)';
+      cells+='<div class="tl-cell" style="background:'+bg+'"><div class="tl-yr">An '+y+'</div>'+
+        scData.map(function(d,i){
+          var c=['#27500a','#b8922a','#a32d2d'][i];
+          var cf=d.cfM;
+          return '<div style="font-size:9px;color:'+c+';font-weight:300">'+(cf>=0?'+':'')+fK(cf)+'€</div>';
+        }).join('')+'</div>';
+    }
+    document.getElementById('mc-tl').innerHTML=cells;
+
+    var spread=scData[0].gain-scData[2].gain;
+    document.getElementById('mc-rec').innerHTML=recHTML(
+      'Analyse de risque · Écart optimiste/pessimiste',
+      'Écart entre scénarios : '+f(spread)+'€ sur 10 ans. '+
+      (scData[2].cfM<0?'Scénario pessimiste : effort mensuel de '+f(-scData[2].cfM)+'€/mois — prévoir trésorerie de sécurité. ':'Cashflow positif dans tous les scénarios — bien robuste. ')+
+      'Probabilité de cashflow positif (tension '+vals.tension.replace('_',' ')+') : '+(vals.tension==='tres_forte'?'élevée (>80%)':vals.tension==='forte'?'bonne (60-80%)':vals.tension==='moyenne'?'modérée (40-60%)':'faible (<40%)')+'.',
+      scData[2].cfM>=0?'good':'warn'
+    );
+  }
+
+  if(curTab==='financement'){
+    document.getElementById('fin-kpi').innerHTML=kpiHTML([
+      {l:'Mensualité crédit',v:'-'+f(mensualite)+'€/mois',s:duree+' ans à '+taux+'%',c:'warn'},
+      {l:'Cashflow LMNP réel',v:(cfMens>=0?'+':'')+f(cfMens)+'€/mois',s:'Après impôt estimé',c:cfMens>=0?'good':'bad'},
+      {l:'Effort net mensuel',v:cfMens>=0?'Autofinancé':f(-cfMens)+'€/mois',s:cfMens>=0?'✓ Cash-flow positif':'Apport mensuel',c:cfMens>=0?'good':'warn'},
+    ]);
+    document.getElementById('fin-rows').innerHTML=rowHTML([
+      {l:'Apport personnel',v:f(apport)+'€ ('+apportPct+'%)',c:''},
+      {l:'Montant emprunté',v:f(emprunt)+'€',c:'red'},
+      {l:'Frais de notaire',v:'-'+f(notaire)+'€',c:'red'},
+      {l:'Mensualité crédit',v:'-'+f(mensualite)+'€/mois',c:'red'},
+      {l:'Loyer mensuel brut',v:'+'+f(loyer)+'€/mois',c:'green'},
+      {l:'Charges copro + TF',v:'-'+f(charges+tf/12)+'€/mois',c:'red'},
+      {l:'Amortissements LMNP/an',v:f(amortTotal)+'€ déductibles',c:'gold'},
+      {l:'Résultat fiscal LMNP',v:(fiscal<=0?'Déficit -'+f(-fiscal):f(fiscal))+'€/an',c:fiscal<=0?'green':''},
+      {l:'Impôt estimé (TMI '+tmi+'%)',v:fiscal<=0?'0 € (déficit)':'-'+f(impot)+'€/an',c:fiscal<=0?'green':'red'},
+    ]);
+    document.getElementById('fin-amort').innerHTML=rowHTML([
+      {l:'Immeuble hors terrain (30 ans)',v:'+'+f(amortImm)+'€/an',c:'gold'},
+      {l:'Mobilier (7 ans)',v:'+'+f(amortMob)+'€/an',c:'gold'},
+      {l:'Frais de notaire (30 ans)',v:'+'+f(amortFN)+'€/an',c:'gold'},
+      {l:'Total déductible / an',v:f(amortTotal)+'€/an',c:'gold'},
+    ]);
+    var frc=fiscal<=0?'good':'warn';
+    document.getElementById('fin-rec').innerHTML=recHTML(
+      fiscal<=0?'✓ Déficit LMNP — impôt nul':'⚡ Excédent fiscal à optimiser',
+      fiscal<=0?'Les amortissements ('+f(amortTotal)+'€/an) dépassent vos revenus nets imposables. Impôt = 0€. Le déficit de '+f(-fiscal)+'€/an est reportable sur vos futurs revenus locatifs. Économie vs location nue : ~'+f(Math.abs(fiscal)*(tmi/100+0.172))+'€/an.':'Résultat fiscal de '+f(fiscal)+'€/an. Pour l\'annuler : augmenter la part mobilier (jusqu\'à 15-20% du prix), réaliser des travaux déductibles, ou raccourcir la durée d\'amortissement mobilier.',
+      frc
+    );
+  }
+
+  if(curTab==='comparateur') updComp();
+}
+
+
+function updComp(){
+  var d = lastData;
+  if(!d.prix) return;
+
+  function calcBien(prix,surf,loyer,trav,charges){
+    if(!prix||!surf) return null;
+    var notaire=prix*0.08;
+    var cout=prix+notaire+trav;
+    var rBrut=loyer*12/prix*100;
+    var rNet=(loyer*12-charges*12)/cout*100;
+    var pM2=prix/surf;
+    var cfM=loyer-charges-mens(cout*0.8,3.5,25);
+    return {prix:prix,surf:surf,loyer:loyer,trav:trav,charges:charges,rBrut:rBrut,rNet:rNet,pM2:pM2,cfM:cfM,cout:cout};
+  }
+
+  var b1=calcBien(d.prix,d.surface,d.loyer,d.travaux,d.charges);
+  var b2=calcBien(+document.getElementById('c2-prix').value,+document.getElementById('c2-surf').value,+document.getElementById('c2-loyer').value,+document.getElementById('c2-trav').value,+document.getElementById('c2-charges').value);
+  var b3=calcBien(+document.getElementById('c3-prix').value,+document.getElementById('c3-surf').value,+document.getElementById('c3-loyer').value,+document.getElementById('c3-trav').value,+document.getElementById('c3-charges').value);
+
+  var biens=[b1,b2,b3];
+  var noms=[document.getElementById('adresse').value||'Bien 1',document.getElementById('c2-nom').value||'Bien 2',document.getElementById('c3-nom').value||'Bien 3'];
+
+  var rows=[
+    {l:'Prix affiche',fn:function(b){return b?f(b.prix)+'EUR':'--'}},
+    {l:'Surface',fn:function(b){return b?b.surf+'m2':'--'}},
+    {l:'Prix m2',fn:function(b){return b?f(b.pM2)+'EUR/m2':'--'},best:function(bs){var v=bs.filter(Boolean).map(function(b){return b.pM2;});return v.indexOf(Math.min.apply(null,v));}},
+    {l:'Travaux',fn:function(b){return b?f(b.trav)+'EUR':'--'}},
+    {l:'Cout total',fn:function(b){return b?f(b.cout)+'EUR':'--'}},
+    {l:'Loyer mensuel',fn:function(b){return b?f(b.loyer)+'EUR/mois':'--'},best:function(bs){var v=bs.filter(Boolean).map(function(b){return b.loyer;});return v.indexOf(Math.max.apply(null,v));}},
+    {l:'Rendement brut',fn:function(b){return b?p(b.rBrut):'--'},best:function(bs){var v=bs.filter(Boolean).map(function(b){return b.rBrut;});return v.indexOf(Math.max.apply(null,v));}},
+    {l:'Rendement net',fn:function(b){return b?p(b.rNet):'--'},best:function(bs){var v=bs.filter(Boolean).map(function(b){return b.rNet;});return v.indexOf(Math.max.apply(null,v));}},
+    {l:'Cashflow',fn:function(b){return b?(b.cfM>=0?'+':'')+f(b.cfM)+'EUR/mois':'--'},best:function(bs){var v=bs.filter(Boolean).map(function(b){return b.cfM;});return v.indexOf(Math.max.apply(null,v));}},
+  ];
+
+  var html='';
+  html+='<div class="comp-cell hdr-cell label-cell"></div>';
+  biens.forEach(function(b,i){html+='<div class="comp-cell hdr-cell">'+(noms[i]||'Bien '+(i+1))+'</div>';});
+  rows.forEach(function(r){
+    var bestIdx=r.best?r.best(biens):-1;
+    html+='<div class="comp-cell label-cell">'+r.l+'</div>';
+    biens.forEach(function(b,i){
+      html+='<div class="comp-cell'+(i===bestIdx?' best':'')+'">'+r.fn(b)+'</div>';
+    });
+  });
+  document.getElementById('comp-table').innerHTML=html;
+
+  var actives=biens.filter(Boolean);
+  var maxR=actives.length?Math.max.apply(null,actives.map(function(b){return b.rBrut;})):0;
+  var bestIdx=actives.map(function(b){return b.rBrut;}).indexOf(maxR);
+  document.getElementById('comp-rec').innerHTML=recHTML(
+    'Meilleur rendement : '+noms[bestIdx],
+    'Rendement brut '+p(maxR)+'. Les cellules dorees indiquent le meilleur score par critere.',
+    'good'
+  );
+}
+
+var _iaAngle = 'lmnp';
+var _iaGen = false;
+
+function getAC(t){
+  return {
+    lmnp:{l:'Locatif LMNP',a:'Angle LMNP MEUBLE AU REEL : Analyse rendement brut/net, cashflow apres credit et impots, amortissements LMNP deductibles (immeuble 30 ans, mobilier 7 ans, frais notaire 30 ans), deficit fiscal potentiel et economies vs location nue, tension locative du quartier. Autofinancement possible et dans quel delai ?'},
+    lmp:{l:'LMP (Pro)',a:'Angle LMP LOUEUR MEUBLE PROFESSIONNEL : Conditions LMP (recettes >23k EUR et > autres revenus), avantages fiscaux (deficit imputable sur revenu global, exoneration plus-value apres 5 ans si recettes <90k EUR, exoneration ISF/IFI). Comparaison LMP vs LMNP selon le profil. Obligations comptables. Risques statut.'},
+    nue:{l:'Location nue',a:'Angle LOCATION NUE REGIME REEL : Analyse rendement regime micro-foncier vs reel, deductibilite des charges (interets credit, travaux, charges copro, TF), deficit foncier imputable sur revenu global (10 700 EUR/an), report du surplus. Comparaison avec LMNP meuble. Avantages simplicite et bail 3 ans.'},
+    coloc:{l:'Colocation',a:'Angle COLOCATION : Potentiel colocation (nb chambres possibles, loyer par chambre vs location classique, surplus rendement +30-50%), verification reglement copropriete, estimation travaux cloisons, cashflow coloc vs location nue, risques specifiques (turnover, gestion).'},
+    court:{l:'Court sejour',a:'Angle COURT SEJOUR / AIRBNB : Estimation revenu courte duree (taux occupation 65-75% Paris, prix nuit selon quartier et saison), comparaison vs LMNP, reglementation Paris (90j/an residence principale, autorisation mairie pour meuble de tourisme), calcul rentabilite nette apres frais menage et plateforme.'},
+    airbnb:{l:'Para-hotelier',a:'Angle PARA-HOTELIER (AIRBNB PRO) : Location meublee touristique sans limite 90j si local dedie (non residence principale), regime para-hotelier avec TVA collectee, statut LMP envisageable. Analyse revenus potentiels bruts annuels, charges (menage, linge, plateforme, assurance), marge nette. Reglementation stricte Paris.'},
+    deficit:{l:'Deficit foncier',a:'Angle DEFICIT FONCIER : Travaux deductibles des revenus fonciers existants (regime reel obligatoire), deficit reportable sur revenu global plafonnd 10 700 EUR/an, surplus reportable 10 ans sur revenus fonciers. Calculer le gain fiscal selon TMI. Ideal si gros travaux et TMI eleve. Obligation de location nue 3 ans apres imputation.'},
+    patrimonial:{l:'Patrimonial',a:'Angle PATRIMONIAL : Valeur refuge et preservation du capital, potentiel de revalorisation 10-20 ans selon tendances quartier, qualite du batiment et de l emplacement, liquidite (facilite de revente), transmission successorale et optimisation IFI. Rendement locatif secondaire - privilegier capitalisation.'},
+    nue_prop:{l:'Nue-propriete',a:'Angle NUE-PROPRIETE / DEMEMBREMENT : Achat de la nue-propriete avec decote 30-40% du prix plein, usufruitier percoit les loyers pendant 15-20 ans, acheteur recupere la pleine propriete sans fiscalite. Analyse de la decote, du gain en capital a terme, de l absence de gestion locative et des avantages IFI (nue-propriete non taxable).'},
+    marchand:{l:'Marchand de biens',a:'Angle MARCHAND DE BIENS : Decote achat vs marche, estimation travaux de valorisation, prix de revente realiste apres renovation, marge brute/nette (TVA sur marge si professionnel), duree totale operation 12-36 mois, ROI annualise. Risques : surchauffe marche, delais, surcoüt travaux.'},
+    flip:{l:'Achat-Revente',a:'Angle ACHAT-REVENTE (FLIP) : Plus-value rapide apres renovation legere 3-6 mois, prix revente realiste, couts transaction (notaire vendeur + acheteur), travaux et ROI, plus-value nette et imposition (PVI si detention < 22 ans, PS si < 30 ans), seuil de rentabilite minimum.'},
+    division:{l:'Division de lot',a:'Angle DIVISION DE LOT : Faisabilite (surface suffisante, configuration T4+ minimum, reglementation PLU, accord assemblee generale copro), valeur de chaque lot cree, couts division (travaux cloisons + compteurs + notaire + geometre), plus-value totale generee vs bien non divise, duree operation.'},
+    vefa:{l:'VEFA / Neuf',a:'Angle VEFA NEUF : Avantages achat neuf (garanties decennale et parfait achevement, normes RT2020, frais notaire reduits 2-3%), exoneration taxe fonciere 2 ans, eligible Pinel si investissement locatif. Analyse prix neuf vs ancien sur ce secteur, delai de livraison (risque), potentiel locatif. Comparaison rendement neuf vs ancien renove.'},
+    viager:{l:'Viager',a:'Angle VIAGER OCCUPE OU LIBRE : Calcul bouquet initial et rente viagere selon esperance de vie du vendeur (tables INSEE), decote liee a l occupation (viager occupe -30-50%), prix reel si libre immediate vs occupe. Analyse risque longevite, avantages fiscaux rente (abattement selon age vendeur), rendement actualise.'},
+    sci:{l:'SCI Holding',a:'Angle SCI / HOLDING : Interet SCI IS vs IR selon profil fiscal, avantages deduction charges et amortissement en IS, transmission des parts avec abattement, optimisation succession. SCI IR : transparence fiscale. SCI IS : amortissement mais double imposition dividendes. Recommandation selon TMI et objectifs patrimoniaux.'},
+    renov:{l:'Renovation energetique',a:'Angle RENOVATION ENERGETIQUE : DPE actuel et objectif, travaux necessaires pour passer en C ou B (isolation, pompe chaleur, fenetres), couts estimes et aides disponibles (MaPrimeRenov 2025, CEE, eco-PTZ), gain en valeur du bien apres travaux, impact sur loyer et demande locative. Obligations legales DPE G interdit 2025, F interdit 2028.'}
+  }[t] || {l:'Locatif LMNP',a:'Analyse rendement et cashflow LMNP meuble.'};
+}
+
+
+function genIA(){
+  if(_iaGen) return;
+  var addr=(document.getElementById('adresse')||{value:''}).value||'Non precisee';
+  var qSel=(document.getElementById('quartier')||{value:''}).value;
+  var arrdt=(document.getElementById('arrdt')||{value:'p9'}).value||'p9';
+  var type=(document.getElementById('type')||{value:'t2'}).value||'t2';
+  var surf=(document.getElementById('surface')||{value:'45'}).value||'45';
+  var prix=+(document.getElementById('prix')||{value:0}).value||0;
+  var trav=+(document.getElementById('travaux')||{value:0}).value||0;
+  var loyer=+(document.getElementById('loyer')||{value:0}).value||0;
+  var chg=+(document.getElementById('charges')||{value:0}).value||0;
+  var tf=+(document.getElementById('tf')||{value:0}).value||0;
+  var app=+(document.getElementById('apport')||{value:20}).value||20;
+  var tx=+(document.getElementById('taux')||{value:3.5}).value||3.5;
+  var dur=+(document.getElementById('duree')||{value:25}).value||25;
+  var tmi=+(document.getElementById('tmi')||{value:30}).value||30;
+  var nbP=+(document.getElementById('nb-pieces')||{value:0}).value||0;
+  var etg=+((document.getElementById('etage')||{value:2}).value)||2;
+  var mkt=MARCHE[arrdt]||MARCHE['p9'];
+  var cout=prix*1.08+trav;
+  var rB=prix>0?+(loyer*12/prix*100).toFixed(1):0;
+  var rN=cout>0?+((loyer-chg)*12-tf)/cout*100:0;
+  var pm=prix/(+surf||1);
+  var ec=mkt?(pm-mkt.m2)/mkt.m2:0;
+  var pt=['','Studio','T2','T3','T4','T5','T6+'][nbP]||'';
+  var et=['RDC','1er-2e','3e-5e','6e+'][etg]||'';
+  var cfg=getAC(_iaAngle);
+
+  var lines=[
+    'Tu es expert immobilier Paris-IDF, conseiller SHADES. Sois precis, chiffre, actionnable.',
+    cfg.a,
+    '',
+    'BIEN : '+addr+(qSel?' / '+qSel:'')+' - '+(mkt?mkt.nom:arrdt),
+    type.toUpperCase()+(pt?' '+pt:'')+' - '+surf+'m2 - '+et+(vals.asc==='oui'?' ascenseur':''),
+    'Prix : '+Math.round(prix).toLocaleString('fr-FR')+'EUR ('+Math.round(pm)+'EUR/m2) | Marche : '+(mkt?Math.round(mkt.m2):0)+'EUR/m2 | Ecart : '+(ec>0?'+':'')+Math.round(ec*100)+'%',
+    'Travaux : '+Math.round(trav).toLocaleString('fr-FR')+'EUR | Cout total : '+Math.round(cout).toLocaleString('fr-FR')+'EUR',
+    'Loyer : '+Math.round(loyer)+'EUR/mois | Charges : '+Math.round(chg)+'EUR | TF : '+Math.round(tf)+'EUR/an',
+    'Credit : '+app+'% apport | '+tx+'% | '+dur+' ans',
+    'Rendement brut : '+rB+'% | Net : '+rN.toFixed(1)+'%',
+    'DPE : '+(vals.dpe||'D')+' | Etat : '+(vals.etat||'bon')+' | TMI : '+tmi+'%',
+    '',
+    'Redige 5 sections (titres en MAJUSCULES entre [crochets]) :',
+    '[VERDICT] Recommandation : Acheter / Negocier a X EUR / Passer. 2-3 phrases max.',
+    '[ANALYSE '+cfg.l.toUpperCase()+'] Analyse detaillee, chiffres precis, specifique a cet angle.',
+    '[RISQUES] 3 risques concrets et chiffres pour ce bien et cet angle.',
+    '[OPTIMISATION] 3 actions concretes pour maximiser la performance.',
+    '[CONCLUSION] Decision finale et prochaines etapes si acquisition.'
+  ];
+  var prompt=lines.join('\n');
+
+  document.querySelectorAll('.mtab').forEach(function(b){
+    if(b.textContent.indexOf('IA')>-1) setTab('ia',b);
+  });
+
+  var box=document.getElementById('ia-box');
+  if(!box) return;
+  _iaGen=true;
+  box.innerHTML='<style>@keyframes iaDt{0%,80%,100%{transform:scale(.4);opacity:.3}40%{transform:scale(1);opacity:1}}</style>'
+    +'<div style="padding:28px;text-align:center">'
+    +'<div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:14px">Analyse '+cfg.l+'...</div>'
+    +'<div style="display:flex;justify-content:center;gap:6px;margin-bottom:14px">'
+    +'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:iaDt 1.2s infinite 0s"></div>'
+    +'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:iaDt 1.2s infinite .2s"></div>'
+    +'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:iaDt 1.2s infinite .4s"></div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:rgba(26,25,22,.35);font-weight:300">Claude analyse votre bien...</div>'
+    +'</div>';
+
+  fetch('/.netlify/functions/claude-proxy',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-5',
+      max_tokens:1500,
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    _iaGen=false;
+    var txt=data.content&&data.content[0]?data.content[0].text:'';
+    if(!txt){
+      box.innerHTML='<div style="padding:14px;color:#a32d2d;font-size:11px;background:#fcebeb;border-radius:5px">Erreur API : '+(data.error?data.error.message:'Reponse vide')+'</div>';
+      return;
+    }
+    var secs=['VERDICT','ANALYSE '+cfg.l.toUpperCase(),'RISQUES','OPTIMISATION','CONCLUSION'];
+    var icos={VERDICT:'◈',RISQUES:'⚠',OPTIMISATION:'⚡',CONCLUSION:'✓'};
+    var out='<div style="padding:2px">';
+    out+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:.5px solid rgba(26,25,22,.08)">'
+      +'<div style="font-family:Cormorant Garamond,serif;font-size:15px;font-weight:300">'+cfg.l+'</div>'
+      +'<div style="font-size:9px;color:rgba(26,25,22,.3)">'+addr+(qSel?' / '+qSel:'')+'</div>'
+      +'</div>';
+    var found=[];
+    secs.forEach(function(s){
+      var p='['+s+']';
+      var i=txt.indexOf(p);
+      if(i===-1)return;
+      var ni=txt.length;
+      secs.forEach(function(s2){if(s2!==s){var j=txt.indexOf('['+s2+']',i+1);if(j>i&&j<ni)ni=j;}});
+      found.push({s:s,c:txt.slice(i+p.length,ni).trim()});
+    });
+    if(!found.length){
+      out+='<div style="font-size:11px;line-height:1.8;color:rgba(26,25,22,.75);white-space:pre-wrap">'+txt+'</div>';
+    } else {
+      found.forEach(function(item){
+        var ico=icos[item.s]||'▸';
+        var isV=item.s==='VERDICT';
+        out+='<div style="margin-bottom:12px;'+(isV?'padding:12px;background:rgba(184,146,42,.07);border-radius:5px;border:.5px solid rgba(184,146,42,.2)':'')+'">'
+          +'<div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:'+(isV?'var(--gold)':'rgba(26,25,22,.38)')+';font-weight:300;margin-bottom:5px">'+ico+' '+item.s+'</div>'
+          +'<div style="font-size:11px;line-height:1.75;color:rgba(26,25,22,.75);font-weight:300;white-space:pre-wrap">'+item.c+'</div>'
+          +'</div>';
+      });
+    }
+    out+='</div>';
+    box.innerHTML=out;
+  
+  })
+  .catch(function(err){_iaGen=false;
+    box.innerHTML='<div style="padding:14px;color:#a32d2d;font-size:11px;background:#fcebeb;border-radius:5px">Erreur API. Vérifiez que la clé ANTHROPIC_API_KEY est configurée sur Netlify.<br><small>'+err.message+'</small></div>';
+  });
+}
+
+function setIaAngle(angle,btn){
+  _iaAngle=angle;
+  document.querySelectorAll('.ia-angle').forEach(function(b){
+    b.style.borderColor='rgba(26,25,22,.1)';b.style.background='';b.classList.remove('on');
+    var l=b.querySelector('div:last-child');if(l)l.style.color='rgba(26,25,22,.45)';
+  });
+  btn.style.borderColor='rgba(184,146,42,.4)';btn.style.background='rgba(184,146,42,.08)';
+  btn.classList.add('on');
+  var l2=btn.querySelector('div:last-child');if(l2)l2.style.color='var(--gold)';
+  _iaGen=false;
+  genIA();
+}
+
+
+function exporterRapport(){
+  // Générer le rapport IA si pas encore fait
+  var iaBox = document.getElementById('ia-box');
+  var iaVide = iaBox && iaBox.innerHTML.indexOf('Cliquez') > -1;
+
+  // Afficher temporairement tous les panels pour l impression
+  var panels = document.querySelectorAll('.panel');
+  var wasOn = [];
+  panels.forEach(function(p){
+    wasOn.push(p.classList.contains('on'));
+    p.classList.add('on');
+    p.style.display = 'block';
+  });
+
+  // Recalculer tous les onglets pour avoir les données à jour
+  var savedTab = curTab;
+  ['score','marche','projection','monte','financement','comparateur'].forEach(function(t){
+    curTab = t;
+    try { upd(); } catch(e){}
+  });
+  curTab = savedTab;
+
+  // Lancer l impression
+  setTimeout(function(){
+    window.print();
+    // Restaurer l affichage original
+    setTimeout(function(){
+      panels.forEach(function(p, i){
+        if(!wasOn[i]){
+          p.classList.remove('on');
+          p.style.display = '';
+        }
+      });
+      curTab = savedTab;
+      upd();
+    }, 500);
+  }, 300);
+}
+
+// Init
+upd();
+
+function toast(msg,dur){
+  var t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1916;color:#f4f2ee;padding:10px 20px;border-radius:4px;font-size:12px;z-index:9999;pointer-events:none;transition:opacity .3s;font-family:Outfit,sans-serif';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';},dur||2500);
+}
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+
+<div class="tunnel-bar">
+  <span class="tunnel-label">Étape suivante</span>
+  <a class='tunnel-btn' href='/shades_plu'>→ Analyser le PLU →</a>
+</div>
+</body>
+</html>

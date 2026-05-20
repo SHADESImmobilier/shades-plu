@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · CRM Immobilier</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;
+  --border:rgba(26,25,22,.09);--muted:rgba(26,25,22,.38);
+  --green:#2d6a1f;--red:#a32d2d;--blue:#1a3a6b;--shadow:0 2px 14px rgba(26,25,22,.07)
+}
+body{font-family:'Outfit',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;overflow:hidden}
+.sbar{height:2px;background:linear-gradient(90deg,#e8e4dc 20%,var(--gold) 60%,var(--dark) 100%)}
+
+/* HDR */
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:9px 20px;
+  background:rgba(26,25,22,.98);border-bottom:.5px solid rgba(244,242,238,.07);z-index:200;position:relative}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:14px;letter-spacing:.26em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-tag{font-size:6px;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,242,238,.2);margin-top:1px}
+.hdr-mid{display:flex;gap:8px;align-items:center}
+.search-global{padding:5px 12px;border:.5px solid rgba(244,242,238,.15);border-radius:2px;background:rgba(255,255,255,.06);color:#f4f2ee;font-size:10px;font-family:inherit;outline:none;width:220px;transition:all .2s}
+.search-global::placeholder{color:rgba(244,242,238,.3)}
+.search-global:focus{border-color:rgba(184,146,42,.5);background:rgba(255,255,255,.1)}
+.hdr-acts{display:flex;gap:6px}
+.btn{padding:5px 12px;border-radius:2px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .18s}
+.btn-ghost{border:.5px solid rgba(244,242,238,.14);color:rgba(244,242,238,.45);background:transparent}
+.btn-ghost:hover{color:#f4f2ee;border-color:rgba(244,242,238,.35)}
+.btn-gold{background:var(--gold);color:var(--dark);border:.5px solid var(--gold);font-weight:500}
+.btn-dark{background:var(--dark);color:#f4f2ee;border:.5px solid rgba(26,25,22,.9)}
+.btn-sm{padding:4px 10px;border-radius:2px;font-size:7.5px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;font-family:inherit;border:.5px solid rgba(26,25,22,.15);background:transparent;color:rgba(26,25,22,.55);transition:all .15s}
+.btn-sm:hover{background:var(--wall);color:var(--dark)}
+.btn-icon{width:24px;height:24px;border:none;background:rgba(255,255,255,.08);border-radius:50%;cursor:pointer;font-size:12px;color:rgba(244,242,238,.5);display:flex;align-items:center;justify-content:center;transition:all .15s}
+.btn-icon:hover{background:rgba(255,255,255,.15);color:#f4f2ee}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;padding:8px 20px;background:#fff;border-bottom:.5px solid var(--border)}
+.tb-label{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.filter-chips{display:flex;gap:5px}
+.fchip{padding:4px 10px;border:.5px solid rgba(26,25,22,.12);border-radius:2px;font-size:8px;cursor:pointer;font-family:inherit;background:transparent;color:rgba(26,25,22,.5);transition:all .14s}
+.fchip.on{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+.sep{width:.5px;height:20px;background:var(--border);flex-shrink:0}
+
+/* KANBAN */
+.kanban-wrap{display:flex;height:calc(100vh - 90px);overflow-x:auto;overflow-y:hidden;padding:16px 20px;gap:14px}
+.kanban-col{display:flex;flex-direction:column;min-width:270px;max-width:270px;height:100%}
+.col-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding:0 2px;flex-shrink:0}
+.col-title{font-size:10.5px;font-weight:400;color:var(--dark);display:flex;align-items:center;gap:6px}
+.col-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.col-count{font-size:8px;color:var(--muted);background:var(--wall);padding:1px 6px;border-radius:10px}
+.col-actions{display:flex;gap:4px}
+.col-cards{flex:1;overflow-y:auto;overflow-x:hidden;padding:2px;display:flex;flex-direction:column;gap:8px}
+.col-cards::-webkit-scrollbar{width:4px}
+.col-cards::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.add-col-btn{display:flex;align-items:center;justify-content:center;min-width:50px;max-width:50px;height:100%;border:.5px dashed rgba(26,25,22,.2);border-radius:8px;cursor:pointer;color:rgba(26,25,22,.3);font-size:20px;transition:all .2s;flex-shrink:0}
+.add-col-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(184,146,42,.03)}
+
+/* CARDS */
+.deal-card{background:#fff;border-radius:7px;border:.5px solid var(--border);padding:13px 14px;cursor:grab;transition:all .2s;position:relative;box-shadow:var(--shadow)}
+.deal-card:hover{box-shadow:0 4px 18px rgba(26,25,22,.12);border-color:rgba(184,146,42,.25);transform:translateY(-1px)}
+.deal-card.dragging{opacity:.5;transform:rotate(2deg);box-shadow:0 8px 30px rgba(26,25,22,.2)}
+.deal-card.drag-over-col{background:rgba(184,146,42,.04);border-color:rgba(184,146,42,.3)}
+.dc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.dc-name{font-size:12px;font-weight:400;color:var(--dark);line-height:1.3}
+.dc-priority{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dc-sub{font-size:9.5px;color:var(--muted);margin-bottom:6px}
+.dc-budget{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:var(--dark);margin-bottom:6px}
+.dc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.dc-tag{padding:2px 7px;border-radius:2px;font-size:7.5px;color:rgba(26,25,22,.55);background:var(--wall)}
+.dc-footer{display:flex;justify-content:space-between;align-items:center}
+.dc-agent{font-size:8.5px;color:var(--muted);display:flex;align-items:center;gap:4px}
+.dc-avatar{width:18px;height:18px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--dark);font-weight:500}
+.dc-date{font-size:8px;color:rgba(26,25,22,.3)}
+.dc-actions{position:absolute;top:8px;right:8px;display:none;gap:3px}
+.deal-card:hover .dc-actions{display:flex}
+.drop-zone{height:60px;border:1.5px dashed rgba(184,146,42,.3);border-radius:6px;display:none;align-items:center;justify-content:center;font-size:10px;color:rgba(184,146,42,.6);background:rgba(184,146,42,.04)}
+.drop-zone.active{display:flex}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,25,22,.6);z-index:500;backdrop-filter:blur(5px);align-items:flex-start;justify-content:flex-end}
+.modal-overlay.open{display:flex}
+.modal-panel{background:#fff;width:520px;height:100vh;overflow-y:auto;box-shadow:-20px 0 60px rgba(26,25,22,.15);display:flex;flex-direction:column}
+.modal-hdr{padding:18px 22px;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300}
+.modal-close{width:28px;height:28px;border:none;background:var(--wall);border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:20px 22px;flex:1}
+.modal-footer{padding:14px 22px;border-top:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:#fff}
+
+/* FICHE CONTACT */
+.contact-section{margin-bottom:16px}
+.cs-title{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:.5px solid var(--border)}
+.cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cs-full{grid-column:1/-1}
+.fld{margin-bottom:0}
+.lbl{font-size:9px;color:rgba(26,25,22,.45);margin-bottom:3px}
+.inp{width:100%;padding:7px 9px;border:.5px solid rgba(26,25,22,.16);border-radius:3px;font-size:11px;font-family:inherit;color:var(--dark);background:#fff;outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:70px;line-height:1.65}
+
+/* HISTORIQUE */
+.hist-item{padding:10px 12px;background:var(--wall);border-radius:5px;margin-bottom:6px;position:relative}
+.hist-ico{font-size:14px;margin-right:6px}
+.hist-txt{font-size:11px;color:rgba(26,25,22,.7);line-height:1.5}
+.hist-date{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* RAPPELS */
+.rappel-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#fff;border:.5px solid var(--border);border-radius:4px;margin-bottom:5px}
+.rappel-item.done{opacity:.45;text-decoration:line-through}
+.rappel-cb{width:14px;height:14px;border:.5px solid rgba(26,25,22,.25);border-radius:2px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .15s}
+.rappel-item.done .rappel-cb{background:var(--green);border-color:var(--green);color:#fff}
+
+/* BADGES */
+.badge{padding:3px 9px;border-radius:10px;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase}
+.badge.gold{background:rgba(184,146,42,.1);color:var(--gold);border:.5px solid rgba(184,146,42,.28)}
+.badge.green{background:rgba(45,106,31,.1);color:var(--green);border:.5px solid rgba(45,106,31,.22)}
+.badge.red{background:rgba(163,45,45,.1);color:var(--red);border:.5px solid rgba(163,45,45,.2)}
+.badge.blue{background:rgba(26,58,107,.1);color:var(--blue);border:.5px solid rgba(26,58,107,.2)}
+
+/* MODAL PARAM COL */
+.param-modal{display:none;position:fixed;inset:0;background:rgba(26,25,22,.5);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.param-modal.open{display:flex}
+.param-box{background:#fff;border-radius:10px;width:440px;padding:24px;box-shadow:0 16px 50px rgba(26,25,22,.15)}
+
+/* STATS */
+.stats-strip{display:flex;gap:0;background:#fff;border-bottom:.5px solid var(--border)}
+.stat{padding:9px 20px;border-right:.5px solid var(--border);text-align:center}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--dark)}
+.stat-lbl{font-size:8px;color:var(--muted);letter-spacing:.05em}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .25s ease}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.modal-panel{animation:slideIn .22s ease}
+
+.input-color{width:28px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+
+/* === RESPONSIVE MOBILE === */
+@media(max-width:768px){
+  .layout,.split,.cols-2,.grid-2,.grid-3{grid-template-columns:1fr !important;height:auto !important}
+  .hdr{padding:10px 14px !important;flex-wrap:wrap;gap:6px}
+  .hdr-tag,.hdr-r{display:none !important}
+  .main,.content,.left,.right,.ri{padding:12px !important}
+  .sbar,.sbar2,.toolbar{flex-wrap:wrap;padding:10px 14px;gap:6px}
+  .kgrid,.kpis,.kpi-grid{grid-template-columns:repeat(2,1fr) !important}
+  .week-body{min-height:400px !important}
+  .ai,.ai-box,.ia-result{max-width:100% !important;width:100%}
+  table{font-size:11px !important}
+  .btn,.hbtn,.gbtn{padding:8px 12px !important;font-size:8px !important}
+  h1,h2{font-size:clamp(22px,5vw,36px) !important}
+}
+@media(max-width:480px){
+  .kgrid,.kpis{grid-template-columns:1fr !important}
+  .nav-links{display:none}
+}
+</style>
+  <meta name="description" content="CRM Immobilier SHADES Pro — Pipeline Kanban, fiches contacts et rappels pour agences immo.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+<div class="sbar"></div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div><div class="logo">SHADES<em>.</em></div><div class="hdr-tag">CRM Immobilier · Pipeline personnalisable</div></div>
+  <div class="hdr-mid">
+    <input class="search-global" id="search-global" placeholder="🔍 Rechercher contact, budget, tag..." oninput="renderKanban()">
+  </div>
+  <div class="hdr-acts">
+    <button class="btn btn-ghost" onclick="openParamCols()">⚙️ Colonnes</button>
+    <button class="btn btn-ghost" onclick="exportCSV()">↓ CSV</button>
+    <button class="btn btn-gold" onclick="openNewDeal()">＋ Contact</button>
+  
+    <button onclick="window.print()" style="padding:5px 12px;border:.5px solid rgba(244,242,238,.14);border-radius:2px;font-size:8px;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;font-family:inherit;color:rgba(244,242,238,.45);background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:500">↓ PDF</button></div>
+</div>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">Contacts</div></div>
+  <div class="stat"><div class="stat-num" id="st-pipeline">0</div><div class="stat-lbl">En pipeline</div></div>
+  <div class="stat"><div class="stat-num" id="st-budget">0</div><div class="stat-lbl">Budget cumulé (k€)</div></div>
+  <div class="stat"><div class="stat-num" id="st-rappels">0</div><div class="stat-lbl">Rappels du jour</div></div>
+  <div style="flex:1;padding:9px 20px;display:flex;align-items:center;gap:10px">
+    <span class="tb-label">Filtrer :</span>
+    <div class="filter-chips">
+      <button class="fchip on" onclick="setFiltreTag('',this)">Tous</button>
+      <button class="fchip" onclick="setFiltreTag('acheteur',this)">Acheteurs</button>
+      <button class="fchip" onclick="setFiltreTag('vendeur',this)">Vendeurs</button>
+      <button class="fchip" onclick="setFiltreTag('investisseur',this)">Investisseurs</button>
+      <button class="fchip" onclick="setFiltreTag('locataire',this)">Locataires</button>
+    </div>
+    <div class="sep"></div>
+    <span class="tb-label">Priorité :</span>
+    <div class="filter-chips">
+      <button class="fchip on" onclick="setFiltrePrio('',this)">Toutes</button>
+      <button class="fchip" onclick="setFiltrePrio('haute',this)" style="color:#a32d2d;border-color:rgba(163,45,45,.25)">● Haute</button>
+      <button class="fchip" onclick="setFiltrePrio('normale',this)">● Normale</button>
+      <button class="fchip" onclick="setFiltrePrio('basse',this)" style="color:var(--muted)">● Basse</button>
+    </div>
+  </div>
+</div>
+
+<!-- KANBAN -->
+<div class="kanban-wrap" id="kanban-wrap"></div>
+
+<!-- MODAL FICHE CONTACT (SIDE PANEL) -->
+<div class="modal-overlay" id="modal-deal">
+<div class="modal-panel" id="modal-panel-deal">
+  <div class="modal-hdr">
+    <div class="modal-title" id="modal-deal-title">Nouveau contact</div>
+    <button class="modal-close" onclick="closeModal('modal-deal')">×</button>
+  </div>
+  <div class="modal-body">
+    <!-- ONGLETS FICHE -->
+    <div style="display:flex;gap:0;border-bottom:.5px solid var(--border);margin-bottom:16px">
+      <div class="ctab active" style="padding:7px 14px;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--dark);border-bottom:2px solid var(--gold)" id="ftab-infos" onclick="showFicheTab('infos')">Infos</div>
+      <div class="ctab" style="padding:7px 14px;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent" id="ftab-hist" onclick="showFicheTab('hist')">Historique</div>
+      <div class="ctab" style="padding:7px 14px;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent" id="ftab-rappels" onclick="showFicheTab('rappels')">Rappels</div>
+      <div class="ctab" style="padding:7px 14px;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent" id="ftab-tags" onclick="showFicheTab('tags')">Tags</div>
+    </div>
+
+    <!-- INFOS -->
+    <div id="ftab-infos-content">
+      <div class="contact-section">
+        <div class="cs-title">Identité</div>
+        <div class="cs-grid">
+          <div class="fld"><div class="lbl">Prénom</div><input class="inp" id="d-prenom" placeholder="Jean"></div>
+          <div class="fld"><div class="lbl">Nom</div><input class="inp" id="d-nom" placeholder="DUPONT"></div>
+          <div class="fld"><div class="lbl">Email</div><input class="inp" id="d-email" type="email" placeholder="jean@email.fr"></div>
+          <div class="fld"><div class="lbl">Téléphone</div><input class="inp" id="d-tel" placeholder="06 12 34 56 78"></div>
+          <div class="fld cs-full"><div class="lbl">Entreprise / Profession</div><input class="inp" id="d-societe" placeholder="Cabinet, Société..."></div>
+        </div>
+      </div>
+      <div class="contact-section">
+        <div class="cs-title">Projet immobilier</div>
+        <div class="cs-grid">
+          <div class="fld"><div class="lbl">Type de projet</div>
+            <select class="inp" id="d-type-projet">
+              <option>Achat résidence principale</option><option>Achat investissement</option>
+              <option>Vente</option><option>Location recherchée</option>
+              <option>Cession local commercial</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="fld"><div class="lbl">Budget (€)</div><input class="inp" id="d-budget" type="number" min="0" placeholder="350000"></div>
+          <div class="fld"><div class="lbl">Surface souhaitée</div><input class="inp" id="d-surface" placeholder="60-80 m²"></div>
+          <div class="fld"><div class="lbl">Secteurs</div><input class="inp" id="d-secteurs" placeholder="75011, 75012, 94..."></div>
+          <div class="fld cs-full"><div class="lbl">Critères spécifiques</div><textarea class="inp" id="d-criteres" rows="3" placeholder="Terrasse obligatoire, pas RDC, max 3e étage sans ascenseur..."></textarea></div>
+        </div>
+      </div>
+      <div class="contact-section">
+        <div class="cs-title">Suivi</div>
+        <div class="cs-grid">
+          <div class="fld"><div class="lbl">Agent SHADES</div><input class="inp" id="d-agent" placeholder="Prénom de l'agent"></div>
+          <div class="fld"><div class="lbl">Priorité</div>
+            <select class="inp" id="d-priorite">
+              <option value="haute">🔴 Haute</option>
+              <option value="normale" selected>🟡 Normale</option>
+              <option value="basse">⚪ Basse</option>
+            </select>
+          </div>
+          <div class="fld"><div class="lbl">Colonne (étape)</div><select class="inp" id="d-colonne"></select></div>
+          <div class="fld"><div class="lbl">Source</div>
+            <select class="inp" id="d-source">
+              <option>Recommandation</option><option>Site web</option><option>SeLoger</option>
+              <option>LeBonCoin</option><option>Réseau</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="fld cs-full"><div class="lbl">Notes internes</div><textarea class="inp" id="d-notes" rows="4" placeholder="Informations importantes, contexte, remarques..."></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIQUE -->
+    <div id="ftab-hist-content" style="display:none">
+      <div style="display:flex;gap:7px;margin-bottom:12px">
+        <input class="inp" id="hist-input" placeholder="Ajouter une note, action, compte-rendu..." style="flex:1">
+        <select class="inp" id="hist-type" style="width:120px">
+          <option value="note">📝 Note</option><option value="appel">📞 Appel</option>
+          <option value="rdv">📅 RDV</option><option value="email">📧 Email</option>
+          <option value="visite">🏠 Visite</option><option value="offre">💰 Offre</option>
+        </select>
+        <button class="btn btn-dark" onclick="addHist()" style="white-space:nowrap">＋ Ajouter</button>
+      </div>
+      <div id="hist-list"></div>
+    </div>
+
+    <!-- RAPPELS -->
+    <div id="ftab-rappels-content" style="display:none">
+      <div style="display:flex;gap:7px;margin-bottom:12px">
+        <input class="inp" id="rappel-input" placeholder="Rappeler pour..." style="flex:1">
+        <input class="inp" id="rappel-date" type="datetime-local" style="width:180px">
+        <button class="btn btn-dark" onclick="addRappel()">＋</button>
+      </div>
+      <div id="rappels-list"></div>
+    </div>
+
+    <!-- TAGS -->
+    <div id="ftab-tags-content" style="display:none">
+      <div style="margin-bottom:12px">
+        <div class="lbl">Tags du contact</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0" id="contact-tags-display"></div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="lbl">Ajouter un tag</div>
+        <div style="display:flex;gap:6px;margin-top:5px">
+          <input class="inp" id="new-tag-input" placeholder="Nouveau tag..." style="flex:1">
+          <button class="btn btn-dark" onclick="addTag()">＋</button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Tags rapides</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:6px" id="quick-tags"></div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="lbl">Champs personnalisés</div>
+        <div id="custom-fields-list" style="margin-top:8px"></div>
+        <button class="btn-sm" style="margin-top:8px" onclick="addCustomField()">＋ Champ personnalisé</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div>
+      <button class="btn-sm red" onclick="deleteDeal(currentDealId)" id="btn-delete-deal" style="display:none;border-color:rgba(163,45,45,.3);color:var(--red)">🗑 Supprimer</button>
+    </div>
+    <div style="display:flex;gap:7px">
+      <button class="btn" style="border:.5px solid rgba(26,25,22,.2);color:var(--dark);background:#fff" onclick="closeModal('modal-deal')">Annuler</button>
+      <button class="btn btn-dark" onclick="saveDeal()">Enregistrer</button>
+      <button onclick="planifierRDV()" style="padding:8px 14px;background:#f4f2ee;color:#1a1916;border:.5px solid rgba(26,25,22,.2);border-radius:3px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;margin-left:6px">📅 RDV</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL PARAMÈTRES COLONNES -->
+<div class="param-modal" id="param-modal">
+<div class="param-box">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300">Gérer les colonnes</div>
+    <button class="modal-close" onclick="closeParamCols()">×</button>
+  </div>
+  <div id="param-cols-list" style="margin-bottom:14px;max-height:350px;overflow-y:auto"></div>
+  <div style="display:flex;gap:7px;margin-bottom:14px">
+    <input class="inp" id="new-col-name" placeholder="Nom de la nouvelle colonne..." style="flex:1">
+    <input type="color" class="input-color" id="new-col-color" value="#b8922a">
+    <button class="btn btn-dark" onclick="addColumn()">＋ Ajouter</button>
+  </div>
+  <div style="background:rgba(26,25,22,.04);border-radius:5px;padding:10px;font-size:10px;color:var(--muted);line-height:1.7">
+    <strong style="color:var(--dark)">Conseils :</strong> Cliquez sur le nom d'une colonne pour la renommer. Glissez les colonnes dans le kanban pour les réorganiser. Les colonnes marquées ★ sont les jalons principaux.
+  </div>
+  <div style="text-align:right;margin-top:12px">
+    <button class="btn btn-dark" onclick="closeParamCols()">Fermer</button>
+  </div>
+</div>
+</div>
+
+<script>
+var currentDealId = null;
+var dragCardId = null;
+var filtreTag = "";
+var filtrePrio = "";
+var activeFicheTab = "infos";
+var PRIORITES = {haute:"#a32d2d", normale:"#b8922a", basse:"rgba(26,25,22,.2)"};
+var HIST_ICOS = {note:"📝", appel:"📞", rdv:"📅", email:"📧", visite:"🏠", offre:"💰"};
+
+/* ── STORAGE ── */
+function ls(k){try{return JSON.parse(localStorage.getItem(k)||"null");}catch(e){return null;}}
+function lsSave(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function gv(id){return (document.getElementById(id)||{}).value||"";}
+function toast(msg,t){var el=document.createElement("div");el.textContent=msg;el.style.cssText="position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:4px;font-size:11px;z-index:9999;font-family:Outfit,sans-serif;color:#fff;background:"+(t==="error"?"#a32d2d":"#2d6a1f");document.body.appendChild(el);setTimeout(function(){el.remove();},2500);}
+
+/* ── COLONNES ── */
+var DEFAULT_COLS = [
+  {id:"c1", name:"Nouveau contact", color:"#6b7aad", order:0},
+  {id:"c2", name:"Premier contact", color:"#b8922a", order:1},
+  {id:"c3", name:"Visite programmée", color:"#2d7a6a", order:2},
+  {id:"c4", name:"Offre en cours", color:"#c47c1a", order:3},
+  {id:"c5", name:"Compromis signé", color:"#2d6a1f", order:4},
+  {id:"c6", name:"Acte final", color:"#1a1916", order:5},
+];
+
+function getCols(){
+  var saved = ls("crm_cols");
+  if(!saved || !saved.length) { lsSave("crm_cols", DEFAULT_COLS); return DEFAULT_COLS; }
+  return saved;
+}
+function saveCols(cols){lsSave("crm_cols", cols);}
+
+/* ── DEALS ── */
+function getDeals(){return ls("crm_deals")||[];}
+function saveDeals(deals){lsSave("crm_deals", deals);}
+
+function getDeal(id){return getDeals().find(function(d){return d.id===id;});}
+
+function openNewDeal(){
+  currentDealId = null;
+  clearDealForm();
+  document.getElementById("modal-deal-title").textContent = "Nouveau contact";
+  document.getElementById("btn-delete-deal").style.display = "none";
+  fillColSelect(null);
+  showFicheTab("infos");
+  document.getElementById("hist-list").innerHTML = "";
+  document.getElementById("rappels-list").innerHTML = "";
+  renderContactTags([]);
+  document.getElementById("modal-deal").classList.add("open");
+}
+
+function openDeal(id){
+  var d = getDeal(id);
+  if(!d) return;
+  currentDealId = id;
+  document.getElementById("modal-deal-title").textContent = (d.prenom||"")+" "+(d.nom||"");
+  document.getElementById("btn-delete-deal").style.display = "inline-block";
+  fillDealForm(d);
+  fillColSelect(d.colonne_id);
+  showFicheTab("infos");
+  renderHist(d);
+  renderRappels(d);
+  renderContactTags(d.tags||[]);
+  renderCustomFields(d.custom_fields||[]);
+  document.getElementById("modal-deal").classList.add("open");
+}
+
+function clearDealForm(){
+  ["d-prenom","d-nom","d-email","d-tel","d-societe","d-budget","d-surface","d-secteurs","d-criteres","d-agent","d-notes"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+  var dp=document.getElementById("d-priorite");if(dp)dp.value="normale";
+  var ds=document.getElementById("d-source");if(ds)ds.selectedIndex=0;
+  var dt=document.getElementById("d-type-projet");if(dt)dt.selectedIndex=0;
+}
+
+function fillDealForm(d){
+  var f=function(id,v){var el=document.getElementById(id);if(el)el.value=v||"";};
+  f("d-prenom",d.prenom);f("d-nom",d.nom);f("d-email",d.email);f("d-tel",d.tel);
+  f("d-societe",d.societe);f("d-budget",d.budget);f("d-surface",d.surface);
+  f("d-secteurs",d.secteurs);f("d-criteres",d.criteres);f("d-agent",d.agent);
+  f("d-notes",d.notes);f("d-priorite",d.priorite||"normale");f("d-source",d.source);
+  f("d-type-projet",d.type_projet);
+}
+
+function fillColSelect(selectedId){
+  var sel = document.getElementById("d-colonne");
+  var cols = getCols();
+  sel.innerHTML = cols.map(function(c){
+    return "<option value='"+c.id+"'"+(c.id===selectedId?" selected":"")+">"+c.name+"</option>";
+  }).join("");
+}
+
+function saveDeal(){
+  var deals = getDeals();
+  var id = currentDealId || uid();
+  var col_id = gv("d-colonne") || getCols()[0].id;
+  var d = {
+    id:id, prenom:gv("d-prenom"), nom:gv("d-nom"), email:gv("d-email"), tel:gv("d-tel"),
+    societe:gv("d-societe"), type_projet:gv("d-type-projet"), budget:+gv("d-budget")||0,
+    surface:gv("d-surface"), secteurs:gv("d-secteurs"), criteres:gv("d-criteres"),
+    agent:gv("d-agent"), priorite:gv("d-priorite")||"normale", source:gv("d-source"),
+    notes:gv("d-notes"), colonne_id:col_id,
+    date_creation: currentDealId ? (getDeal(id)||{}).date_creation||new Date().toISOString() : new Date().toISOString(),
+    date_update: new Date().toISOString(),
+    historique: currentDealId ? (getDeal(id)||{}).historique||[] : [],
+    rappels: currentDealId ? (getDeal(id)||{}).rappels||[] : [],
+    tags: currentTags.slice(),
+    custom_fields: currentDealId ? (getDeal(id)||{}).custom_fields||[] : [],
+  };
+  var idx = deals.findIndex(function(x){return x.id===id;});
+  if(idx>=0) deals[idx]=d; else deals.push(d);
+  saveDeals(deals);
+  closeModal("modal-deal");
+  renderKanban(); updateStats();
+  toast("Contact enregistré !");
+}
+
+function deleteDeal(id){
+  if(!id||!confirm("Supprimer ce contact ?")) return;
+  saveDeals(getDeals().filter(function(d){return d.id!==id;}));
+  closeModal("modal-deal"); renderKanban(); updateStats();
+  toast("Contact supprimé.");
+}
+
+/* ── HISTORIQUE ── */
+function addHist(){
+  if(!currentDealId) return;
+  var histEl=document.getElementById("hist-input");if(!histEl)return;
+  var txt=histEl.value.trim(), type=gv("hist-type");
+  if(!txt) return;
+  var deals=getDeals(), d=deals.find(function(x){return x.id===currentDealId;});
+  if(!d) return;
+  if(!d.historique) d.historique=[];
+  d.historique.unshift({id:uid(),txt:txt,type:type,date:new Date().toISOString()});
+  saveDeals(deals);
+  document.getElementById("hist-input").value="";
+  renderHist(d);
+  toast("Note ajoutée !");
+}
+
+function renderHist(d){
+  var el=document.getElementById("hist-list");
+  if(!el)return;
+  if(!(d.historique||[]).length){el.innerHTML="<div style='text-align:center;padding:20px;font-size:11px;color:var(--muted)'>Aucun historique pour ce contact.</div>";return;}
+  el.innerHTML=(d.historique||[]).map(function(h){
+    return "<div class='hist-item fade-in'><span class='hist-ico'>"+HIST_ICOS[h.type]+"</span>"
+      +"<span class='hist-txt'>"+h.txt+"</span>"
+      +"<div class='hist-date'>"+new Date(h.date).toLocaleString("fr-FR")+"</div></div>";
+  }).join("");
+}
+
+/* ── RAPPELS ── */
+function addRappel(){
+  if(!currentDealId) return;
+  var rEl=document.getElementById("rappel-input");if(!rEl)return;
+  var txt=rEl.value.trim(), date=gv("rappel-date");
+  if(!txt) return;
+  var deals=getDeals(), d=deals.find(function(x){return x.id===currentDealId;});
+  if(!d){return;}
+  if(!d.rappels) d.rappels=[];
+  d.rappels.push({id:uid(),txt:txt,date:date,done:false});
+  saveDeals(deals);
+  document.getElementById("rappel-input").value="";
+  renderRappels(d); updateStats();
+  toast("Rappel ajouté !");
+}
+
+function toggleRappel(dealId, rappelId){
+  var deals=getDeals(), d=deals.find(function(x){return x.id===dealId;});
+  if(!d) return;
+  var r=d.rappels.find(function(x){return x.id===rappelId;});
+  if(r) r.done=!r.done;
+  saveDeals(deals); renderRappels(d); updateStats();
+}
+
+function renderRappels(d){
+  var el=document.getElementById("rappels-list");
+  if(!el)return;
+  if(!(d.rappels||[]).length){el.innerHTML="<div style='text-align:center;padding:20px;font-size:11px;color:var(--muted)'>Aucun rappel programmé.</div>";return;}
+  el.innerHTML=(d.rappels||[]).map(function(r){
+    return "<div class='rappel-item"+(r.done?" done":"")+"'>"
+      +"<div class='rappel-cb' onclick='toggleRappel(\""+d.id+"\",\""+r.id+"\")'>"+(r.done?"✓":"")+"</div>"
+      +"<div style='flex:1'><div style='font-size:11px'>"+r.txt+"</div>"
+      +(r.date?"<div style='font-size:9px;color:var(--muted)'>"+new Date(r.date).toLocaleString("fr-FR")+"</div>":"")+"</div>"
+      +"</div>";
+  }).join("");
+}
+
+/* ── TAGS ── */
+var ALL_TAGS = ["acheteur","vendeur","investisseur","locataire","VIP","à rappeler","chaud","froid","compromis","perdu"];
+var currentTags = [];
+
+function renderContactTags(tags){
+  currentTags = tags.slice();
+  var el=document.getElementById("contact-tags-display");
+  if(!el) return;
+  el.innerHTML=currentTags.map(function(t){
+    return "<span style='display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(26,25,22,.07);border-radius:2px;font-size:8.5px;color:var(--dark)'>"
+      +t+"<button onclick='removeTag(\""+t+"\")' style='border:none;background:none;cursor:pointer;color:var(--muted);font-size:10px;padding:0;line-height:1'>×</button></span>";
+  }).join("");
+  var qt=document.getElementById("quick-tags");
+  if(qt) qt.innerHTML=ALL_TAGS.map(function(t){
+    var on=currentTags.indexOf(t)>-1;
+    return "<button onclick='toggleTagQuick(\""+t+"\")' style='padding:3px 10px;border-radius:2px;font-size:8px;cursor:pointer;font-family:inherit;border:.5px solid rgba(26,25,22,.14);background:"+(on?"var(--dark)":"transparent")+";color:"+(on?"#f4f2ee":"rgba(26,25,22,.5)")+"'>"+t+"</button>";
+  }).join("");
+}
+
+function addTag(){
+  var t=gv("new-tag-input").trim().toLowerCase();
+  if(!t||currentTags.indexOf(t)>-1) return;
+  currentTags.push(t);
+  if(ALL_TAGS.indexOf(t)===-1) ALL_TAGS.push(t);
+  document.getElementById("new-tag-input").value="";
+  renderContactTags(currentTags);
+  syncTagsToDeal();
+}
+function removeTag(t){currentTags=currentTags.filter(function(x){return x!==t;});renderContactTags(currentTags);syncTagsToDeal();}
+function toggleTagQuick(t){
+  var i=currentTags.indexOf(t);if(i>-1)currentTags.splice(i,1);else currentTags.push(t);
+  renderContactTags(currentTags);syncTagsToDeal();
+}
+function syncTagsToDeal(){
+  if(!currentDealId) return;
+  var deals=getDeals(),d=deals.find(function(x){return x.id===currentDealId;});
+  if(d){d.tags=currentTags.slice();saveDeals(deals);}
+}
+
+/* ── CHAMPS PERSONNALISÉS ── */
+function addCustomField(){
+  var name=prompt("Nom du champ personnalisé :");
+  if(!name) return;
+  if(!currentDealId) return;
+  var deals=getDeals(),d=deals.find(function(x){return x.id===currentDealId;});
+  if(!d) return;
+  if(!d.custom_fields) d.custom_fields=[];
+  d.custom_fields.push({id:uid(),name:name,value:""});
+  saveDeals(deals); renderCustomFields(d.custom_fields);
+}
+function renderCustomFields(fields){
+  var el=document.getElementById("custom-fields-list");if(!el)return;
+  if(!(fields||[]).length){el.innerHTML="<div style='font-size:10px;color:var(--muted)'>Aucun champ. Ajoutez-en ci-dessous.</div>";return;}
+  el.innerHTML=(fields||[]).map(function(f){
+    return "<div style='display:flex;gap:6px;align-items:center;margin-bottom:6px'>"
+      +"<div style='font-size:9.5px;color:var(--muted);min-width:100px'>"+f.name+"</div>"
+      +"<input class='inp' value='"+f.value+"' oninput='updateCustomField(\""+f.id+"\",this.value)' style='flex:1'>"
+      +"</div>";
+  }).join("");
+}
+function updateCustomField(fieldId,val){
+  if(!currentDealId) return;
+  var deals=getDeals(),d=deals.find(function(x){return x.id===currentDealId;});
+  if(!d) return;
+  var f=(d.custom_fields||[]).find(function(x){return x.id===fieldId;});
+  if(f) f.value=val;
+  saveDeals(deals);
+}
+
+/* ── FILTRES ── */
+function setFiltreTag(t,btn){filtreTag=t;document.querySelectorAll(".filter-chips .fchip").forEach(function(b){if(b.onclick&&b.onclick.toString().includes("setFiltreTag"))b.classList.remove("on");});btn.classList.add("on");renderKanban();}
+function setFiltrePrio(p,btn){filtrePrio=p;document.querySelectorAll(".filter-chips .fchip").forEach(function(b){if(b.onclick&&b.onclick.toString().includes("setFiltrePrio"))b.classList.remove("on");});btn.classList.add("on");renderKanban();}
+
+/* ── KANBAN ── */
+function getFilteredDeals(){
+  var deals=getDeals();
+  var q=(gv("search-global")||"").toLowerCase();
+  return deals.filter(function(d){
+    if(filtreTag && (d.tags||[]).indexOf(filtreTag)===-1) return false;
+    if(filtrePrio && d.priorite!==filtrePrio) return false;
+    if(q){
+      var hay=(d.prenom+" "+d.nom+" "+d.societe+" "+d.secteurs+" "+d.agent+" "+(d.tags||[]).join(" ")).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderKanban(){
+  var wrap=document.getElementById("kanban-wrap");
+  var cols=getCols().slice().sort(function(a,b){return a.order-b.order;});
+  var deals=getFilteredDeals();
+
+  wrap.innerHTML=cols.map(function(col){
+    var colDeals=deals.filter(function(d){return d.colonne_id===col.id;});
+    return "<div class='kanban-col' id='col-"+col.id+"' ondragover='onColDragOver(event,\""+col.id+"\")' ondrop='onColDrop(event,\""+col.id+"\")' ondragleave='onColDragLeave(event)'>"
+      +"<div class='col-hdr'>"
+      +"<div class='col-title'><div class='col-dot' style='background:"+col.color+"'></div><span>"+col.name+"</span><span class='col-count'>"+colDeals.length+"</span></div>"
+      +"<div class='col-actions'>"
+      +"<button class='btn-icon' title='Ajouter' onclick='openNewDealInCol(\""+col.id+"\")' style='width:20px;height:20px;font-size:11px;color:rgba(26,25,22,.4);background:rgba(26,25,22,.06)'>+</button>"
+      +"</div></div>"
+      +"<div class='col-cards' id='cards-"+col.id+"'>"
+      +colDeals.map(function(d){return renderCard(d);}).join("")
+      +"<div class='drop-zone' id='dz-"+col.id+"'>Déposer ici</div>"
+      +"</div></div>";
+  }).join("")
+  +"<div class='add-col-btn' onclick='openParamCols()' title='Ajouter une colonne'>＋</div>";
+}
+
+function renderCard(d){
+  var budgetStr=d.budget?Math.round(d.budget/1000)+"k€":"";
+  var tags=(d.tags||[]).slice(0,3).map(function(t){return "<span class='dc-tag'>"+t+"</span>";}).join("");
+  var initiales=(d.agent||"").split(" ").map(function(w){return w[0]||"";}).join("").toUpperCase().slice(0,2)||"?";
+  var rappelsCount=(d.rappels||[]).filter(function(r){return !r.done;}).length;
+  return "<div class='deal-card' id='card-"+d.id+"' draggable='true'"
+    +" ondragstart='onCardDragStart(event,\""+d.id+"\")'>"
+    +"<div class='dc-actions'>"
+    +"<button class='btn-icon' style='background:rgba(26,25,22,.07);width:20px;height:20px;font-size:10px' onclick='openDeal(\""+d.id+"\")'>✏️</button>"
+    +"</div>"
+    +"<div class='dc-header'>"
+    +"<div class='dc-name' onclick='openDeal(\""+d.id+"\")'>"+(d.prenom||"")+" "+(d.nom||"")+"</div>"
+    +"<div class='dc-priority' style='background:"+PRIORITES[d.priorite||"normale"]+"' title='Priorité "+d.priorite+"'></div>"
+    +"</div>"
+    +"<div class='dc-sub'>"+(d.type_projet||"Projet non défini")+(d.secteurs?" · "+d.secteurs:"")+"</div>"
+    +(budgetStr?"<div class='dc-budget'>"+budgetStr+"</div>":"")
+    +(tags?"<div class='dc-tags'>"+tags+"</div>":"")
+    +"<div class='dc-footer'>"
+    +"<div class='dc-agent'>"+(d.agent?"<div class='dc-avatar'>"+initiales+"</div>"+d.agent:"Sans agent")+"</div>"
+    +(rappelsCount?"<span class='badge gold'>"+rappelsCount+" rappel"+(rappelsCount>1?"s":"")+"</span>":"")
+    +"<div class='dc-date'>"+new Date(d.date_creation||Date.now()).toLocaleDateString("fr-FR")+"</div>"
+    +"</div></div>";
+}
+
+/* ── DRAG & DROP ── */
+function onDragEnd(e){dragCardId=null;document.querySelectorAll(".deal-card").forEach(function(c){c.classList.remove("dragging");});document.querySelectorAll(".drop-zone").forEach(function(dz){dz.classList.remove("active");});}
+function onCardDragStart(e,id){
+  dragCardId=id;
+  setTimeout(function(){var el=document.getElementById("card-"+id);if(el)el.classList.add("dragging");},0);
+  e.dataTransfer.effectAllowed="move";
+}
+
+function onColDragOver(e,colId){
+  e.preventDefault();e.dataTransfer.dropEffect="move";
+  var dz=document.getElementById("dz-"+colId);if(dz)dz.classList.add("active");
+}
+function onColDragLeave(e){
+  document.querySelectorAll(".drop-zone").forEach(function(dz){dz.classList.remove("active");});
+}
+function onColDrop(e,colId){
+  e.preventDefault();
+  document.querySelectorAll(".drop-zone").forEach(function(dz){dz.classList.remove("active");});
+  document.querySelectorAll(".deal-card").forEach(function(c){c.classList.remove("dragging");});
+  if(!dragCardId) return;
+  var deals=getDeals(),d=deals.find(function(x){return x.id===dragCardId;});
+  if(d){d.colonne_id=colId;d.date_update=new Date().toISOString();saveDeals(deals);}
+  dragCardId=null; renderKanban(); updateStats();
+}
+
+/* ── PARAMÈTRES COLONNES ── */
+function openParamCols(){document.getElementById("param-modal").classList.add("open");renderParamCols();}
+function closeParamCols(){document.getElementById("param-modal").classList.remove("open");}
+
+function renderParamCols(){
+  var cols=getCols();
+  var el=document.getElementById("param-cols-list");
+  el.innerHTML=cols.map(function(c,i){
+    return "<div style='display:flex;align-items:center;gap:8px;padding:8px;background:var(--wall);border-radius:4px;margin-bottom:6px'>"
+      +"<div style='width:10px;height:10px;border-radius:50%;background:"+c.color+";flex-shrink:0'></div>"
+      +"<input value='"+c.name+"' oninput='renameCol(\""+c.id+"\",this.value)' style='flex:1;padding:5px 8px;border:.5px solid rgba(26,25,22,.15);border-radius:3px;font-size:11px;font-family:Outfit,sans-serif;outline:none'>"
+      +"<input type='color' value='"+c.color+"' oninput='recolorCol(\""+c.id+"\",this.value)' style='width:24px;height:24px;border:none;border-radius:3px;cursor:pointer;padding:0'>"
+      +(i>0?"<button onclick='moveColUp(\""+c.id+"\")' style='border:none;background:none;cursor:pointer;font-size:12px;color:var(--muted)'>↑</button>":"<span style='width:18px'></span>")
+      +(i<cols.length-1?"<button onclick='moveColDown(\""+c.id+"\")' style='border:none;background:none;cursor:pointer;font-size:12px;color:var(--muted)'>↓</button>":"<span style='width:18px'></span>")
+      +"<button onclick='deleteCol(\""+c.id+"\")' style='border:none;background:none;cursor:pointer;font-size:14px;color:var(--muted);line-height:1'>×</button>"
+      +"</div>";
+  }).join("");
+}
+
+function renameCol(id,name){
+  var cols=getCols(),c=cols.find(function(x){return x.id===id;});
+  if(c)c.name=name;saveCols(cols);renderKanban();
+}
+function recolorCol(id,color){
+  var cols=getCols(),c=cols.find(function(x){return x.id===id;});
+  if(c)c.color=color;saveCols(cols);renderKanban();
+}
+function moveColUp(id){
+  var cols=getCols(),i=cols.findIndex(function(x){return x.id===id;});
+  if(i>0){var tmp=cols[i-1];cols[i-1]=cols[i];cols[i]=tmp;cols[i-1].order=i-1;cols[i].order=i;}
+  saveCols(cols);renderParamCols();renderKanban();
+}
+function moveColDown(id){
+  var cols=getCols(),i=cols.findIndex(function(x){return x.id===id;});
+  if(i<cols.length-1){var tmp=cols[i+1];cols[i+1]=cols[i];cols[i]=tmp;cols[i].order=i+1;cols[i+1].order=i;}
+  saveCols(cols);renderParamCols();renderKanban();
+}
+function deleteCol(id){
+  var deals=getDeals().filter(function(d){return d.colonne_id===id;});
+  if(deals.length&&!confirm("Cette colonne contient "+deals.length+" contact(s). Supprimer quand même ?\n(Les contacts seront déplacés vers la première colonne)")) return;
+  var cols=getCols(),first=cols.find(function(c){return c.id!==id;});
+  if(first){var ds=getDeals().map(function(d){if(d.colonne_id===id)d.colonne_id=first.id;return d;});saveDeals(ds);}
+  saveCols(cols.filter(function(c){return c.id!==id;}));
+  renderParamCols();renderKanban();
+}
+function addColumn(){
+  var name=gv("new-col-name"),color=document.getElementById("new-col-color").value||"#888";
+  if(!name){toast("Donnez un nom à la colonne","error");return;}
+  var cols=getCols();
+  cols.push({id:uid(),name:name,color:color,order:cols.length});
+  saveCols(cols);document.getElementById("new-col-name").value="";
+  renderParamCols();renderKanban();toast("Colonne ajoutée !");
+}
+
+/* ── ONGLETS FICHE ── */
+function showFicheTab(name){
+  activeFicheTab=name;
+  var tabs=["infos","hist","rappels","tags"];
+  tabs.forEach(function(t){
+    var btn=document.getElementById("ftab-"+t);
+    var content=document.getElementById("ftab-"+t+"-content");
+    if(btn){btn.style.color=t===name?"var(--dark)":"var(--muted)";btn.style.borderBottom=t===name?"2px solid var(--gold)":"2px solid transparent";}
+    if(content)content.style.display=t===name?"block":"none";
+  });
+}
+
+function openNewDealInCol(colId){
+  openNewDeal();
+  setTimeout(function(){fillColSelect(colId);},50);
+}
+
+/* ── STATS ── */
+function updateStats(){
+  var deals=getDeals();
+  var totalBudget=deals.reduce(function(s,d){return s+d.budget;},0);
+  var today=new Date();today.setHours(0,0,0,0);
+  var rappelsAujourd=(function(){
+    var n=0;
+    deals.forEach(function(d){(d.rappels||[]).forEach(function(r){if(!r.done&&r.date&&new Date(r.date)<=today)n++;});});
+    return n;
+  })();
+  var s=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+  s("st-total",deals.length);
+  s("st-pipeline",deals.filter(function(d){var c=getCols().find(function(x){return x.id===d.colonne_id;});return c&&c.name!=="Acte final";}).length);
+  s("st-budget",Math.round(totalBudget/1000));
+  s("st-rappels",rappelsAujourd);
+}
+
+/* ── EXPORT CSV ── */
+function exportCSV(){
+  var deals=getDeals();
+  if(!deals.length){toast("Aucun contact à exporter","error");return;}
+  var cols=["Prénom","Nom","Email","Téléphone","Société","Type projet","Budget","Surface","Secteurs","Agent","Priorité","Source","Tags","Notes","Date création"];
+  var rows=deals.map(function(d){
+    return [d.prenom,d.nom,d.email,d.tel,d.societe,d.type_projet,d.budget,d.surface,d.secteurs,d.agent,d.priorite,d.source,(d.tags||[]).join("|"),d.notes,d.date_creation].map(function(v){return '"'+(v||"").toString().replace(/"/g,'""')+'"';}).join(",");
+  });
+  var csv="\uFEFF"+cols.join(",")+"\n"+rows.join("\n");
+  var a=document.createElement("a");a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);a.download="SHADES_CRM_"+new Date().toISOString().slice(0,10)+".csv";a.click();
+  toast("Export CSV généré !");
+}
+
+/* ── MODAL ── */
+function closeModal(id){document.getElementById(id).classList.remove("open");currentDealId=null;}
+document.getElementById("modal-deal").addEventListener("click",function(e){if(e.target===this)closeModal("modal-deal");});
+
+/* ── INIT ── */
+renderKanban(); updateStats();
+setInterval(updateStats, 30000);
+
+function planifierRDV(){
+  var nom=document.getElementById('d-nom')?document.getElementById('d-nom').value:'';
+  var tel=document.getElementById('d-tel')?document.getElementById('d-tel').value:'';
+  var adresse=document.getElementById('d-adresse')?document.getElementById('d-adresse').value:'';
+  saveDeal();
+  if(nom){
+    var pf={contact:nom,tel:tel,lieu:adresse,type:'rdv_acheteur',
+      date:new Date().toISOString().slice(0,10),heure_debut:'10:00',heure_fin:'11:00'};
+    localStorage.setItem('agenda_prefill',JSON.stringify(pf));
+    window.open('shades_agenda.html','_blank');
+  } else { toast && toast('Renseignez le nom du contact'); }
+}
+function syncToCRM(deal){
+  try{
+    var raw=localStorage.getItem('crm_deals');
+    var deals=raw?JSON.parse(raw):[];
+    var ex=deals.find(function(d){return (d.nom||'').toLowerCase()===(deal.nom||'').toLowerCase();});
+    if(!ex){
+      var newDeal={id:(Date.now().toString(36)+Math.random().toString(36).slice(2,5)),
+        nom:deal.nom,tel:deal.tel||'',adresse:deal.adresse||'',
+        statut:'contact',tags:deal.tags||['Agenda'],notes:deal.notes||'',
+        dateCreation:new Date().toISOString()};
+      deals.push(newDeal);
+      localStorage.setItem('crm_deals',JSON.stringify(deals));
+      if(typeof toast==='function') toast('Lead ajouté au CRM : '+deal.nom);
+    }
+  }catch(e){}
+}
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+</body>
+</html>

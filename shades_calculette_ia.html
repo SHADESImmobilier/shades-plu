@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Calculette IA Patrimoniale</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--border:rgba(26,25,22,.09);--muted:rgba(26,25,22,.38);--green:#2d6a1f;--red:#a32d2d}
+body{font-family:'Outfit',sans-serif;background:var(--dark);color:var(--light);min-height:100vh;display:flex;flex-direction:column}
+.sbar{height:2px;background:linear-gradient(90deg,rgba(232,228,220,.3) 20%,var(--gold) 60%,rgba(26,25,22,.8) 100%)}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 24px;background:rgba(26,25,22,.98);border-bottom:.5px solid rgba(244,242,238,.07)}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:15px;letter-spacing:.28em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-tag{font-size:6.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(244,242,238,.22);margin-top:1px}
+
+/* CHAT INTERFACE */
+.chat-wrap{flex:1;display:flex;flex-direction:column;max-width:900px;margin:0 auto;width:100%;padding:0 16px}
+.chat-messages{flex:1;overflow-y:auto;padding:24px 0;display:flex;flex-direction:column;gap:16px;min-height:calc(100vh - 200px);max-height:calc(100vh - 200px)}
+.msg{display:flex;gap:12px;animation:fadeIn .25s ease}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.msg-avatar.ai{background:rgba(184,146,42,.15);border:.5px solid rgba(184,146,42,.3)}
+.msg-avatar.user{background:rgba(244,242,238,.1);border:.5px solid rgba(244,242,238,.15)}
+.msg-content{max-width:75%;padding:12px 16px;border-radius:10px;font-size:12px;line-height:1.8}
+.msg-content.ai{background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.08);color:rgba(244,242,238,.85)}
+.msg-content.user{background:rgba(184,142,42,.15);border:.5px solid rgba(184,146,42,.25);color:#f4f2ee;text-align:right}
+.msg-content h4{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-weight:400}
+.msg-content ul{padding-left:14px;margin-top:6px}
+.msg-content ul li{margin-bottom:4px}
+.msg-content strong{color:var(--gold)}
+.msg-time{font-size:8.5px;color:rgba(244,242,238,.25);margin-top:4px}
+
+/* SUGGESTIONS */
+.suggestions{padding:12px 0;display:flex;gap:7px;flex-wrap:wrap}
+.sug-btn{padding:7px 14px;border:.5px solid rgba(255,255,255,.12);border-radius:20px;font-size:10px;cursor:pointer;color:rgba(255,255,255,.55);background:transparent;font-family:inherit;transition:all .2s;white-space:nowrap}
+.sug-btn:hover{border-color:rgba(184,146,42,.5);color:var(--gold);background:rgba(184,146,42,.06)}
+
+/* INPUT */
+.input-bar{padding:14px 0 20px;border-top:.5px solid rgba(255,255,255,.07)}
+.input-wrap{display:flex;gap:10px;align-items:flex-end;background:rgba(255,255,255,.05);border:.5px solid rgba(255,255,255,.1);border-radius:10px;padding:10px 14px;transition:border-color .2s}
+.input-wrap:focus-within{border-color:rgba(184,146,42,.4)}
+.input-wrap textarea{flex:1;background:transparent;border:none;outline:none;font-size:12px;color:#f4f2ee;font-family:'Outfit',sans-serif;resize:none;line-height:1.6;max-height:120px;min-height:24px}
+.input-wrap textarea::placeholder{color:rgba(255,255,255,.25)}
+.send-btn{width:36px;height:36px;background:var(--gold);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:opacity .2s}
+.send-btn:hover{opacity:.85}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+.input-tools{display:flex;gap:6px;margin-bottom:6px}
+.itool{padding:4px 10px;border:.5px solid rgba(255,255,255,.1);border-radius:3px;font-size:8px;cursor:pointer;color:rgba(255,255,255,.4);background:transparent;font-family:inherit;transition:all .15s}
+.itool:hover{color:rgba(255,255,255,.7);border-color:rgba(255,255,255,.2)}
+.itool.active{color:var(--gold);border-color:rgba(184,146,42,.4);background:rgba(184,146,42,.08)}
+
+/* CALCUL CARDS */
+.calc-card{background:rgba(255,255,255,.04);border:.5px solid rgba(255,255,255,.08);border-radius:8px;padding:14px 16px;margin-top:10px}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid rgba(255,255,255,.05)}
+.calc-row:last-child{border-bottom:none}
+.calc-lbl{font-size:10px;color:rgba(255,255,255,.5)}
+.calc-val{font-size:11px;font-weight:400;color:#f4f2ee}
+.calc-val.gold{color:var(--gold)}
+.calc-val.green{color:#7bc67e}
+.calc-val.red{color:#e07070}
+
+/* TYPING */
+@keyframes dots{0%,20%{color:transparent}40%{color:rgba(244,242,238,.6)}60%,100%{color:transparent}}
+.typing-dot{animation:dots 1.4s infinite;display:inline-block}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.loader-spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(184,146,42,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* CONTEXTE ACTIF */
+.ctx-bar{padding:6px 0;display:flex;gap:6px;flex-wrap:wrap}
+.ctx-tag{display:flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(184,146,42,.12);border:.5px solid rgba(184,146,42,.25);border-radius:3px;font-size:9px;color:var(--gold)}
+.ctx-rm{cursor:pointer;opacity:.6}
+.ctx-rm:hover{opacity:1}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+
+/* === RESPONSIVE MOBILE === */
+@media(max-width:768px){
+  .layout,.split,.cols-2,.grid-2,.grid-3{grid-template-columns:1fr !important;height:auto !important}
+  .hdr{padding:10px 14px !important;flex-wrap:wrap;gap:6px}
+  .hdr-tag,.hdr-r{display:none !important}
+  .main,.content,.left,.right,.ri{padding:12px !important}
+  .sbar,.sbar2,.toolbar{flex-wrap:wrap;padding:10px 14px;gap:6px}
+  .kgrid,.kpis,.kpi-grid{grid-template-columns:repeat(2,1fr) !important}
+  .week-body{min-height:400px !important}
+  .ai,.ai-box,.ia-result{max-width:100% !important;width:100%}
+  table{font-size:11px !important}
+  .btn,.hbtn,.gbtn{padding:8px 12px !important;font-size:8px !important}
+  h1,h2{font-size:clamp(22px,5vw,36px) !important}
+}
+@media(max-width:480px){
+  .kgrid,.kpis{grid-template-columns:1fr !important}
+  .nav-links{display:none}
+}
+</style>
+  <meta name="description" content="Calculette IA immobilière SHADES — Simulez vos investissements locatifs avec l'intelligence artificielle.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+<div class="sbar"></div>
+<div class="hdr">
+  <div><div class="logo">SHADES<em>.</em></div><div class="hdr-tag">Calculette IA · Assistant Patrimonial Conversationnel</div></div>
+  <div style="display:flex;gap:7px">
+    <button style="padding:5px 12px;border:.5px solid rgba(244,242,238,.14);border-radius:2px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;color:rgba(244,242,238,.45);background:transparent" onclick="clearChat()">↺ Nouvelle conversation</button>
+  
+    <button onclick="window.print()" style="padding:5px 12px;border:.5px solid rgba(244,242,238,.14);border-radius:2px;font-size:8px;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;font-family:inherit;color:rgba(244,242,238,.45);background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:500">↓ PDF</button></div>
+</div>
+
+<div class="chat-wrap">
+  <div class="chat-messages" id="chat-messages"></div>
+
+  <div class="ctx-bar" id="ctx-bar"></div>
+
+  <div class="suggestions" id="suggestions-wrap">
+    <button class="sug-btn" onclick="sendSuggestion(this)">Calcul rendement locatif</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Simulation LMNP vs Nu</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Frais d-acquisition Paris</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Plus-value après 10 ans</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Déficit foncier — comment ça marche ?</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">SCI IS vs nom propre</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Négocier un bien à 15%</button>
+    <button class="sug-btn" onclick="sendSuggestion(this)">Financement d-un investisseur à 41% TMI</button>
+  </div>
+
+  <div class="input-bar">
+    <div class="input-tools">
+      <button class="itool" id="ctx-renta" onclick="toggleCtx('renta',this)">📊 Rentabilité</button>
+      <button class="itool" id="ctx-fiscal" onclick="toggleCtx('fiscal',this)">⚖️ Fiscal</button>
+      <button class="itool" id="ctx-financement" onclick="toggleCtx('financement',this)">🏦 Financement</button>
+      <button class="itool" id="ctx-nego" onclick="toggleCtx('nego',this)">🤝 Négociation</button>
+      <button class="itool" id="ctx-droit" onclick="toggleCtx('droit',this)">📜 Droit immobilier</button>
+      <button class="itool" id="ctx-travaux" onclick="toggleCtx('travaux',this)">🏗️ Travaux</button>
+    </div>
+    <div class="input-wrap">
+      <textarea id="user-input" placeholder="Posez votre question immobilière ou patrimoniale... Ex: J-ai un bien à 250k, loyer 1100€, TMI 30%, que vaut-il mieux : LMNP ou nu ?" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" onclick="sendMsg()" id="send-btn">→</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var history=[];
+var activeCtx=[];
+var sending=false;
+
+var CTX_LABELS={renta:"Rentabilité & cashflow",fiscal:"Optimisation fiscale",financement:"Financement & prêt",nego:"Stratégie de négociation",droit:"Droit immobilier",travaux:"Estimation travaux"};
+var CTX_PROMPTS={
+  renta:"Concentre-toi sur les calculs de rentabilité : brute, nette, nette-nette, cashflow mensuel, TRI, délai de retour. Donne toujours des chiffres précis avec les formules.",
+  fiscal:"Expert fiscal immobilier : compare les régimes (LMNP Micro-BIC vs Réel, nu, SCI IR vs IS), calcule l-impôt selon la TMI, optimise le montage.",
+  financement:"Expert financement : mensualités, TAEG, score bankabilité, stratégie banques, levier optimal, assurance emprunteur.",
+  nego:"Expert négociation : arguments de décote, analyse du marché, script de négociation, prix cible, contre-offres.",
+  droit:"Expert droit immobilier : bail, copropriété, SCI, mandats, avant-contrats, jurisprudence récente.",
+  travaux:"Expert rénovation : estimation par poste, priorités, ROI des travaux, artisans, aides MaPrimeRénov."};
+
+var SYSTEM_PROMPT="Tu es SHADES IA, l-assistant patrimonial de SHADES Immobilier. Tu combines expertise en immobilier, fiscalité, financement et patrimoine.\n\nRègle absolue : donne TOUJOURS des chiffres précis, des formules, des calculs. Quand tu calcules, montre les étapes. Formate tes réponses avec des sections claires (titres en majuscules courtes). Utilise des emojis avec parcimonie mais de façon pertinente. Sois concis mais exhaustif sur les points clés. Quand tu compares des options, fais un tableau ou une liste comparative.\n\nSi le contexte est précisé (rentabilité, fiscal, etc.), concentre-toi sur cet angle. Adapte-toi au niveau de l-interlocuteur (pro immo ou investisseur averti).\n\nNe dis jamais que tu ne peux pas calculer — estime toujours avec les hypothèses standard du marché.";
+
+function autoResize(el){el.style.height="auto";el.style.height=Math.min(el.scrollHeight,120)+"px";}
+
+function toggleCtx(key,btn){
+  var idx=activeCtx.indexOf(key);
+  if(idx>-1){activeCtx.splice(idx,1);btn.classList.remove("active");}
+  else{activeCtx.push(key);btn.classList.add("active");}
+  renderCtxBar();
+}
+
+function renderCtxBar(){
+  var el=document.getElementById("ctx-bar");if(!el)return;
+  if(!activeCtx.length){el.innerHTML="";return;}
+  el.innerHTML=activeCtx.map(function(k){return "<div class='ctx-tag'>"+CTX_LABELS[k]+"<span class='ctx-rm' onclick='removeCtx(\""+k+"\")'>×</span></div>";}).join("");
+}
+
+function removeCtx(key){
+  var idx=activeCtx.indexOf(key);if(idx>-1)activeCtx.splice(idx,1);
+  var btn=document.getElementById("ctx-"+key);if(btn)btn.classList.remove("active");
+  renderCtxBar();
+}
+
+function addMsg(role,content,time){
+  var msgs=document.getElementById("chat-messages");if(!msgs)return;
+  var t=time||new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+  var isAi=role==="assistant";
+  var ico=isAi?"✦":"👤";
+  var div=document.createElement("div");
+  div.className="msg"+(isAi?"":" user")+" fade-in";
+  div.innerHTML="<div class='msg-avatar "+(isAi?"ai":"user")+"'>"+ico+"</div>"
+    +"<div style='display:flex;flex-direction:column;align-items:"+(isAi?"flex-start":"flex-end")+"'>"
+    +"<div class='msg-content "+(isAi?"ai":"user")+"'>"+content+"</div>"
+    +"<div class='msg-time'>"+t+"</div></div>";
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function formatAiResponse(txt){
+  // Formater le texte de réponse
+  txt=txt.replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>");
+  txt=txt.replace(/\n\n/g,"</p><p>");
+  txt=txt.replace(/^###\s(.+)$/gm,"<h4>$1</h4>");
+  txt=txt.replace(/^##\s(.+)$/gm,"<h4>$1</h4>");
+  txt=txt.replace(/^-\s(.+)$/gm,"<li>$1</li>");
+  txt=txt.replace(/(<li>.*<\/li>)/s,"<ul>$1</ul>");
+  txt=txt.replace(/\n/g,"<br>");
+  return "<p>"+txt+"</p>";
+}
+
+function buildSystemWithCtx(){
+  var sys=SYSTEM_PROMPT;
+  if(activeCtx.length){
+    sys+="\n\nCONTEXTE ACTIF : "+activeCtx.map(function(k){return CTX_PROMPTS[k];}).join(" | ");
+  }
+  return sys;
+}
+
+async function sendMsg(){
+  if(sending)return;
+  var inp=document.getElementById("user-input");
+  if(!inp)return;
+  var msg=inp.value.trim();
+  if(!msg)return;
+  sending=true;
+  inp.value="";inp.style.height="auto";
+
+  var sendBtn=document.getElementById("send-btn");
+  if(sendBtn)sendBtn.disabled=true;
+
+  // Masquer suggestions
+  var sug=document.getElementById("suggestions-wrap");if(sug)sug.style.display="none";
+
+  // Afficher message user
+  addMsg("user",msg.replace(/</g,"&lt;").replace(/>/g,"&gt;"));
+  history.push({role:"user",content:msg});
+
+  // Typing indicator
+  var msgs=document.getElementById("chat-messages");
+  var typing=document.createElement("div");
+  typing.className="msg fade-in";typing.id="typing-indicator";
+  typing.innerHTML="<div class='msg-avatar ai'>✦</div><div class='msg-content ai' style='padding:10px 14px'><span class='typing-dot'>●</span><span class='typing-dot'>●</span><span class='typing-dot'>●</span></div>";
+  if(msgs){msgs.appendChild(typing);msgs.scrollTop=msgs.scrollHeight;}
+
+  try{
+    var resp=await fetch('/.netlify/functions/claude-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1800,system:buildSystemWithCtx(),messages:history})});
+    var data=await resp.json();
+    var txt=data.content&&data.content[0]?data.content[0].text:"";
+    if(txt){
+      history.push({role:"assistant",content:txt});
+      // Supprimer typing
+      var ti=document.getElementById("typing-indicator");if(ti)ti.remove();
+      addMsg("assistant",formatAiResponse(txt));
+    }
+  }catch(e){
+    var ti2=document.getElementById("typing-indicator");if(ti2)ti2.remove();
+    addMsg("assistant","<span style='color:#e07070'>Erreur de connexion. Vérifiez votre connexion et réessayez.</span>");
+  }
+
+  sending=false;
+  if(sendBtn)sendBtn.disabled=false;
+  if(inp)inp.focus();
+}
+
+function sendSuggestion(btn){
+  var inp=document.getElementById("user-input");
+  if(inp){inp.value=btn.textContent.trim();inp.focus();}
+  sendMsg();
+}
+
+function clearChat(){
+  history=[];
+  var msgs=document.getElementById("chat-messages");
+  if(msgs){msgs.innerHTML="";addWelcome();}
+  var sug=document.getElementById("suggestions-wrap");if(sug)sug.style.display="flex";
+}
+
+function addWelcome(){
+  addMsg("assistant","<h4>SHADES IA · Calculette Patrimoniale</h4>Bonjour ! Je suis votre assistant patrimonial IA. Je peux calculer <strong>rendements, fiscalité, financement</strong>, simuler des scénarios LMNP vs SCI, estimer des négociations, analyser des montages...<br><br>Posez votre question directement ou choisissez un contexte (Rentabilité, Fiscal, etc.) pour des réponses plus ciblées.<br><br>Exemples : <em>« Bien à 350k, loyer 1400€, TMI 41%, LMNP réel ou nu ? »</em>");
+}
+
+// Raccourci clavier
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&!e.shiftKey&&document.activeElement.id!=="user-input"){
+    var inp=document.getElementById("user-input");if(inp)inp.focus();
+  }
+});
+
+addWelcome();
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+</body>
+</html>

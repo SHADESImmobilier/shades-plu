@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Estimateur Rénovation Vision</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--gold2:#d4aa45;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--muted:rgba(26,25,22,.38);--border:rgba(26,25,22,.09);--green:#2d6a1f;--red:#a32d2d;--blue:#1a3a6b}
+body{font-family:'Outfit',sans-serif;background:var(--light);color:var(--dark);min-height:100vh;font-weight:300}
+.sbar{height:2px;background:linear-gradient(90deg,#e8e4dc 25%,#c4c0b8 50%,var(--gold) 75%,var(--dark) 100%)}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:11px 24px;background:rgba(26,25,22,.98);backdrop-filter:blur(12px);border-bottom:.5px solid rgba(244,242,238,.06);position:sticky;top:0;z-index:200}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:15px;letter-spacing:.28em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-tag{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,242,238,.25);margin-top:1px}
+.hbtn{padding:5px 13px;border:.5px solid rgba(244,242,238,.13);border-radius:2px;font-size:8px;letter-spacing:.09em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:inherit;color:rgba(244,242,238,.45);background:transparent;transition:all .2s}
+.hbtn:hover{color:#f4f2ee;border-color:rgba(244,242,238,.3)}
+.hbtn.gold{background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:400}
+
+.layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 50px)}
+.panel{background:var(--wall);border-right:.5px solid var(--border);padding:18px 14px;overflow-y:auto;max-height:calc(100vh - 50px);position:sticky;top:50px}
+.main{padding:22px 26px;overflow-y:auto}
+
+/* FORM */
+.sec{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:16px 0 7px;padding-bottom:5px;border-bottom:.5px solid var(--border)}
+.sec:first-child{margin-top:0}
+.fld{margin-bottom:9px}
+.lbl{font-size:9.5px;color:rgba(26,25,22,.48);margin-bottom:3px}
+.inp{width:100%;padding:7px 9px;border:.5px solid rgba(26,25,22,.16);border-radius:3px;font-size:11px;font-family:inherit;color:var(--dark);background:#fff;outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{padding:4px 9px;border:.5px solid rgba(26,25,22,.14);border-radius:2px;font-size:8.5px;cursor:pointer;background:#fff;color:rgba(26,25,22,.5);transition:all .14s;font-family:inherit}
+.chip.on{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+.chip.gold-on{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+
+/* POSTES */
+.poste{background:#fff;border:.5px solid var(--border);border-radius:5px;padding:9px 11px;margin-bottom:6px;transition:border-color .15s}
+.poste.active{border-color:rgba(184,146,42,.3);background:rgba(184,146,42,.03)}
+.p-hdr{display:flex;justify-content:space-between;align-items:center}
+.p-name{font-size:10.5px;color:var(--dark)}
+.p-btn{padding:3px 9px;border:.5px solid rgba(26,25,22,.13);border-radius:2px;font-size:8px;cursor:pointer;font-family:inherit;transition:all .15s;background:transparent;color:rgba(26,25,22,.45)}
+.p-btn.on{background:rgba(184,146,42,.12);color:var(--gold);border-color:rgba(184,146,42,.35)}
+.p-detail{display:none;margin-top:7px}
+.p-detail.show{display:block}
+
+/* MEDIA UPLOAD */
+.upload-zone{border:1.5px dashed rgba(26,25,22,.2);border-radius:6px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:#fff;margin-bottom:8px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(184,146,42,.04)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-ico{font-size:22px;margin-bottom:5px;display:block}
+.upload-txt{font-size:10px;color:rgba(26,25,22,.4);font-weight:300}
+.upload-txt strong{color:var(--gold);font-weight:400}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.media-thumb{position:relative;border-radius:4px;overflow:hidden;aspect-ratio:1;background:#e8e4dc}
+.media-thumb img,.media-thumb video{width:100%;height:100%;object-fit:cover}
+.media-rm{position:absolute;top:3px;right:3px;background:rgba(26,25,22,.7);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.media-type-badge{position:absolute;bottom:3px;left:3px;background:rgba(26,25,22,.65);color:#fff;font-size:7px;padding:1px 4px;border-radius:2px;letter-spacing:.06em}
+.media-count{font-size:10px;color:rgba(26,25,22,.4);text-align:center;margin-top:4px}
+
+/* HERO */
+.hero{background:var(--dark);border-radius:10px;padding:20px 24px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 30%,rgba(184,146,42,.14),transparent 55%);pointer-events:none}
+.hero-row{display:flex;justify-content:space-between;align-items:flex-start}
+.hero-lbl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,242,238,.28);margin-bottom:5px}
+.hero-num{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:300;color:#f4f2ee;line-height:1}
+.hero-num em{font-size:20px;color:var(--gold);font-style:normal}
+.hero-range{font-size:11px;color:rgba(244,242,238,.35);margin-top:5px}
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.kpi{background:rgba(244,242,238,.05);border-radius:4px;padding:9px 11px}
+.kpi-l{font-size:7.5px;letter-spacing:.07em;text-transform:uppercase;color:rgba(244,242,238,.28);margin-bottom:3px}
+.kpi-v{font-size:14px;color:#f4f2ee;font-weight:300}
+
+/* SECTIONS */
+.card{background:#fff;border-radius:8px;border:.5px solid var(--border);padding:18px 20px;margin-bottom:12px}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300}
+.badge{padding:3px 10px;border-radius:10px;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase}
+.badge.gold{background:rgba(184,146,42,.1);color:var(--gold);border:.5px solid rgba(184,146,42,.28)}
+.badge.green{background:rgba(45,106,31,.1);color:var(--green);border:.5px solid rgba(45,106,31,.22)}
+.badge.red{background:rgba(163,45,45,.1);color:var(--red);border:.5px solid rgba(163,45,45,.2)}
+.badge.blue{background:rgba(26,58,107,.1);color:var(--blue);border:.5px solid rgba(26,58,107,.2)}
+
+/* BARRES POSTES */
+.bar-item{display:grid;grid-template-columns:26px 1fr auto auto;gap:7px;align-items:center;padding:7px 9px;background:var(--wall);border-radius:4px;margin-bottom:4px}
+.bar-track{height:3px;background:rgba(26,25,22,.07);border-radius:2px;overflow:hidden;margin-top:3px}
+.bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .5s ease}
+
+/* MEDIA ANALYSE IA */
+.ia-block{background:#f8f7f4;border-radius:6px;padding:14px;font-size:11px;color:rgba(26,25,22,.68);line-height:1.8;min-height:70px}
+.ia-section{margin-bottom:12px}
+.ia-section-hdr{font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;padding-bottom:4px;border-bottom:.5px solid var(--border)}
+
+/* VISION PANEL */
+.vision-panel{background:linear-gradient(135deg,rgba(26,25,22,.97) 0%,rgba(40,36,28,.97) 100%);border-radius:8px;padding:18px 20px;margin-bottom:12px;border:.5px solid rgba(184,146,42,.2)}
+.vision-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.vision-title{font-family:'Cormorant Garamond',serif;font-size:16px;color:#f4f2ee;font-weight:300;font-style:italic}
+.vision-result{font-size:11px;color:rgba(244,242,238,.7);line-height:1.85}
+.vision-section{margin-bottom:10px}
+.vision-section-lbl{font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;font-weight:400}
+
+/* LOADERS */
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader{display:inline-block;width:14px;height:14px;border:2px solid rgba(184,146,42,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+
+@media print{.hdr .hbtn,.panel{display:none!important}.layout{grid-template-columns:1fr!important}.main{padding:0!important}body{background:#fff}}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+</style>
+  <meta name="description" content="Estimateur rénovation Vision IA — Analyse photos du bien, 11 postes travaux, estimation PDF.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+<div class="sbar"></div>
+<div class="hdr">
+  <div><div class="logo">SHADES<em>.</em></div><div class="hdr-tag">Vision Rénovation · IA + Analyse photos/vidéos</div></div>
+  <div style="display:flex;gap:7px">
+    <button class="hbtn" onclick="analyserMedia()" id="btn-vision">📷 Analyser médias</button>
+    <button class="hbtn" onclick="lancerIA()">⚡ Analyse IA</button>
+    <button class="hbtn" onclick="resetAll()">↺ Nouveau</button>
+    <button class="hbtn gold" onclick="window.print()">↓ PDF</button>
+  </div>
+</div>
+
+<div class="layout">
+<div class="panel">
+  <div class="sec">Le bien</div>
+  <div class="fld"><div class="lbl">Adresse</div><input class="inp" id="adresse" placeholder="12 rue Victor Hugo, 75011" oninput="calc()"></div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Surface (m²)</div><input class="inp" id="surface" type="number" value="50" min="10" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Année construction</div><input class="inp" id="annee" type="number" min="0" value="1972" oninput="calc()"></div>
+  </div>
+  <div class="fld"><div class="lbl">Type</div>
+    <div class="chips">
+      <button class="chip on" onclick="setV('type','appt',this)">Appartement</button>
+      <button class="chip" onclick="setV('type','maison',this)">Maison</button>
+      <button class="chip" onclick="setV('type','studio',this)">Studio</button>
+      <button class="chip" onclick="setV('type','local',this)">Local</button>
+    </div>
+  </div>
+  <div class="fld"><div class="lbl">État actuel</div>
+    <div class="chips">
+      <button class="chip" onclick="setV('etat','bon',this)">Bon</button>
+      <button class="chip on" onclick="setV('etat','moyen',this)">Moyen</button>
+      <button class="chip" onclick="setV('etat','mauvais',this)">Mauvais</button>
+      <button class="chip" onclick="setV('etat','squelette',this)">Squelette</button>
+    </div>
+  </div>
+  <div class="fld"><div class="lbl">Zone</div>
+    <select class="inp" id="zone" onchange="calc()">
+      <option value="paris">Paris intra-muros</option>
+      <option value="pc">Petite couronne 92/93/94</option>
+      <option value="gc">Grande couronne</option>
+      <option value="prov">Province</option>
+    </select>
+  </div>
+
+  <!-- UPLOAD PHOTOS / VIDÉOS -->
+  <div class="sec">Photos & vidéos du bien</div>
+  <div class="upload-zone" id="dropzone" ondragover="onDrag(event,true)" ondragleave="onDrag(event,false)" ondrop="onDrop(event)">
+    <input type="file" id="file-input" accept="image/*,video/*" multiple onchange="onFiles(this.files)">
+    <span class="upload-ico">📷</span>
+    <div class="upload-txt"><strong>Cliquer ou glisser</strong> photos & vidéos<br><span style="font-size:9px;opacity:.6">JPG, PNG, HEIC · MP4, MOV · max 20MB/fichier</span></div>
+  </div>
+  <div class="media-grid" id="media-grid"></div>
+  <div class="media-count" id="media-count"></div>
+
+  <div class="sec">Postes de travaux</div>
+  <div id="postes-wrap"></div>
+
+  <div class="sec">Objectif</div>
+  <div class="fld"><div class="lbl">Finalité</div>
+    <div class="chips">
+      <button class="chip on" onclick="setV('obj','locatif',this)">Location</button>
+      <button class="chip" onclick="setV('obj','revente',this)">Revente</button>
+      <button class="chip" onclick="setV('obj','habitation',this)">Habitation</button>
+      <button class="chip" onclick="setV('obj','airbnb',this)">Court séjour</button>
+    </div>
+  </div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Budget max (€)</div><input class="inp" id="budget_max" type="number" min="0" placeholder="60000" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Délai</div>
+      <select class="inp" id="delai">
+        <option value="urgent">Urgent &lt;2 mois</option>
+        <option value="normal" selected>Normal 2-4 mois</option>
+        <option value="long">Long 4-8 mois</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- HERO TOTAL -->
+  <div class="hero">
+    <div class="hero-row">
+      <div>
+        <div class="hero-lbl">Estimation travaux SHADES</div>
+        <div class="hero-num" id="total-num">—<em>€</em></div>
+        <div class="hero-range" id="total-range">Sélectionnez des postes de travaux</div>
+      </div>
+      <div style="text-align:right">
+        <div class="hero-lbl">Prix / m²</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;color:#f4f2ee" id="prix-m2">—</div>
+        <div style="font-size:9px;color:rgba(244,242,238,.28);margin-top:2px">EUR / m²</div>
+      </div>
+    </div>
+    <div class="hero-kpis">
+      <div class="kpi"><div class="kpi-l">Budget restant</div><div class="kpi-v" id="k-budget">—</div></div>
+      <div class="kpi"><div class="kpi-l">Durée chantier</div><div class="kpi-v" id="k-duree">—</div></div>
+      <div class="kpi"><div class="kpi-l">Valorisation est.</div><div class="kpi-v" id="k-valori">—</div></div>
+      <div class="kpi"><div class="kpi-l">Médias chargés</div><div class="kpi-v" id="k-medias">0</div></div>
+    </div>
+  </div>
+
+  <!-- VISION IA - ANALYSE PHOTOS -->
+  <div class="vision-panel" id="vision-panel">
+    <div class="vision-hdr">
+      <div class="vision-title">Vision IA · Analyse des médias</div>
+      <div class="badge gold" id="vision-badge">📷 Chargez des photos/vidéos</div>
+    </div>
+    <div id="vision-result" class="vision-result" style="color:rgba(244,242,238,.35);font-size:11px">
+      Chargez des photos ou vidéos du bien dans le panneau gauche, puis cliquez sur <strong style="color:var(--gold)">Analyser médias</strong> pour que l'IA analyse visuellement l'état du bien, détecte les travaux nécessaires et estime les priorités d'intervention.
+    </div>
+  </div>
+
+  <!-- DETAIL POSTES -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Détail par poste</div>
+      <div class="badge gold" id="badge-postes">0 poste</div>
+    </div>
+    <div id="detail-postes"><div style="text-align:center;padding:18px;font-size:11px;color:rgba(26,25,22,.3)">Sélectionnez des postes de travaux</div></div>
+  </div>
+
+  <!-- ANALYSE IA STRATÉGIE -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-title">Analyse IA · Stratégie de rénovation</div>
+      <div class="badge gold" id="badge-ia">⚡ Analyser</div>
+    </div>
+    <div class="ia-block" id="ia-box">
+      <div style="text-align:center;padding:14px">
+        <div style="font-size:11px;color:rgba(26,25,22,.33);margin-bottom:10px">L'IA recommande les priorités, pièges et optimisations pour maximiser la rentabilité.</div>
+        <button onclick="lancerIA()" style="padding:8px 18px;background:var(--dark);color:#f4f2ee;border:none;border-radius:3px;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:inherit">⚡ Lancer l'analyse</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONSEILS -->
+  <div class="card">
+    <div class="card-hdr"><div class="card-title">Conseils SHADES</div></div>
+    <div id="conseils-box" style="font-size:11px;color:rgba(26,25,22,.58);line-height:1.85">Sélectionnez des postes pour voir les conseils.</div>
+  </div>
+</div>
+</div>
+
+<script>
+var vals={type:"appt",etat:"moyen",obj:"locatif"};
+var posteStates={};
+var mediaFiles=[];
+var iaRunning=false;
+var visionRunning=false;
+
+var POSTES={
+  elec:{label:"Electricite",base:{paris:[80,150],pc:[65,120],gc:[55,100],prov:[45,85]}},
+  plomberie:{label:"Plomberie",base:{paris:[60,120],pc:[50,100],gc:[40,85],prov:[35,70]}},
+  chauffage:{label:"Chauffage / VMC",base:{paris:[40,90],pc:[35,80],gc:[30,70],prov:[25,60]}},
+  isolation:{label:"Isolation thermique",base:{paris:[30,70],pc:[25,60],gc:[20,55],prov:[18,45]}},
+  peinture:{label:"Peinture & enduits",base:{paris:[25,55],pc:[20,45],gc:[18,40],prov:[15,35]}},
+  sol:{label:"Sols parquet / carrelage",base:{paris:[45,110],pc:[38,90],gc:[30,75],prov:[25,65]}},
+  cuisine:{label:"Cuisine equipee",forfait:true,base:{paris:[6000,16000],pc:[5000,13000],gc:[4000,11000],prov:[3500,9000]}},
+  sdb:{label:"Salle de bain",forfait:true,base:{paris:[4500,13000],pc:[4000,11000],gc:[3500,9000],prov:[3000,7500]}},
+  menuiseries:{label:"Menuiseries / fenetres",unite:true,base:{paris:[320,850],pc:[270,720],gc:[230,620],prov:[190,520]}},
+  cloisons:{label:"Cloisons / agencement",base:{paris:[50,120],pc:[42,100],gc:[35,85],prov:[28,70]}},
+  facade:{label:"Facade / toiture",base:{paris:[55,130],pc:[45,110],gc:[38,95],prov:[30,80]}}
+};
+var CNIV={leger:.55,moyen:1,complet:1.5};
+var CETA={bon:.7,moyen:1,mauvais:1.35,squelette:1.65};
+
+function setV(k,v,btn){vals[k]=v;btn.parentElement.querySelectorAll(".chip").forEach(function(b){b.classList.remove("on");});btn.classList.add("on");calc();}
+function f(n){return Math.round(n).toLocaleString("fr-FR");}
+
+function getRange(id){
+  var p=POSTES[id],st=posteStates[id];
+  if(!p||!st||!st.active)return{min:0,max:0,moy:0};
+  var z=document.getElementById("zone").value||"paris";
+  var surf=+document.getElementById("surface").value||50;
+  var r=p.base[z]||p.base.paris;
+  var cn=CNIV[st.niveau||"moyen"],ce=CETA[vals.etat]||1;
+  if(p.forfait)return{min:Math.round(r[0]*cn),max:Math.round(r[1]*cn),moy:Math.round((r[0]+r[1])/2*cn)};
+  if(p.unite){var nb=vals.type==="studio"?4:vals.type==="maison"?14:8;return{min:Math.round(r[0]*nb*cn),max:Math.round(r[1]*nb*cn),moy:Math.round((r[0]+r[1])/2*nb*cn)};}
+  return{min:Math.round(r[0]*surf*cn*ce),max:Math.round(r[1]*surf*cn*ce),moy:Math.round((r[0]+r[1])/2*surf*cn*ce)};
+}
+
+function renderPostes(){
+  var wrap=document.getElementById("postes-wrap");
+  wrap.innerHTML=Object.keys(POSTES).map(function(id){
+    var p=POSTES[id],st=posteStates[id]||{active:false,niveau:"moyen"};
+    return "<div class='poste"+(st.active?" active":"")+"' id='p-"+id+"'>"
+      +"<div class='p-hdr'><span class='p-name'>"+p.label+"</span>"
+      +"<button class='p-btn"+(st.active?" on":"")+"' onclick='toggleP(\""+id+"\")'>"+( st.active?"Actif":"Ajouter")+"</button></div>"
+      +(st.active?"<div class='p-detail show'><div class='chips' style='margin-top:6px'>"
+        +"<button class='chip"+(st.niveau==="leger"?" on":"")+"' onclick='setNiv(\""+id+"\",\"leger\",this)'>Leger</button>"
+        +"<button class='chip"+(st.niveau==="moyen"?" on":"")+"' onclick='setNiv(\""+id+"\",\"moyen\",this)'>Moyen</button>"
+        +"<button class='chip"+(st.niveau==="complet"?" on":"")+"' onclick='setNiv(\""+id+"\",\"complet\",this)'>Complet</button>"
+        +"</div></div>":"")
+      +"</div>";
+  }).join("");
+}
+
+function toggleP(id){
+  if(!posteStates[id])posteStates[id]={active:false,niveau:"moyen"};
+  posteStates[id].active=!posteStates[id].active;
+  renderPostes();calc();
+}
+function setNiv(id,niv,btn){
+  if(!posteStates[id])posteStates[id]={active:true,niveau:niv};
+  posteStates[id].niveau=niv;
+  btn.parentElement.querySelectorAll(".chip").forEach(function(b){b.classList.remove("on");});
+  btn.classList.add("on");calc();
+}
+
+function calc(){
+  var surf=+document.getElementById("surface").value||50;
+  var budMax=+document.getElementById("budget_max").value||0;
+  var zone=document.getElementById("zone").value;
+  var actifs=Object.keys(posteStates).filter(function(id){return posteStates[id]&&posteStates[id].active;});
+  var totMin=0,totMax=0,totMoy=0,items=[];
+  actifs.forEach(function(id){var r=getRange(id);totMin+=r.min;totMax+=r.max;totMoy+=r.moy;items.push({id:id,label:POSTES[id].label,moy:r.moy});});
+
+  var tn=document.getElementById("total-num");if(tn)tn.innerHTML=(totMoy?f(totMoy):"—")+"<em>€</em>";
+  var tr=document.getElementById("total-range");if(tr)tr.textContent=totMoy?"Fourchette : "+f(totMin)+" — "+f(totMax)+" EUR":"Selectionnez des postes de travaux";
+  var pm=document.getElementById("prix-m2");if(pm)pm.textContent=totMoy?f(Math.round(totMoy/surf)):"—";
+  var kb=document.getElementById("k-budget");if(kb)kb.textContent=budMax?(budMax>=totMoy?"+"+f(budMax-totMoy):"-"+f(totMoy-budMax))+" EUR":"—";
+  var kd=document.getElementById("k-duree");if(kd)kd.textContent=actifs.length===0?"—":actifs.length<=2?"4-6 sem.":actifs.length<=4?"2-3 mois":actifs.length<=6?"3-5 mois":"5-8 mois";
+  var ratio=zone==="paris"?1.85:zone==="pc"?1.65:1.45;
+  var kv=document.getElementById("k-valori");if(kv)kv.textContent=totMoy?"+"+f(Math.round(totMoy*ratio))+" EUR":"—";
+
+  var bp=document.getElementById("badge-postes");if(bp)bp.textContent=actifs.length+" poste"+(actifs.length>1?"s":"")+(totMoy?" · "+f(totMoy)+" EUR":"");
+  var dp=document.getElementById("detail-postes");
+  if(dp){
+    if(!items.length){dp.innerHTML="<div style='text-align:center;padding:18px;font-size:11px;color:rgba(26,25,22,.3)'>Selectionnez des postes de travaux</div>";}
+    else{
+      var mx=Math.max.apply(null,items.map(function(i){return i.moy;}));
+      dp.innerHTML=items.slice().sort(function(a,b){return b.moy-a.moy;}).map(function(it){
+        var pct=mx?Math.round(it.moy/mx*100):0;
+        var ptot=totMoy?Math.round(it.moy/totMoy*100):0;
+        return "<div class='bar-item'><span style='font-size:12px'>●</span>"
+          +"<div><div style='font-size:10.5px'>"+it.label+"</div><div class='bar-track'><div class='bar-fill' style='width:"+pct+"%'></div></div></div>"
+          +"<div style='font-size:11.5px;font-weight:400'>"+f(it.moy)+" EUR</div>"
+          +"<div style='font-size:9px;color:rgba(26,25,22,.35)'>"+ptot+"%</div></div>";
+      }).join("");
+    }
+  }
+  genConseils(actifs,totMoy,surf,zone);
+}
+
+function genConseils(actifs,total,surf,zone){
+  var el=document.getElementById("conseils-box");if(!el)return;
+  if(!total){el.textContent="Selectionnez des postes pour voir les conseils.";return;}
+  var c=[];
+  if(actifs.indexOf("elec")>-1&&actifs.indexOf("plomberie")>-1)c.push("Combiner electricite et plomberie reduit la main d-oeuvre de 15-20 % (ouvertures communes).");
+  if(vals.obj==="locatif")c.push("En LMNP, cuisine et salle de bain sont les deux postes qui justifient le loyer le plus eleve et la meilleure rentabilite.");
+  if(vals.obj==="revente")c.push("Pour la revente, peinture et sols neufs offrent le meilleur ratio valorisation/cout : +8-12 % du prix de vente pour 3-4 % du prix d-achat en travaux.");
+  if(actifs.indexOf("isolation")>-1)c.push("Isolation eligible a MaPrimeRenov et eco-PTZ. Faites la demande AVANT de signer avec les artisans.");
+  if(total/surf>1500)c.push("Budget/m2 eleve ("+f(Math.round(total/surf))+" EUR/m2). Envisagez un phasage sur 2 exercices fiscaux pour optimiser le deficit foncier.");
+  if(zone==="paris")c.push("Paris intra-muros : verifiez le reglement de copropriete et prevoyez 2-3 semaines pour l-accord du syndic avant tout gros oeuvre.");
+  el.innerHTML=c.map(function(x){return "<div style='display:flex;gap:9px;margin-bottom:8px'><div style='color:var(--gold);flex-shrink:0;margin-top:1px'>→</div><div>"+x+"</div></div>";}).join("");
+}
+
+/* ==================== MEDIA UPLOAD ==================== */
+function onDrag(e,enter){e.preventDefault();document.getElementById("dropzone").classList[enter?"add":"remove"]("drag");}
+function onDrop(e){e.preventDefault();document.getElementById("dropzone").classList.remove("drag");onFiles(e.dataTransfer.files);}
+function onFiles(files){
+  Array.from(files).forEach(function(file){
+    if(file.size>20*1024*1024){alert("Fichier trop lourd (max 20MB) : "+file.name);return;}
+    if(!file.type.startsWith("image/")&&!file.type.startsWith("video/")){alert("Format non supporté : "+file.name);return;}
+    mediaFiles.push(file);
+  });
+  renderMedia();
+  calc();
+}
+function removeMedia(idx){mediaFiles.splice(idx,1);renderMedia();calc();}
+function renderMedia(){
+  var grid=document.getElementById("media-grid");
+  var count=document.getElementById("media-count");
+  var km=document.getElementById("k-medias");
+  if(km)km.textContent=mediaFiles.length;
+  if(!mediaFiles.length){grid.innerHTML="";if(count)count.textContent="";updateVisionBadge();return;}
+  grid.innerHTML=mediaFiles.map(function(f,i){
+    var url=URL.createObjectURL(f);
+    var isVid=f.type.startsWith("video/");
+    return "<div class='media-thumb'>"
+      +(isVid?"<video src='"+url+"' muted playsinline style='width:100%;height:100%;object-fit:cover'></video>"
+             :"<img src='"+url+"' alt=''>")
+      +"<button class='media-rm' onclick='removeMedia("+i+")'>×</button>"
+      +"<span class='media-type-badge'>"+(isVid?"VID":"IMG")+"</span>"
+      +"</div>";
+  }).join("");
+  if(count)count.textContent=mediaFiles.length+" fichier"+(mediaFiles.length>1?"s":"")+" chargé"+(mediaFiles.length>1?"s":"");
+  updateVisionBadge();
+}
+function updateVisionBadge(){
+  var vb=document.getElementById("vision-badge");
+  if(!vb)return;
+  var n=mediaFiles.length;
+  if(n===0){vb.textContent="📷 Chargez des photos/videos";vb.className="badge gold";}
+  else{vb.textContent="📷 "+n+" media"+(n>1?"s":"")+" pret"+(n>1?"s":"")+" · Analyser";vb.className="badge blue";}
+}
+
+/* ==================== VISION IA ==================== */
+function fileToBase64(file){
+  return new Promise(function(resolve,reject){
+    var r=new FileReader();
+    r.onload=function(){resolve(r.result.split(",")[1]);};
+    r.onerror=reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function analyserMedia(){
+  if(visionRunning)return;
+  if(!mediaFiles.length){alert("Chargez d-abord des photos ou videos du bien.");return;}
+  visionRunning=true;
+  var vb=document.getElementById("vision-badge");
+  var vr=document.getElementById("vision-result");
+  var btn=document.getElementById("btn-vision");
+  if(vb){vb.textContent="Analyse en cours...";vb.className="badge gold";}
+  if(btn)btn.textContent="Analyse...";
+  vr.innerHTML="<div style='display:flex;align-items:center;gap:8px;padding:8px 0'><div class='loader'></div><span style='font-size:11px;color:rgba(244,242,238,.5)'>L-IA analyse vos "+mediaFiles.length+" media"+(mediaFiles.length>1?"s":"")+"...</span></div>";
+
+  // Construire les images pour l-API (max 5 images, sauter les videos)
+  var images=mediaFiles.filter(function(f){return f.type.startsWith("image/");}).slice(0,5);
+  var videos=mediaFiles.filter(function(f){return f.type.startsWith("video/");});
+  var content=[];
+
+  // Convertir les images en base64
+  for(var i=0;i<images.length;i++){
+    try{
+      var b64=await fileToBase64(images[i]);
+      var mt=images[i].type;
+      content.push({type:"image",source:{type:"base64",media_type:mt,data:b64}});
+    }catch(e){console.error("Erreur lecture image:",e);}
+  }
+
+  // Texte de la demande
+  var addr=document.getElementById("adresse").value||"Bien non renseigne";
+  var surf=document.getElementById("surface").value||"?";
+  var annee=document.getElementById("annee").value||"?";
+  var zone=document.getElementById("zone");
+  var zoneLbl=zone.options[zone.selectedIndex].text;
+  var promptTxt="Tu es un expert en renovation immobiliere en France. Analyse ces "+(images.length)+" photo"+(images.length>1?"s":"")+" du bien immobilier suivant :"
+    +"\n- Adresse : "+addr+" | Surface : "+surf+"m2 | Construit en : "+annee
+    +"\n- Zone : "+zoneLbl+" | Objectif : "+vals.obj
+    +(videos.length?" (Note : "+videos.length+" video"+(videos.length>1?"s":"")+" fournie"+(videos.length>1?"s":"")+" mais non analysee"+(videos.length>1?"s":"")+")":"")
+    +"\n\nEvalue visuellement et reponds avec ces 5 sections entre crochets :\n"
+    +"[ETAT GENERAL] Note l-etat visible du bien sur 10, pice par piece si possible.\n"
+    +"[TRAVAUX DETECTES] Liste tous les travaux visibles necessaires (fissures, humidite, revetements, menuiseries, cuisine, SDB, electricite visible, etc.).\n"
+    +"[PRIORITES URGENTES] Quels travaux sont urgents ou obligatoires avant toute mise en location/vente ?\n"
+    +"[ESTIMATION VISUELLE] Fourchette estimee du cout des travaux detectes selon les photos. Sois precis.\n"
+    +"[POTENTIEL VALORISATION] Evaluation du potentiel de valorisation apres renovation selon l-objectif "+vals.obj+".";
+
+  content.push({type:"text",text:promptTxt});
+
+  try{
+    var resp=await fetch('/.netlify/functions/claude-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1800,messages:[{role:"user",content:content}]})});
+    var data=await resp.json();
+    visionRunning=false;
+    var txt=data.content&&data.content[0]?data.content[0].text:"";
+    if(!txt){vr.innerHTML="<div style='color:#e07070;font-size:11px'>Erreur API : "+JSON.stringify(data.error||"inconnue")+"</div>";return;}
+    var secs=["ETAT GENERAL","TRAVAUX DETECTES","PRIORITES URGENTES","ESTIMATION VISUELLE","POTENTIEL VALORISATION"];
+    var icos={"ETAT GENERAL":"📊","TRAVAUX DETECTES":"🔍","PRIORITES URGENTES":"⚠️","ESTIMATION VISUELLE":"💰","POTENTIEL VALORISATION":"📈"};
+    var out="<div>";
+    secs.forEach(function(s){
+      var p="["+s+"]";var idx=txt.indexOf(p);if(idx===-1)return;
+      var ni=txt.length;
+      secs.forEach(function(s2){if(s2!==s){var j=txt.indexOf("["+s2+"]",idx+1);if(j>idx&&j<ni)ni=j;}});
+      out+="<div class='vision-section'><div class='vision-section-lbl'>"+icos[s]+" "+s+"</div>"
+        +"<div style='font-size:11px;line-height:1.85;white-space:pre-wrap'>"+txt.slice(idx+p.length,ni).trim()+"</div></div>";
+    });
+    out+="</div>";
+    vr.innerHTML=out;
+    if(vb){vb.textContent="✓ "+images.length+" image"+(images.length>1?"s":"")+" analysee"+(images.length>1?"s":"");vb.className="badge green";}
+    if(btn)btn.textContent="📷 Ré-analyser";
+  }catch(e){
+    visionRunning=false;
+    vr.innerHTML="<div style='color:#e07070;font-size:11px'>Erreur : "+e.message+"</div>";
+    if(btn)btn.textContent="📷 Analyser medias";
+  }
+}
+
+/* ==================== IA STRATÉGIE ==================== */
+function lancerIA(){
+  if(iaRunning)return;
+  var actifs=Object.keys(posteStates).filter(function(id){return posteStates[id]&&posteStates[id].active;});
+  if(!actifs.length){alert("Selectionnez au moins un poste de travaux.");return;}
+  iaRunning=true;
+  var surf=+document.getElementById("surface").value||50;
+  var annee=+document.getElementById("annee").value||1972;
+  var addr=document.getElementById("adresse").value||"non precise";
+  var zone=document.getElementById("zone");
+  var zoneLbl=zone.options[zone.selectedIndex].text;
+  var totMin=0,totMax=0,totMoy=0;
+  var lignes=actifs.map(function(id){
+    var r=getRange(id);totMin+=r.min;totMax+=r.max;totMoy+=r.moy;
+    return "- "+POSTES[id].label+" (niveau "+(posteStates[id].niveau||"moyen")+") : "+f(r.moy)+" EUR ("+f(r.min)+"-"+f(r.max)+" EUR)";
+  }).join("\n");
+  var prompt="Expert renovation immobiliere. Analyse ce projet et donne des recommandations concretes.\n\nPROJET : "+addr+" - "+surf+"m2 - Annee "+annee+" - Zone : "+zoneLbl+" - Objectif : "+vals.obj+" - Etat : "+vals.etat
+    +"\n\nPOSTES :\n"+lignes+"\nTOTAL : "+f(totMoy)+" EUR ("+f(totMin)+"-"+f(totMax)+" EUR)\n\n"
+    +"Reponds avec ces sections entre crochets :\n[PRIORITES] Ordre et justification.\n[PIEGES] Risques specifiques.\n[OPTIMISATIONS] Reduire les couts.\n[VALORISATION] ROI attendu selon l-objectif.";
+
+  var box=document.getElementById("ia-box");
+  var badge=document.getElementById("badge-ia");
+  if(badge){badge.textContent="Analyse...";badge.className="badge gold";}
+  box.innerHTML="<div style='display:flex;align-items:center;gap:8px;padding:10px'><div class='loader'></div><span style='font-size:11px;color:rgba(26,25,22,.45)'>Analyse strategique en cours...</span></div>";
+
+  fetch('/.netlify/functions/claude-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1400,messages:[{role:"user",content:prompt}]})}).then(function(data){
+    iaRunning=false;
+    var txt=data.content&&data.content[0]?data.content[0].text:"";
+    if(!txt){box.innerHTML="<div style='color:var(--red);font-size:11px'>Erreur API.</div>";return;}
+    var secs=["PRIORITES","PIEGES","OPTIMISATIONS","VALORISATION"];
+    var icos={PRIORITES:"🎯",PIEGES:"⚠️",OPTIMISATIONS:"💡",VALORISATION:"📈"};
+    var out="<div>";
+    secs.forEach(function(s){
+      var p="["+s+"]";var idx=txt.indexOf(p);if(idx===-1)return;
+      var ni=txt.length;
+      secs.forEach(function(s2){if(s2!==s){var j=txt.indexOf("["+s2+"]",idx+1);if(j>idx&&j<ni)ni=j;}});
+      out+="<div class='ia-section'><div class='ia-section-hdr'>"+icos[s]+" "+s+"</div>"
+        +"<div style='font-size:11px;line-height:1.8;white-space:pre-wrap'>"+txt.slice(idx+p.length,ni).trim()+"</div></div>";
+    });
+    box.innerHTML=out+"</div>";
+    if(badge){badge.textContent="✓ Analyse complete";badge.className="badge green";}
+  }).catch(function(e){
+    iaRunning=false;
+    box.innerHTML="<div style='color:var(--red);font-size:11px'>Erreur : "+e.message+"</div>";
+    if(badge){badge.textContent="Erreur";badge.className="badge red";}
+  });
+}
+
+function resetAll(){
+  if(confirm("Reinitialiser ?")){}else return;
+  posteStates={};mediaFiles=[];
+  document.getElementById("adresse").value="";
+  document.getElementById("budget_max").value="";
+  document.getElementById("media-grid").innerHTML="";
+  document.getElementById("media-count").textContent="";
+  document.getElementById("k-medias").textContent="0";
+  document.getElementById("vision-result").innerHTML="Chargez des photos ou videos du bien dans le panneau gauche, puis cliquez sur Analyser medias.";
+  updateVisionBadge();
+  renderPostes();calc();
+}
+
+renderPostes();calc();
+
+function toast(msg,dur){
+  var t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1916;color:#f4f2ee;padding:10px 20px;border-radius:4px;font-size:12px;z-index:9999;pointer-events:none;transition:opacity .3s;font-family:Outfit,sans-serif';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';},dur||2500);
+}
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+</body>
+</html>

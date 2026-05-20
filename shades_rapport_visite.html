@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Rapport de visite</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--green:#27500a;--red:#a32d2d}
+body{font-family:'Outfit',sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+.sbar{display:flex;height:2px}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:rgba(26,25,22,.97);border-bottom:.5px solid rgba(244,242,238,.06);position:sticky;top:0;z-index:100}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:16px;letter-spacing:.25em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-sub{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,242,238,.28);margin-top:1px}
+.btn-hdr{padding:6px 14px;border:.5px solid rgba(244,242,238,.15);border-radius:3px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;color:rgba(244,242,238,.5);background:transparent;transition:all .2s}
+.btn-hdr:hover{color:#f4f2ee;border-color:rgba(244,242,238,.3)}
+.btn-hdr.gold{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+.wrap{display:grid;grid-template-columns:360px 1fr;min-height:calc(100vh - 52px)}
+.left{background:var(--wall);border-right:.5px solid rgba(26,25,22,.08);padding:20px 16px;overflow-y:auto;max-height:calc(100vh - 52px);position:sticky;top:52px}
+.right{padding:24px 28px;overflow-y:auto}
+.ct{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:rgba(26,25,22,.38);font-weight:300;margin:18px 0 8px;padding-bottom:6px;border-bottom:.5px solid rgba(26,25,22,.07)}
+.ct:first-child{margin-top:0}
+.fld{margin-bottom:10px}
+.lbl{font-size:10px;color:rgba(26,25,22,.5);font-weight:300;margin-bottom:4px}
+.inp{width:100%;padding:7px 10px;border:.5px solid rgba(26,25,22,.18);border-radius:3px;font-size:11px;font-family:'Outfit',sans-serif;color:var(--dark);background:#fff;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:70px;line-height:1.6}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rtabs{display:flex;gap:4px;flex-wrap:wrap}
+.rtab{padding:5px 10px;border:.5px solid rgba(26,25,22,.15);border-radius:3px;font-size:9px;font-weight:300;cursor:pointer;background:#fff;color:rgba(26,25,22,.55);transition:all .15s;font-family:'Outfit',sans-serif}
+.rtab.on{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+.note-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.note-item{display:flex;flex-direction:column;gap:3px}
+.note-lbl{font-size:9px;color:rgba(26,25,22,.45);font-weight:300}
+.stars{display:flex;gap:3px}
+.star{font-size:16px;cursor:pointer;color:rgba(26,25,22,.15);transition:color .1s}
+.star.on{color:var(--gold)}
+.section{background:#fff;border-radius:8px;border:.5px solid rgba(26,25,22,.08);padding:20px 22px;margin-bottom:14px}
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300}
+.sec-badge{padding:3px 10px;border-radius:10px;font-size:8px;letter-spacing:.06em;text-transform:uppercase;font-weight:300}
+.sec-badge.gold{background:rgba(184,146,42,.1);color:var(--gold);border:.5px solid rgba(184,146,42,.3)}
+.sec-badge.green{background:rgba(39,80,10,.1);color:var(--green);border:.5px solid rgba(39,80,10,.2)}
+.rapport-box{background:var(--wall);border-radius:6px;padding:18px;font-size:12px;line-height:1.8;color:rgba(26,25,22,.75);font-weight:300;white-space:pre-wrap;min-height:120px}
+.score-global{background:var(--dark);border-radius:10px;padding:20px 24px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.score-num{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:#f4f2ee;line-height:1}
+.score-num em{font-size:22px;color:var(--gold);font-style:normal}
+.score-verdict{font-size:13px;font-weight:300;margin-top:4px}
+.criteres-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.critere-item{padding:10px 12px;background:var(--wall);border-radius:5px;display:flex;justify-content:space-between;align-items:center}
+.critere-name{font-size:11px;font-weight:300;color:rgba(26,25,22,.65)}
+.critere-stars{font-size:13px;letter-spacing:1px;color:var(--gold)}
+.ia-box{background:var(--wall);border-radius:6px;padding:16px;min-height:80px;font-size:11px;color:rgba(26,25,22,.7);line-height:1.75;font-weight:300}
+@keyframes dot{0%,80%,100%{transform:scale(.4);opacity:.3}40%{transform:scale(1);opacity:1}}
+@media print{.hdr .btn-hdr,.left{display:none!important}.wrap{grid-template-columns:1fr!important}.right{padding:0!important}body{background:#fff}}
+
+.tunnel-bar{position:sticky;bottom:0;z-index:100;background:#1a1916;border-top:.5px solid rgba(184,146,42,.25);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tunnel-label{font-size:10px;color:rgba(244,242,238,.4);letter-spacing:.06em}
+.tunnel-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--gold, #b8922a);color:#1a1916;text-decoration:none;border-radius:3px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;font-family:inherit;border:none;cursor:pointer}
+.tunnel-btn:hover{opacity:.85}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+</style>
+  <meta name="description" content="Rapport de visite immobilier IA — 10 critères, score /50, compte-rendu PDF en 10 secondes.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+<div class="sbar"><span style="flex:1;background:#e8e4dc"></span><span style="flex:1;background:#c4c0b8"></span><span style="flex:1;background:#b8922a"></span><span style="flex:1;background:#1e1e1c"></span></div>
+<div class="hdr">
+  <div><div class="logo">SHADES<em>.</em></div><div class="hdr-sub">Rapport de visite · Outil interne</div></div>
+  <div style="display:flex;gap:8px">
+    <button class="btn-hdr" onclick="resetVisite()">↺ Nouvelle visite</button>
+    <button class="btn-hdr" onclick="genRapportIA()">⚡ Générer rapport IA</button>
+    <button class="btn-hdr gold" onclick="window.print()">↓ PDF client</button>
+  </div>
+</div>
+<div class="wrap">
+<div class="left">
+  <div class="ct">Le bien</div>
+  <div class="fld"><div class="lbl">Adresse complète</div><input class="inp" id="v-adresse" placeholder="12 rue Oberkampf, 75011 Paris" oninput="updatePreview()"></div>
+  <div class="row2">
+    <div class="fld"><div class="lbl">Prix demandé (€)</div><input class="inp" id="v-prix" type="number" min="0" placeholder="320000" oninput="updatePreview()"></div>
+    <div class="fld"><div class="lbl">Surface (m²)</div><input class="inp" id="v-surface" type="number" min="0" placeholder="48" oninput="updatePreview()"></div>
+  </div>
+  <div class="row2">
+    <div class="fld"><div class="lbl">Étage</div><input class="inp" id="v-etage" placeholder="3/6" oninput="updatePreview()"></div>
+    <div class="fld"><div class="lbl">DPE</div>
+      <select class="inp" id="v-dpe" onchange="updatePreview()">
+        <option value="">—</option>
+        <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+        <option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option>
+      </select>
+    </div>
+  </div>
+  <div class="fld"><div class="lbl">Type de bien</div>
+    <select class="inp" id="v-type" onchange="updatePreview()">
+      <option value="Appartement">Appartement</option>
+      <option value="Maison">Maison</option>
+      <option value="Studio">Studio</option>
+      <option value="Duplex">Duplex</option>
+      <option value="Local commercial">Local commercial</option>
+    </select>
+  </div>
+
+  <div class="ct">Le client</div>
+  <div class="row2">
+    <div class="fld"><div class="lbl">Prénom</div><input class="inp" id="v-prenom" placeholder="Jean" oninput="updatePreview()"></div>
+    <div class="fld"><div class="lbl">Nom</div><input class="inp" id="v-nom" placeholder="Dupont" oninput="updatePreview()"></div>
+  </div>
+  <div class="fld"><div class="lbl">Projet</div>
+    <div class="rtabs" id="tabs-projet">
+      <button class="rtab on" onclick="setProjet('Investissement locatif',this)">Locatif</button>
+      <button class="rtab" onclick="setProjet('Résidence principale',this)">RP</button>
+      <button class="rtab" onclick="setProjet('Résidence secondaire',this)">RS</button>
+      <button class="rtab" onclick="setProjet('Revente',this)">Revente</button>
+    </div>
+  </div>
+  <div class="fld"><div class="lbl">Budget max client (€)</div><input class="inp" id="v-budget" type="number" min="0" placeholder="350000" oninput="updatePreview()"></div>
+  <div class="fld"><div class="lbl">Date de visite</div><input class="inp" id="v-date" type="date" oninput="updatePreview()"></div>
+
+  <div class="ct">Notes de visite</div>
+  <div class="fld"><div class="lbl">Points positifs observés</div><textarea class="inp" id="v-positifs" placeholder="Lumineux, calme, bonne exposition sud-est, parquet ancien en bon état, cuisine récente..."></textarea></div>
+  <div class="fld"><div class="lbl">Points négatifs / travaux nécessaires</div><textarea class="inp" id="v-negatifs" placeholder="Salle de bain à refaire, DPE F attention aux charges, vis-à-vis côté rue..."></textarea></div>
+  <div class="fld"><div class="lbl">Remarques générales</div><textarea class="inp" id="v-remarques" placeholder="Copropriété bien tenue, syndic réactif, travaux toiture 2022..."></textarea></div>
+
+  <div class="ct">Notation par critère</div>
+  <div class="note-grid" id="note-grid"></div>
+</div>
+
+<div class="right">
+  <div class="score-global">
+    <div>
+      <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:6px">Score SHADES</div>
+      <div class="score-num" id="score-num">—<em>/50</em></div>
+      <div class="score-verdict" id="score-verdict" style="color:rgba(244,242,238,.4)">Notez les critères à gauche</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:6px">Prix au m²</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#f4f2ee" id="prix-m2">—</div>
+      <div style="font-size:10px;color:rgba(244,242,238,.3);font-weight:300">EUR/m²</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-title">Notes par critère</div>
+      <div class="sec-badge gold" id="badge-note">—</div>
+    </div>
+    <div class="criteres-grid" id="criteres-display"></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hdr">
+      <div class="sec-title">Rapport de visite IA</div>
+      <div class="sec-badge gold" id="badge-rapport">⚡ Générer</div>
+    </div>
+    <div class="ia-box" id="rapport-box">
+      <div style="text-align:center;padding:16px 0">
+        <div style="font-size:11px;color:rgba(26,25,22,.35);font-weight:300;margin-bottom:10px">L'IA rédige un rapport professionnel complet à envoyer directement au client.</div>
+        <button onclick="genRapportIA()" style="padding:9px 20px;background:var(--dark);color:#f4f2ee;border:none;border-radius:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:Outfit,sans-serif">⚡ Générer le rapport</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-hdr"><div class="sec-title">Recommandation SHADES</div></div>
+    <div id="reco-box" style="font-size:11px;color:rgba(26,25,22,.6);line-height:1.8;font-weight:300">Notez les critères pour obtenir une recommandation.</div>
+  </div>
+</div>
+</div>
+
+<script>
+var projet='Investissement locatif';
+var iaGenerating=false;
+var notes={};
+
+var CRITERES=[
+  {id:'localisation',label:'Localisation'},
+  {id:'luminosite',label:'Luminosite'},
+  {id:'etat_general',label:'Etat general'},
+  {id:'agencement',label:'Agencement'},
+  {id:'charges',label:'Charges / copro'},
+  {id:'rapport_prix',label:'Rapport qualite/prix'},
+  {id:'potentiel',label:'Potentiel locatif'},
+  {id:'transports',label:'Transports'},
+  {id:'calme',label:'Calme / vis-a-vis'},
+  {id:'immeuble',label:'Immeuble / syndic'},
+];
+
+function setProjet(v,btn){
+  projet=v;
+  btn.parentElement.querySelectorAll('.rtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  updatePreview();
+}
+
+function renderNoteGrid(){
+  var grid=document.getElementById('note-grid');
+  if(!grid) return;
+  grid.innerHTML=CRITERES.map(function(c){
+    var n=notes[c.id]||0;
+    var stars=[1,2,3,4,5].map(function(s){
+      return '<span class="star'+(s<=n?' on':'')+'" onclick="setNote(\''+c.id+'\','+s+')">&#9733;</span>';
+    }).join('');
+    return '<div class="note-item"><div class="note-lbl">'+c.label+'</div><div class="stars">'+stars+'</div></div>';
+  }).join('');
+}
+
+function setNote(id,val){
+  notes[id]=val;
+  renderNoteGrid();
+  updatePreview();
+}
+
+function updatePreview(){
+  var prix=+(document.getElementById('v-prix')||{value:0}).value||0;
+  var surface=+(document.getElementById('v-surface')||{value:0}).value||0;
+  var pm=document.getElementById('prix-m2');
+  if(pm) pm.textContent=prix&&surface?Math.round(prix/surface).toLocaleString('fr-FR'):'—';
+
+  var total=Object.values(notes).reduce(function(s,v){return s+v;},0);
+  var maxPossible=CRITERES.length*5;
+  var sn=document.getElementById('score-num');
+  if(sn) sn.innerHTML=(total>0?total:'—')+'<em>/'+maxPossible+'</em>';
+  var sv=document.getElementById('score-verdict');
+  if(sv&&total>0){
+    var pct=total/maxPossible;
+    sv.textContent=pct>=0.8?'Excellent bien - A recommander vivement':pct>=0.65?'Bon bien - A considererer':pct>=0.5?'Bien moyen - Des reserves':pct>=0.35?'Bien mediocre - Prudence':'Bien insuffisant - Deconseille';
+    sv.style.color=pct>=0.65?'#7bc67e':pct>=0.5?'#f9c74f':'#e07070';
+  }
+
+  var badge=document.getElementById('badge-note');
+  if(badge){
+    var noted=Object.keys(notes).filter(function(k){return notes[k]>0;}).length;
+    badge.textContent=noted+'/'+CRITERES.length+' criteres notes';
+  }
+
+  var disp=document.getElementById('criteres-display');
+  if(disp){
+    var noted2=CRITERES.filter(function(c){return (notes[c.id]||0)>0;});
+    disp.innerHTML=noted2.length?noted2.map(function(c){
+      var n=notes[c.id]||0;
+      return '<div class="critere-item"><span class="critere-name">'+c.label+'</span><span class="critere-stars">'+Array(n+1).join('★')+'</span></div>';
+    }).join(''):'<div style="color:rgba(26,25,22,.35);font-size:11px;padding:10px">Notez les criteres dans le panneau gauche</div>';
+  }
+
+  genReco(total,maxPossible);
+}
+
+function genReco(score,max){
+  var rb=document.getElementById('reco-box');
+  if(!rb) return;
+  if(!score){rb.textContent='Notez les criteres pour obtenir une recommandation.';return;}
+  var pct=score/max;
+  var prix=+(document.getElementById('v-prix')||{value:0}).value||0;
+  var budget=+(document.getElementById('v-budget')||{value:0}).value||0;
+  var recos=[];
+  if(pct>=0.75) recos.push('Le bien obtient un excellent score. Recommandation de faire une offre rapide - la tension locative de ce type de bien est forte.');
+  else if(pct>=0.6) recos.push('Le bien est satisfaisant. Une offre a -3/-5% serait justifiee au vu des criteres moins bien notes.');
+  else if(pct>=0.45) recos.push('Plusieurs reserves. Negocier fermement (5-8% de reduction) ou envisager un autre bien.');
+  else recos.push('Score insuffisant. Ce bien ne correspond pas aux criteres recherches. Deconseille.');
+
+  if(prix&&budget&&prix>budget) recos.push('Attention : le prix demande ('+Math.round(prix/1000)+'k EUR) depasse le budget client ('+Math.round(budget/1000)+'k EUR). Negociation indispensable.');
+  if(notes['charges']&&notes['charges']<=2) recos.push('Les charges de copropriete ou la gestion du syndic meritent une verification approfondie (PV AG, carnet entretien).');
+  if(notes['etat_general']&&notes['etat_general']<=2) recos.push('L\'etat general necessite des travaux. Prevoir une visite avec un artisan pour chiffrer avant offre.');
+
+  rb.innerHTML=recos.map(function(r){return '<div style="display:flex;gap:8px;margin-bottom:8px"><div style="color:var(--gold);flex-shrink:0">></div><div>'+r+'</div></div>';}).join('');
+}
+
+function genRapportIA(){
+  if(iaGenerating) return;
+  var adresse=(document.getElementById('v-adresse')||{value:''}).value||'Adresse non renseignee';
+  var prix=+(document.getElementById('v-prix')||{value:0}).value||0;
+  var surface=+(document.getElementById('v-surface')||{value:0}).value||0;
+  var etage=(document.getElementById('v-etage')||{value:''}).value;
+  var dpe=(document.getElementById('v-dpe')||{value:''}).value;
+  var type=(document.getElementById('v-type')||{value:'Appartement'}).value;
+  var prenom=(document.getElementById('v-prenom')||{value:''}).value||'';
+  var nom=(document.getElementById('v-nom')||{value:''}).value||'';
+  var date=(document.getElementById('v-date')||{value:''}).value;
+  var positifs=(document.getElementById('v-positifs')||{value:''}).value;
+  var negatifs=(document.getElementById('v-negatifs')||{value:''}).value;
+  var remarques=(document.getElementById('v-remarques')||{value:''}).value;
+  var budget=+(document.getElementById('v-budget')||{value:0}).value||0;
+
+  var total=Object.values(notes).reduce(function(s,v){return s+v;},0);
+  var max=CRITERES.length*5;
+  var notesDetail=CRITERES.filter(function(c){return (notes[c.id]||0)>0;}).map(function(c){return '- '+c.label+' : '+notes[c.id]+'/5';}).join('\n');
+
+  var prompt='Tu es un conseiller en investissement immobilier SHADES. Redige un rapport de visite professionnel et personnalise a envoyer directement au client.\n\n'
+    +'VISITE :\n- Bien : '+adresse+'\n- Type : '+type+' - Surface : '+surface+'m2 - Etage : '+(etage||'NC')+'\n'
+    +'- Prix demande : '+prix.toLocaleString('fr-FR')+'EUR'+(surface?' ('+Math.round(prix/surface)+' EUR/m2)':'')+'\n'
+    +(dpe?'- DPE : '+dpe+'\n':'')
+    +'- Date de visite : '+(date||new Date().toLocaleDateString('fr-FR'))+'\n\n'
+    +'CLIENT : '+(prenom+' '+nom).trim()+'\n'
+    +'- Projet : '+projet+'\n'
+    +(budget?'- Budget max : '+budget.toLocaleString('fr-FR')+'EUR\n':'')
+    +'\nNOTATIONS : Score global '+total+'/'+max+'\n'+notesDetail+'\n\n'
+    +(positifs?'POINTS POSITIFS OBSERVES :\n'+positifs+'\n\n':'')
+    +(negatifs?'POINTS NEGATIFS / TRAVAUX :\n'+negatifs+'\n\n':'')
+    +(remarques?'REMARQUES :\n'+remarques+'\n\n':'')
+    +'Redige un rapport de visite complet avec :\n'
+    +'1. Une introduction personnalisee au client\n'
+    +'2. Synthese du bien visite (points forts / points de vigilance)\n'
+    +'3. Analyse de la pertinence par rapport au projet ('+projet+')\n'
+    +'4. Recommandation concrète (achat / offre a faire / passer) avec justification\n'
+    +'5. Prochaines etapes suggerees\n\n'
+    +'Ton : professionnel, bienveillant, concis. Tutoyer le client si prenom fourni. Maximum 400 mots.';
+
+  var box=document.getElementById('rapport-box');
+  var badge=document.getElementById('badge-rapport');
+  iaGenerating=true;
+  if(badge){badge.textContent='Generation...';badge.className='sec-badge gold';}
+  box.innerHTML='<div style="padding:20px;text-align:center"><div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,25,22,.4);margin-bottom:12px">Redaction du rapport en cours...</div><div style="display:flex;justify-content:center;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);animation:dot 1.2s infinite 0s"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);animation:dot 1.2s infinite .2s"></div><div style="width:6px;height:6px;border-radius:50%;background:var(--gold);animation:dot 1.2s infinite .4s"></div></div></div>';
+
+  fetch('/.netlify/functions/claude-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:800,messages:[{role:'user',content:prompt}]})}).then(function(data){
+    iaGenerating=false;
+    var txt=data.content&&data.content[0]?data.content[0].text:'';
+    if(!txt){box.innerHTML='<div style="color:#a32d2d;font-size:11px">Erreur API.</div>';return;}
+    box.innerHTML='<div style="white-space:pre-wrap;font-size:11.5px;line-height:1.85;color:rgba(26,25,22,.75);font-weight:300">'+txt+'</div>'
+      +'<div style="margin-top:14px;padding-top:12px;border-top:.5px solid rgba(26,25,22,.1);display:flex;gap:8px">'
+      +'<button onclick="copierRapport()" style="padding:7px 14px;background:var(--dark);color:#f4f2ee;border:none;border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:Outfit,sans-serif">Copier le rapport</button>'
+      +'<button onclick="emailRapport()" style="padding:7px 14px;background:transparent;color:rgba(26,25,22,.55);border:.5px solid rgba(26,25,22,.2);border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:Outfit,sans-serif">Envoyer par email</button>'
+      +'</div>';
+    if(badge){badge.textContent='Rapport genere';badge.className='sec-badge green';}
+  }).catch(function(err){
+    iaGenerating=false;
+    box.innerHTML='<div style="color:#a32d2d;font-size:11px">Erreur : '+err.message+'</div>';
+    if(badge){badge.textContent='Erreur';badge.className='sec-badge gold';}
+  });
+}
+
+function copierRapport(){
+  var box=document.getElementById('rapport-box');
+  if(!box) return;
+  var txt=box.querySelector('div')?.textContent||'';
+  navigator.clipboard.writeText(txt).then(function(){alert('Rapport copie dans le presse-papiers');}).catch(function(){prompt('Rapport :',txt);});
+}
+
+function emailRapport(){
+  var prenom=(document.getElementById('v-prenom')||{value:''}).value;
+  var nom=(document.getElementById('v-nom')||{value:''}).value;
+  var adresse=(document.getElementById('v-adresse')||{value:''}).value;
+  var box=document.getElementById('rapport-box');
+  var txt=box?box.querySelector('div')?.textContent||'':'';
+  var subject='Compte-rendu de visite - '+adresse;
+  window.location.href='mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(txt);
+}
+
+function resetVisite(){
+  if(confirm('Reinitialiser ?')){
+    notes={};
+    ['v-adresse','v-prix','v-surface','v-etage','v-prenom','v-nom','v-budget','v-positifs','v-negatifs','v-remarques'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+    renderNoteGrid();
+    updatePreview();
+    var box=document.getElementById('rapport-box');
+    if(box) box.innerHTML='<div style="text-align:center;padding:16px 0"><div style="font-size:11px;color:rgba(26,25,22,.35);font-weight:300;margin-bottom:10px">L\'IA redige un rapport professionnel complet a envoyer directement au client.</div><button onclick="genRapportIA()" style="padding:9px 20px;background:var(--dark);color:#f4f2ee;border:none;border-radius:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:Outfit,sans-serif">Generer le rapport</button></div>';
+  }
+}
+
+// Set today's date by default
+var today=new Date().toISOString().split('T')[0];
+var dateEl=document.getElementById('v-date');
+if(dateEl) dateEl.value=today;
+
+renderNoteGrid();
+updatePreview();
+
+function toast(msg,dur){
+  var t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1916;color:#f4f2ee;padding:10px 20px;border-radius:4px;font-size:12px;z-index:9999;pointer-events:none;transition:opacity .3s;font-family:Outfit,sans-serif';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';},dur||2500);
+}
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+
+<div class="tunnel-bar">
+  <span class="tunnel-label">Étape suivante</span>
+  <a class='tunnel-btn' href='/shades_financement'>→ Dossier financement →</a>
+</div>
+</body>
+</html>

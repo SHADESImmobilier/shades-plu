@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Générateur d'Annonces IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--gold2:#d4aa45;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--border:rgba(26,25,22,.09);--muted:rgba(26,25,22,.38);--green:#2d6a1f;--red:#a32d2d;--blue:#1a3a6b}
+body{font-family:'Outfit',sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+.sbar{height:2px;background:linear-gradient(90deg,#e8e4dc 20%,var(--gold) 60%,var(--dark) 100%)}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:10px 24px;background:rgba(26,25,22,.98);border-bottom:.5px solid rgba(244,242,238,.07);position:sticky;top:0;z-index:300}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:15px;letter-spacing:.28em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-tag{font-size:6.5px;letter-spacing:.22em;text-transform:uppercase;color:rgba(244,242,238,.22);margin-top:1px}
+.hdr-actions{display:flex;gap:6px;align-items:center}
+.btn{padding:5px 13px;border-radius:2px;font-size:8px;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .18s;white-space:nowrap}
+.btn-ghost{border:.5px solid rgba(244,242,238,.14);color:rgba(244,242,238,.5);background:transparent}
+.btn-ghost:hover{color:#f4f2ee;border-color:rgba(244,242,238,.35)}
+.btn-gold{background:var(--gold);color:var(--dark);border:.5px solid var(--gold);font-weight:500}
+.btn-dark{background:var(--dark);color:#f4f2ee;border:.5px solid var(--dark)}
+.tabs{display:flex;gap:0;background:rgba(26,25,22,.98);border-bottom:.5px solid rgba(244,242,238,.06);padding:0 24px}
+.tab{padding:10px 18px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,242,238,.3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover{color:rgba(244,242,238,.7)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.stats-bar{display:flex;gap:20px;padding:12px 26px;background:#fff;border-bottom:.5px solid var(--border)}
+.stat-item{display:flex;align-items:center;gap:8px}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--dark)}
+.stat-lbl{font-size:9px;color:var(--muted);margin-top:-2px}
+.gen-layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 90px)}
+.gen-panel{background:var(--wall);border-right:.5px solid var(--border);padding:18px 16px;overflow-y:auto;max-height:calc(100vh - 90px);position:sticky;top:90px}
+.gen-main{padding:22px 26px;overflow-y:auto}
+.sec{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px;padding-bottom:5px;border-bottom:.5px solid var(--border)}
+.sec:first-child{margin-top:0}
+.fld{margin-bottom:9px}
+.lbl{font-size:9px;color:rgba(26,25,22,.45);margin-bottom:3px}
+.inp{width:100%;padding:7px 9px;border:.5px solid rgba(26,25,22,.16);border-radius:3px;font-size:11px;font-family:inherit;color:var(--dark);background:#fff;outline:none;transition:border-color .18s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;min-height:56px;line-height:1.65}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{padding:4px 10px;border:.5px solid rgba(26,25,22,.14);border-radius:2px;font-size:8px;cursor:pointer;background:#fff;color:rgba(26,25,22,.5);transition:all .14s;font-family:inherit}
+.chip.on{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+.equip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px}
+.equip-item{display:flex;align-items:center;gap:6px;padding:5px 7px;background:#fff;border-radius:3px;border:.5px solid var(--border);cursor:pointer;transition:all .14s;font-size:9.5px;color:rgba(26,25,22,.6)}
+.equip-item.on{background:rgba(184,146,42,.07);border-color:rgba(184,146,42,.3);color:var(--dark)}
+.equip-cb{width:12px;height:12px;border:.5px solid rgba(26,25,22,.2);border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px;transition:all .15s}
+.equip-item.on .equip-cb{background:var(--gold);border-color:var(--gold);color:var(--dark)}
+.card{background:#fff;border-radius:8px;border:.5px solid var(--border);padding:0;margin-bottom:12px;overflow:hidden}
+.card-hdr-tabs{display:flex;border-bottom:.5px solid var(--border);background:var(--wall)}
+.ctab{padding:10px 16px;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;color:rgba(26,25,22,.4);border-bottom:2px solid transparent;transition:all .18s}
+.ctab.active{color:var(--dark);border-bottom-color:var(--gold);background:#fff}
+.result-content{padding:22px 24px;min-height:200px}
+.result-text{font-size:12px;line-height:1.9;color:rgba(26,25,22,.78);white-space:pre-wrap;font-family:'Outfit',sans-serif}
+.result-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;color:rgba(26,25,22,.28)}
+.result-ico{font-size:32px;margin-bottom:10px}
+.badge{padding:3px 10px;border-radius:10px;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase}
+.badge.gold{background:rgba(184,146,42,.1);color:var(--gold);border:.5px solid rgba(184,146,42,.28)}
+.badge.green{background:rgba(45,106,31,.1);color:var(--green);border:.5px solid rgba(45,106,31,.22)}
+.badge.red{background:rgba(163,45,45,.1);color:var(--red);border:.5px solid rgba(163,45,45,.2)}
+.badge.blue{background:rgba(26,58,107,.1);color:var(--blue);border:.5px solid rgba(26,58,107,.2)}
+.tpl-layout{padding:22px 26px}
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.tpl-card{background:#fff;border-radius:8px;border:.5px solid var(--border);padding:18px 20px;cursor:pointer;transition:all .2s;position:relative}
+.tpl-card:hover{border-color:rgba(184,146,42,.3);box-shadow:0 4px 16px rgba(26,25,22,.08)}
+.tpl-card.dft{border-color:rgba(26,25,22,.12);background:var(--wall)}
+.tpl-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;margin-bottom:4px}
+.tpl-desc{font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.tpl-tag{padding:2px 7px;background:rgba(26,25,22,.06);border-radius:2px;font-size:8px;color:rgba(26,25,22,.5);margin-right:4px}
+.tpl-form{background:#fff;border-radius:8px;border:.5px solid var(--border);padding:22px;margin-bottom:16px}
+.tpl-form-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.biens-layout{padding:22px 26px}
+.bien-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.bien-card{background:#fff;border-radius:8px;border:.5px solid var(--border);overflow:hidden;transition:all .2s}
+.bien-card:hover{box-shadow:0 4px 16px rgba(26,25,22,.1);border-color:rgba(184,146,42,.25)}
+.bien-img{height:100px;background:linear-gradient(135deg,var(--wall),rgba(184,146,42,.08));display:flex;align-items:center;justify-content:center;font-size:32px;border-bottom:.5px solid var(--border)}
+.bien-body{padding:12px}
+.bien-adresse{font-size:11px;font-weight:400;margin-bottom:2px}
+.bien-actions{display:flex;gap:5px;margin-top:8px}
+.bien-btn{flex:1;padding:5px 6px;border-radius:2px;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center}
+.bien-btn.primary{background:var(--dark);color:#f4f2ee;border:.5px solid var(--dark)}
+.bien-btn.secondary{background:transparent;color:rgba(26,25,22,.5);border:.5px solid rgba(26,25,22,.15)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,25,22,.6);z-index:500;backdrop-filter:blur(4px);align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;width:580px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(26,25,22,.2)}
+.modal-hdr{padding:18px 22px;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:1}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300}
+.modal-close{width:26px;height:26px;border:none;background:var(--wall);border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:20px 22px}
+.modal-footer{padding:14px 22px;border-top:.5px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.gen-overlay{display:none;position:absolute;inset:0;background:rgba(255,255,255,.92);z-index:10;align-items:center;justify-content:center;flex-direction:column;gap:12px;border-radius:8px}
+.gen-overlay.show{display:flex}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.spin{width:36px;height:36px;border:2px solid rgba(184,146,42,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+.fade-in{animation:fadeIn .35s ease}
+@media print{.tabs,.hdr,.gen-panel,.hdr-actions,.stats-bar{display:none!important}.gen-layout{grid-template-columns:1fr!important}.gen-main{padding:0!important}}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+</style>
+  <meta name="description" content="Générateur d'annonces immobilières IA — Rédigez des annonces professionnelles en 10 secondes.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+<div class="sbar"></div>
+<div class="hdr">
+  <div><div class="logo">SHADES<em>.</em></div><div class="hdr-tag">Annonces IA · Templates · Gestion Biens</div></div>
+  <div class="hdr-actions">
+    <button class="btn btn-ghost" onclick="openModal('modal-bien')">＋ Nouveau bien</button>
+    <button class="btn btn-ghost" onclick="genererAnnonce()">⚡ Générer</button>
+    <button class="btn btn-gold" onclick="window.print()">↓ PDF</button>
+  </div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('gen')">✍️ Générateur</div>
+  <div class="tab" onclick="switchTab('templates')">📐 Templates</div>
+  <div class="tab" onclick="switchTab('biens')">🏠 Mes Biens</div>
+</div>
+<div class="stats-bar">
+  <div class="stat-item"><span style="font-size:18px">🏠</span><div><div class="stat-num" id="stat-biens">0</div><div class="stat-lbl">Biens</div></div></div>
+  <div class="stat-item"><span style="font-size:18px">📝</span><div><div class="stat-num" id="stat-ann">0</div><div class="stat-lbl">Annonces générées</div></div></div>
+  <div class="stat-item"><span style="font-size:18px">📐</span><div><div class="stat-num" id="stat-tpls">0</div><div class="stat-lbl">Templates</div></div></div>
+</div>
+
+<!-- GÉNÉRATEUR -->
+<div class="tab-panel active" id="panel-gen">
+<div class="gen-layout">
+  <div class="gen-panel">
+    <div class="sec">Sélectionner un bien existant</div>
+    <select class="inp" id="sel-bien" onchange="chargerBien()" style="margin-bottom:10px"><option value="">— Saisie manuelle —</option></select>
+    <div class="sec">Le bien</div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">Type</div><select class="inp" id="f-type"><option>Appartement</option><option>Maison</option><option>Studio</option><option>Loft</option><option>Duplex</option><option>Villa</option><option>Local commercial</option><option>Bureau</option></select></div>
+      <div class="fld"><div class="lbl">Surface (m²)</div><input class="inp" id="f-surface" type="number" min="0" placeholder="68"></div>
+    </div>
+    <div class="fld"><div class="lbl">Adresse / Quartier</div><input class="inp" id="f-adresse" placeholder="75011 Paris, Oberkampf"></div>
+    <div class="r3">
+      <div class="fld"><div class="lbl">Prix (€)</div><input class="inp" id="f-prix" type="number" min="0"></div>
+      <div class="fld"><div class="lbl">Pièces</div><input class="inp" id="f-pieces" type="number" min="0"></div>
+      <div class="fld"><div class="lbl">Étage</div><input class="inp" id="f-etage" placeholder="3/6"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">DPE</div><select class="inp" id="f-dpe"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+      <div class="fld"><div class="lbl">GES</div><select class="inp" id="f-ges"><option value="">—</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option><option>F</option><option>G</option></select></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">Charges (€/mois)</div><input class="inp" id="f-charges" type="number" min="0"></div>
+      <div class="fld"><div class="lbl">Taxe foncière (€/an)</div><input class="inp" id="f-taxe" type="number" min="0"></div>
+    </div>
+    <div class="sec">Équipements</div>
+    <div class="equip-grid" id="equip-grid"></div>
+    <div class="fld" style="margin-top:8px"><div class="lbl">Points forts supplémentaires</div><textarea class="inp" id="f-atouts" placeholder="Vue dégagée, immeuble Haussmann, calme absolu côté cour..." rows="3"></textarea></div>
+    <div class="sec">Paramètres IA</div>
+    <div class="fld"><div class="lbl">Template actif</div><select class="inp" id="sel-template" onchange="updateTplInfo()"><option value="">— Sans template —</option></select></div>
+    <div id="tpl-info" style="display:none;margin-bottom:8px;padding:7px 9px;background:rgba(184,146,42,.06);border-radius:4px;border:.5px solid rgba(184,146,42,.2);font-size:9.5px;color:var(--gold)"></div>
+    <div class="fld"><div class="lbl">Plateforme</div>
+      <div class="chips">
+        <button class="chip on" onclick="setV('pf','seloger',this)">SeLoger</button>
+        <button class="chip" onclick="setV('pf','lbc',this)">LeBonCoin</button>
+        <button class="chip" onclick="setV('pf','pap',this)">PAP</button>
+        <button class="chip" onclick="setV('pf','premium',this)">Premium</button>
+        <button class="chip" onclick="setV('pf','mail',this)">Email pro</button>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Ton</div>
+      <div class="chips">
+        <button class="chip on" onclick="setV('ton','pro',this)">Professionnel</button>
+        <button class="chip" onclick="setV('ton','luxe',this)">Luxe</button>
+        <button class="chip" onclick="setV('ton','direct',this)">Direct</button>
+        <button class="chip" onclick="setV('ton','chaleureux',this)">Chaleureux</button>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Longueur</div>
+      <div class="chips">
+        <button class="chip" onclick="setV('lg','courte',this)">Courte</button>
+        <button class="chip on" onclick="setV('lg','standard',this)">Standard</button>
+        <button class="chip" onclick="setV('lg','longue',this)">Longue</button>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Transaction</div>
+      <div class="chips">
+        <button class="chip on" onclick="setV('tx','vente',this)">Vente</button>
+        <button class="chip" onclick="setV('tx','location',this)">Location</button>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Instructions spécifiques</div><textarea class="inp" id="f-instr" placeholder="Ex: Insister sur les transports. Ne pas mentionner le DPE." rows="3"></textarea></div>
+    <button onclick="genererAnnonce()" style="width:100%;padding:10px;background:var(--dark);color:#f4f2ee;border:none;border-radius:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;margin-top:4px">⚡ Générer l'annonce</button>
+  </div>
+
+  <div class="gen-main">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300">Annonce générée</div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <span class="badge gold" id="badge-gen">En attente</span>
+        <button id="btn-copy" style="display:none;padding:5px 12px;border:.5px solid rgba(26,25,22,.2);border-radius:2px;font-size:8px;cursor:pointer;font-family:inherit;background:#fff" onclick="copierAnnonce()">📋 Copier</button>
+        <button style="padding:5px 12px;border:.5px solid rgba(26,25,22,.2);border-radius:2px;font-size:8px;cursor:pointer;font-family:inherit;background:#fff" onclick="sauvegarderBien()">💾 Sauver bien</button>
+      </div>
+    </div>
+    <div class="card" style="position:relative">
+      <div class="gen-overlay" id="gen-overlay">
+        <div class="spin"></div>
+        <div style="font-size:11px;color:rgba(26,25,22,.5)" id="gen-status">Génération en cours...</div>
+      </div>
+      <div class="card-hdr-tabs">
+        <div class="ctab active" onclick="showCtab('annonce',this)">Annonce complète</div>
+        <div class="ctab" onclick="showCtab('titres',this)">Titres alternatifs</div>
+        <div class="ctab" onclick="showCtab('resume',this)">Résumé court</div>
+        <div class="ctab" onclick="showCtab('seo',this)">Mots-clés SEO</div>
+      </div>
+      <div class="result-content">
+        <div id="ctab-annonce">
+          <div class="result-placeholder" id="ph"><div class="result-ico">✍️</div><div style="font-size:13px;margin-bottom:4px">Prêt à générer</div><div style="font-size:11px;opacity:.6">Renseignez le bien et cliquez sur Générer</div></div>
+          <div class="result-text" id="txt-annonce" style="display:none"></div>
+        </div>
+        <div id="ctab-titres" style="display:none"><div class="result-text" id="txt-titres" style="color:var(--muted)">Générez une annonce d'abord.</div></div>
+        <div id="ctab-resume" style="display:none"><div class="result-text" id="txt-resume" style="color:var(--muted)">Générez une annonce d'abord.</div></div>
+        <div id="ctab-seo" style="display:none"><div class="result-text" id="txt-seo" style="color:var(--muted)">Générez une annonce d'abord.</div></div>
+      </div>
+    </div>
+    <div id="hist-wrap" style="display:none">
+      <div style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Historique récent</div>
+      <div id="hist-list" style="display:flex;flex-direction:column;gap:7px"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TEMPLATES -->
+<div class="tab-panel" id="panel-templates">
+<div class="tpl-layout">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div><div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300">Templates d'Annonces</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Créez des modèles que l'IA reproduira fidèlement</div></div>
+    <button class="btn btn-dark" onclick="openModal('modal-new-tpl')">＋ Nouveau template</button>
+  </div>
+  <div class="tpl-grid" id="tpl-grid"></div>
+  <div class="tpl-form" id="tpl-editor" style="display:none">
+    <div class="tpl-form-header">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300" id="tpl-ed-title">Nouveau template</div>
+      <div style="display:flex;gap:7px">
+        <button class="btn" style="border:.5px solid rgba(26,25,22,.2);color:var(--dark);background:#fff" onclick="closeTplEd()">Annuler</button>
+        <button class="btn btn-dark" onclick="saveTpl()">Sauvegarder</button>
+      </div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">Nom du template</div><input class="inp" id="te-name" placeholder="Ex: SeLoger Premium Luxe"></div>
+      <div class="fld"><div class="lbl">Catégorie</div><select class="inp" id="te-cat"><option>Vente standard</option><option>Vente luxe</option><option>Location</option><option>Investissement</option><option>Local commercial</option><option>Autre</option></select></div>
+    </div>
+    <div class="fld"><div class="lbl">Description (usage interne)</div><input class="inp" id="te-desc" placeholder="Pour quel type de bien et contexte ?"></div>
+    <div class="fld"><div class="lbl">Structure à suivre</div><div style="font-size:9px;color:var(--muted);margin-bottom:5px">Décrivez la structure exacte : sections, ordre, contenu de chaque partie...</div><textarea class="inp" id="te-structure" rows="6" placeholder="Ex: 1. ACCROCHE (2 lignes) sur l-atout principal. 2. LE BIEN : pièces avec superficies. 3. PRESTATIONS en liste. 4. LOCALISATION : transports, commerces. 5. CONTACT SHADES."></textarea></div>
+    <div class="fld"><div class="lbl">Ton et style</div><textarea class="inp" id="te-ton" rows="3" placeholder="Ex: Raffiné, qualitatifs précis (élégant, remarquable), phrases courtes, éviter les clichés."></textarea></div>
+    <div class="fld"><div class="lbl">Toujours inclure</div><textarea class="inp" id="te-toujours" rows="2" placeholder="Ex: DPE, prix net vendeur, mention SHADES Immobilier."></textarea></div>
+    <div class="fld"><div class="lbl">Éviter absolument</div><textarea class="inp" id="te-eviter" rows="2" placeholder="Ex: 'coup de cœur', 'ne cherchez plus', majuscules excessives."></textarea></div>
+    <input type="hidden" id="te-id">
+  </div>
+</div>
+</div>
+
+<!-- MES BIENS -->
+<div class="tab-panel" id="panel-biens">
+<div class="biens-layout">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div><div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300">Mes Biens</div><div style="font-size:10px;color:var(--muted);margin-top:2px">Portefeuille de biens — agents et mandats</div></div>
+    <div style="display:flex;gap:8px">
+      <input class="inp" id="search-bien" placeholder="🔍 Rechercher..." style="width:180px" oninput="renderBiens()">
+      <button class="btn btn-dark" onclick="openModal('modal-bien')">＋ Ajouter</button>
+    </div>
+  </div>
+  <div class="bien-grid" id="bien-grid"></div>
+  <div id="no-biens" style="text-align:center;padding:60px;color:var(--muted)">
+    <div style="font-size:40px;margin-bottom:10px">🏠</div>
+    <div style="font-size:14px;margin-bottom:5px">Aucun bien enregistré</div>
+    <div style="font-size:11px">Ajoutez votre premier bien ou sauvegardez depuis le générateur.</div>
+  </div>
+</div>
+</div>
+
+<!-- MODAL BIEN -->
+<div class="modal-overlay" id="modal-bien">
+<div class="modal">
+  <div class="modal-hdr"><div class="modal-title" id="mb-modal-title">Nouveau bien</div><button class="modal-close" onclick="closeModal('modal-bien')">×</button></div>
+  <div class="modal-body">
+    <div class="r2">
+      <div class="fld"><div class="lbl">Type</div><select class="inp" id="mb-type"><option>Appartement</option><option>Maison</option><option>Studio</option><option>Loft</option><option>Villa</option><option>Local commercial</option></select></div>
+      <div class="fld"><div class="lbl">Référence</div><input class="inp" id="mb-ref" placeholder="SH-2025-001"></div>
+    </div>
+    <div class="fld"><div class="lbl">Adresse</div><input class="inp" id="mb-adresse" placeholder="12 rue de la Paix, 75001 Paris"></div>
+    <div class="r3">
+      <div class="fld"><div class="lbl">Prix (€)</div><input class="inp" id="mb-prix" type="number" min="0"></div>
+      <div class="fld"><div class="lbl">Surface (m²)</div><input class="inp" id="mb-surface" type="number" min="0"></div>
+      <div class="fld"><div class="lbl">Pièces</div><input class="inp" id="mb-pieces" type="number" min="0"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><div class="lbl">Agent responsable</div><input class="inp" id="mb-agent" placeholder="Prénom Nom"></div>
+      <div class="fld"><div class="lbl">Statut</div><select class="inp" id="mb-statut"><option value="actif">En vente / Location</option><option value="compromis">Sous compromis</option><option value="vendu">Vendu / Loué</option><option value="archive">Archivé</option></select></div>
+    </div>
+    <div class="fld"><div class="lbl">Notes internes</div><textarea class="inp" id="mb-notes" rows="3" placeholder="Informations importantes sur le bien..."></textarea></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" style="border:.5px solid rgba(26,25,22,.2);color:var(--dark);background:#fff" onclick="closeModal('modal-bien')">Annuler</button>
+    <button class="btn btn-dark" onclick="saveBien()">Enregistrer</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL NOUVEAU TEMPLATE RAPIDE -->
+<div class="modal-overlay" id="modal-new-tpl">
+<div class="modal">
+  <div class="modal-hdr"><div class="modal-title">Démarrer un template</div><button class="modal-close" onclick="closeModal('modal-new-tpl')">×</button></div>
+  <div class="modal-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="tpl-card dft" onclick="creerTplRapide('seloger');closeModal('modal-new-tpl')" style="cursor:pointer"><div class="tpl-name">SeLoger Pro</div><div class="tpl-desc">Structure optimisée, ton neutre et précis.</div></div>
+      <div class="tpl-card dft" onclick="creerTplRapide('luxe');closeModal('modal-new-tpl')" style="cursor:pointer"><div class="tpl-name">Luxe & Prestige</div><div class="tpl-desc">Vocabulaire haut de gamme, mise en valeur premium.</div></div>
+      <div class="tpl-card dft" onclick="creerTplRapide('invest');closeModal('modal-new-tpl')" style="cursor:pointer"><div class="tpl-name">Investissement</div><div class="tpl-desc">Rendement, fiscalité, potentiel locatif en avant.</div></div>
+      <div class="tpl-card dft" onclick="creerTplRapide('lbc');closeModal('modal-new-tpl')" style="cursor:pointer"><div class="tpl-name">LBC Rapide</div><div class="tpl-desc">Court et direct, chiffres en avant-plan.</div></div>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="btn" style="border:.5px solid rgba(26,25,22,.2);color:var(--dark);background:#fff" onclick="closeModal('modal-new-tpl');ouvrirTplEd()">→ Template personnalisé depuis zéro</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var V={pf:"seloger",ton:"pro",lg:"standard",tx:"vente"};
+var running=false;
+var lastTxt="";
+var editBienId=null;
+var editTplId=null;
+
+function setV(k,v,btn){V[k]=v;btn.parentElement.querySelectorAll(".chip").forEach(function(b){b.classList.remove("on");});btn.classList.add("on");}
+function gv(id){return (document.getElementById(id)||{}).value||"";}
+function ls(k){try{return JSON.parse(localStorage.getItem(k)||"[]");}catch(e){return [];}}
+function lsSave(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,5);}
+function toast(msg,type){var t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:20px;right:20px;padding:10px 16px;border-radius:4px;font-size:11px;z-index:9999;font-family:Outfit,sans-serif;color:#fff;background:"+(type==="error"?"#a32d2d":"#2d6a1f");document.body.appendChild(t);setTimeout(function(){t.remove();},2600);}
+
+/* ÉQUIPEMENTS */
+var EQ=[{id:"balcon",ico:"🌿",l:"Balcon / Terrasse"},{id:"parking",ico:"🚗",l:"Parking / Box"},{id:"cave",ico:"🔒",l:"Cave"},{id:"ascenseur",ico:"🛗",l:"Ascenseur"},{id:"dv",ico:"🪟",l:"Double vitrage"},{id:"parquet",ico:"🪵",l:"Parquet"},{id:"bain",ico:"🛁",l:"Baignoire"},{id:"cui_eq",ico:"🍳",l:"Cuisine équipée"},{id:"dressing",ico:"👔",l:"Dressing"},{id:"fibre",ico:"📡",l:"Fibre"},{id:"clim",ico:"❄️",l:"Climatisation"},{id:"jardin",ico:"🌳",l:"Jardin / Cour"}];
+var EQS={};
+function renderEquip(){var g=document.getElementById("equip-grid");if(!g)return;g.innerHTML=EQ.map(function(e){return "<div class='equip-item"+(EQS[e.id]?" on":"")+"' onclick='tEQ(\""+e.id+"\")'><div class='equip-cb'>"+(EQS[e.id]?"✓":"")+"</div>"+e.ico+" "+e.l+"</div>";}).join("");}
+function tEQ(id){EQS[id]=!EQS[id];renderEquip();}
+function getEQ(){return EQ.filter(function(e){return EQS[e.id];}).map(function(e){return e.l;});}
+
+/* TEMPLATES PRÉDÉFINIS */
+var DTPLS=[
+  {id:"__sl",name:"SeLoger Professionnel",cat:"Vente standard",desc:"Structure optimisée SeLoger, ton neutre et précis",tags:["SeLoger","Pro"],
+   structure:"1. ACCROCHE (2 lignes): atout principal.\n2. LE BIEN: pièces avec superficies.\n3. PRESTATIONS: équipements.\n4. LOCALISATION: transports, commerces.\n5. INFOS PRATIQUES: charges, DPE, SHADES Immobilier.",
+   ton:"Professionnel, neutre, précis. Phrases courtes. Pas de superlatifs.",toujours:"DPE, prix, SHADES Immobilier.",eviter:"Clichés, superlatifs vides.",isD:true},
+  {id:"__lx",name:"Luxe & Prestige",cat:"Vente luxe",desc:"Vocabulaire haut de gamme, mise en valeur premium",tags:["Luxe","Premium"],
+   structure:"1. ACCROCHE poétique (3-4 lignes).\n2. LE CADRE: quartier et adresse.\n3. LES ESPACES: architecture et volumes.\n4. PRESTATIONS: équipements premium.\n5. ANNEXES: parking, terrasse + superficies.\n6. SIGNATURE SHADES - invitation visite privée.",
+   ton:"Raffiné. Adjectifs précis (remarquable, élégant). Évocation volumes et lumière.",toujours:"Superficies extérieures, orientation, SHADES.",eviter:"Mots vagues, listes excessives.",isD:true},
+  {id:"__inv",name:"Investissement Locatif",cat:"Investissement",desc:"Rendement, fiscalité, potentiel locatif pour investisseurs",tags:["Investissement","ROI"],
+   structure:"1. OPPORTUNITÉ: rendement immédiat.\n2. LE BIEN: type, surface, état.\n3. REVENUS LOCATIFS: loyer et rendement.\n4. FISCALITÉ: LMNP ou déficit foncier.\n5. LOCALISATION: bassin locatif.\n6. CONTACT SHADES.",
+   ton:"Factuel, chiffré, orienté ROI.",toujours:"Rendement brut calculé, loyer marché.",eviter:"Descriptions émotionnelles.",isD:true},
+  {id:"__lbc",name:"LeBonCoin Direct",cat:"Vente standard",desc:"Court et direct, chiffres en avant",tags:["LBC","Direct"],
+   structure:"1. Titre avec type, surface, ville, prix.\n2. 2-3 phrases max sur l-essentiel.\n3. Liste rapide: pièces, étage, DPE, charges.\n4. Contact direct.",
+   ton:"Direct, factuel. Phrases très courtes.",toujours:"Prix, surface, DPE, contact.",eviter:"Texte long.",isD:true},
+];
+
+function getAllTpls(){return DTPLS.concat(ls("shades_tpls"));}
+
+function renderTemplates(){
+  var grid=document.getElementById("tpl-grid");
+  var all=getAllTpls();
+  grid.innerHTML=all.map(function(t){
+    return "<div class='tpl-card"+(t.isD?" dft":"")+"'>"
+      +"<span class='badge "+(t.isD?"gold":"blue")+"' style='position:absolute;top:12px;right:12px'>"+(t.isD?"Défaut":"Custom")+"</span>"
+      +"<div class='tpl-name'>"+t.name+"</div>"
+      +"<div class='tpl-desc'>"+t.desc+"</div>"
+      +"<div style='margin-bottom:12px'>"+(t.tags||[]).map(function(g){return "<span class='tpl-tag'>"+g+"</span>";}).join("")+"</div>"
+      +"<div style='display:flex;gap:5px'>"
+      +"<button class='btn btn-dark' style='font-size:7px;padding:4px 10px' onclick='utiliserTpl(\""+t.id+"\")'>Utiliser</button>"
+      +(!t.isD?"<button class='btn' style='font-size:7px;padding:4px 10px;border:.5px solid rgba(26,25,22,.2);color:var(--dark);background:#fff' onclick='editTemplate(\""+t.id+"\")'>Éditer</button>":"")
+      +(!t.isD?"<button class='btn' style='font-size:7px;padding:4px 10px;border:.5px solid rgba(163,45,45,.2);color:var(--red);background:#fff' onclick='delTpl(\""+t.id+"\")'>×</button>":"")
+      +"</div></div>";
+  }).join("");
+  updateTplSel();updateStats();
+}
+
+function utiliserTpl(id){var tpl=getAllTpls().find(function(t){return t.id===id;});if(!tpl)return;document.getElementById("sel-template").value=id;updateTplInfo();switchTab("gen");toast("Template \""+tpl.name+"\" activé !");}
+
+function updateTplSel(){var sel=document.getElementById("sel-template");var all=getAllTpls();sel.innerHTML="<option value=''>— Sans template —</option>"+all.map(function(t){return "<option value='"+t.id+"'>"+t.name+"</option>";}).join("");}
+function updateTplInfo(){var id=gv("sel-template");var el=document.getElementById("tpl-info");if(!id){el.style.display="none";return;}var tpl=getAllTpls().find(function(t){return t.id===id;});if(!tpl){el.style.display="none";return;}el.style.display="block";el.textContent="📐 "+tpl.name+" · "+tpl.desc;}
+
+function ouvrirTplEd(){var ed=document.getElementById("tpl-editor");ed.style.display="block";ed.scrollIntoView({behavior:"smooth"});document.getElementById("tpl-ed-title").textContent="Nouveau template";["te-name","te-desc","te-structure","te-ton","te-toujours","te-eviter"].forEach(function(f){document.getElementById(f).value="";});document.getElementById("te-id").value="";editTplId=null;}
+function closeTplEd(){document.getElementById("tpl-editor").style.display="none";}
+function editTemplate(id){switchTab("templates");var tpl=ls("shades_tpls").find(function(t){return t.id===id;});if(!tpl)return;editTplId=id;document.getElementById("tpl-ed-title").textContent="Éditer le template";document.getElementById("te-name").value=tpl.name;document.getElementById("te-cat").value=tpl.cat;document.getElementById("te-desc").value=tpl.desc;document.getElementById("te-structure").value=tpl.structure;document.getElementById("te-ton").value=tpl.ton;document.getElementById("te-toujours").value=tpl.toujours;document.getElementById("te-eviter").value=tpl.eviter;document.getElementById("te-id").value=id;var ed=document.getElementById("tpl-editor");ed.style.display="block";ed.scrollIntoView({behavior:"smooth"});}
+function saveTpl(){var name=gv("te-name");if(!name){toast("Donnez un nom","error");return;}var tpls=ls("shades_tpls");var id=editTplId||uid();var tpl={id:id,name:name,cat:gv("te-cat"),desc:gv("te-desc"),structure:gv("te-structure"),ton:gv("te-ton"),toujours:gv("te-toujours"),eviter:gv("te-eviter"),tags:[gv("te-cat")],isD:false};var idx=tpls.findIndex(function(t){return t.id===id;});if(idx>=0)tpls[idx]=tpl;else tpls.push(tpl);lsSave("shades_tpls",tpls);closeTplEd();renderTemplates();toast("Template sauvegardé !");}
+function delTpl(id){if(!confirm("Supprimer ?"))return;lsSave("shades_tpls",ls("shades_tpls").filter(function(t){return t.id!==id;}));renderTemplates();toast("Supprimé.");}
+
+function creerTplRapide(type){
+  var presets={
+    seloger:{name:"SeLoger Custom",cat:"Vente standard",desc:"Optimisé SeLoger, ton professionnel",structure:"Accroche > Description pièces > Prestations > Localisation > Infos pratiques",ton:"Professionnel, neutre, précis",toujours:"DPE, prix, SHADES Immobilier",eviter:"Clichés, superlatifs"},
+    luxe:{name:"Luxe Custom",cat:"Vente luxe",desc:"Haut de gamme, vocabulaire premium",structure:"Accroche poétique > Cadre > Espaces > Prestations > Annexes > Signature SHADES",ton:"Raffiné, qualitatifs précis",toujours:"Orientation, vue, matériaux",eviter:"Prix en avant, descriptions vagues"},
+    invest:{name:"Investissement Custom",cat:"Investissement",desc:"ROI, fiscalité, rendement",structure:"Opportunité > Bien > Revenus > Fiscalité > Localisation > Contact SHADES",ton:"Factuel, chiffré",toujours:"Rendement brut, loyer marché",eviter:"Descriptions émotionnelles"},
+    lbc:{name:"LBC Custom",cat:"Vente standard",desc:"Court et direct",structure:"Titre > 2-3 phrases > Liste rapide > Contact",ton:"Direct, factuel",toujours:"Prix, surface, DPE",eviter:"Texte long"}};
+  var p=presets[type];if(!p)return;
+  var tpls=ls("shades_tpls");tpls.push(Object.assign({id:uid(),tags:["Custom"],isD:false},p));
+  lsSave("shades_tpls",tpls);renderTemplates();switchTab("templates");toast("Template créé ! Personnalisez-le.");}
+
+/* BIENS */
+function saveBien(){
+  var biens=ls("shades_biens");
+  var id=editBienId||uid();
+  var b={id:id,ref:gv("mb-ref")||"SH-"+Date.now().toString().slice(-6),type:gv("mb-type"),adresse:gv("mb-adresse"),prix:+gv("mb-prix")||0,surface:+gv("mb-surface")||0,pieces:+gv("mb-pieces")||0,agent:gv("mb-agent"),statut:gv("mb-statut"),notes:gv("mb-notes"),date:new Date().toLocaleDateString("fr-FR")};
+  var idx=biens.findIndex(function(x){return x.id===id;});if(idx>=0)biens[idx]=b;else biens.push(b);
+  lsSave("shades_biens",biens);closeModal("modal-bien");editBienId=null;renderBiens();updateStats();updateBienSel();toast("Bien enregistré !");}
+
+function sauvegarderBien(){
+  var biens=ls("shades_biens");
+  biens.push({id:uid(),ref:"SH-"+Date.now().toString().slice(-6),type:gv("f-type"),adresse:gv("f-adresse"),prix:+gv("f-prix")||0,surface:+gv("f-surface")||0,pieces:+gv("f-pieces")||0,equipements:getEQ().join(", "),agent:"",statut:"actif",notes:"",annonce:lastTxt,date:new Date().toLocaleDateString("fr-FR")});
+  lsSave("shades_biens",biens);renderBiens();updateStats();updateBienSel();toast("Bien sauvegardé !");}
+
+function chargerBien(){var id=gv("sel-bien");if(!id)return;var b=ls("shades_biens").find(function(x){return x.id===id;});if(!b)return;var f=function(fid,v){var el=document.getElementById(fid);if(el)el.value=v||"";};f("f-type",b.type);f("f-adresse",b.adresse);f("f-prix",b.prix);f("f-surface",b.surface);f("f-pieces",b.pieces);}
+
+function editBien(id){
+  var b=ls("shades_biens").find(function(x){return x.id===id;});if(!b)return;
+  editBienId=id;document.getElementById("mb-modal-title").textContent="Modifier";
+  var m={type:"mb-type",ref:"mb-ref",adresse:"mb-adresse",prix:"mb-prix",surface:"mb-surface",pieces:"mb-pieces",agent:"mb-agent",statut:"mb-statut",notes:"mb-notes"};
+  Object.keys(m).forEach(function(k){var el=document.getElementById(m[k]);if(el)el.value=b[k]||"";});
+  openModal("modal-bien");}
+
+function delBien(id){if(!confirm("Supprimer ?"))return;lsSave("shades_biens",ls("shades_biens").filter(function(b){return b.id!==id;}));renderBiens();updateStats();updateBienSel();toast("Supprimé.");}
+function chargerPourGenerer(id){var b=ls("shades_biens").find(function(x){return x.id===id;});if(!b)return;document.getElementById("sel-bien").value=id;chargerBien();switchTab("gen");}
+function updateBienSel(){var sel=document.getElementById("sel-bien");var biens=ls("shades_biens");sel.innerHTML="<option value=''>— Saisie manuelle —</option>"+biens.map(function(b){return "<option value='"+b.id+"'>"+b.ref+" · "+b.type+" · "+b.adresse.slice(0,28)+"</option>";}).join("");}
+
+var SCOLS={actif:"green",compromis:"gold",vendu:"red",archive:"blue"};
+var SLBLS={actif:"Actif",compromis:"Compromis",vendu:"Vendu",archive:"Archivé"};
+var ICO={Appartement:"🏢",Maison:"🏡",Studio:"🏠",Loft:"🏗️",Villa:"🌴"};
+
+function renderBiens(){
+  var biens=ls("shades_biens");
+  var q=gv("search-bien").toLowerCase();
+  if(q)biens=biens.filter(function(b){return (b.adresse+b.type+b.ref+b.agent).toLowerCase().includes(q);});
+  var grid=document.getElementById("bien-grid");
+  var noB=document.getElementById("no-biens");
+  if(!grid)return;
+  if(!biens.length){grid.innerHTML="";if(noB)noB.style.display="block";return;}
+  if(noB)noB.style.display="none";
+  grid.innerHTML=biens.map(function(b){
+    return "<div class='bien-card'><div class='bien-img'>"+(ICO[b.type]||"🏠")+"</div><div class='bien-body'>"
+      +"<div class='bien-adresse'>"+b.adresse+"</div>"
+      +"<div style='font-size:9px;color:var(--muted);margin-bottom:6px'>"+b.type+(b.surface?" · "+b.surface+"m²":"")+" · "+b.ref+"</div>"
+      +"<div style='display:flex;gap:8px;margin-bottom:8px'>"+(b.prix?"<span style='font-size:10.5px'>"+Math.round(b.prix/1000)+"k€</span>":"")+(b.pieces?"<span style='font-size:10.5px'>"+b.pieces+"p</span>":"")+"</div>"
+      +"<div style='margin-bottom:8px'><span class='badge "+SCOLS[b.statut]+"'>"+SLBLS[b.statut]+"</span>"+(b.agent?" <span style='font-size:9px;color:var(--muted)'>"+b.agent+"</span>":"")+"</div>"
+      +"<div class='bien-actions'><div class='bien-btn primary' onclick='chargerPourGenerer(\""+b.id+"\")'>⚡ Annonce</div>"
+      +"<div class='bien-btn secondary' onclick='editBien(\""+b.id+"\")'>✏️</div>"
+      +"<div class='bien-btn secondary' style='color:var(--red)' onclick='delBien(\""+b.id+"\")'>🗑</div></div>"
+      +"</div></div>";
+  }).join("");}
+
+/* GÉNÉRATION IA */
+function genererAnnonce(){
+  if(running)return;
+  var type=gv("f-type"),surf=gv("f-surface"),addr=gv("f-adresse");
+  if(!surf&&!addr){toast("Renseignez au moins la surface ou l-adresse","error");return;}
+  running=true;
+
+  var tplId=gv("sel-template");
+  var tpl=tplId?getAllTpls().find(function(t){return t.id===tplId;}):null;
+  var eq=getEQ();
+  var pfLbl={seloger:"SeLoger",lbc:"Leboncoin",pap:"PAP",premium:"Premium/Belles Demeures",mail:"Email professionnel"}[V.pf]||"SeLoger";
+  var tonLbl={pro:"Professionnel et neutre",luxe:"Luxe et prestige",direct:"Direct et factuel",chaleureux:"Chaleureux et accueillant"}[V.ton]||"Professionnel";
+  var lgLbl={courte:"Courte (150-250 mots)",standard:"Standard (300-450 mots)",longue:"Longue et détaillée (500-700 mots)"}[V.lg]||"Standard";
+
+  var prompt="Tu es un expert rédacteur d-annonces immobilières pour SHADES Immobilier. Génère une annonce professionnelle.\n\nBIEN :\n"
+    +"- Type : "+type+"\n- Surface : "+surf+"m2\n"
+    +(addr?"- Adresse : "+addr+"\n":"")
+    +(gv("f-prix")?"- Prix : "+parseInt(gv("f-prix")).toLocaleString("fr-FR")+" EUR\n":"")
+    +(gv("f-pieces")?"- Pièces : "+gv("f-pieces")+"\n":"")
+    +(gv("f-etage")?"- Étage : "+gv("f-etage")+"\n":"")
+    +(gv("f-dpe")?"- DPE "+gv("f-dpe")+(gv("f-ges")?" / GES "+gv("f-ges"):"")+"\n":"")
+    +(gv("f-charges")?"- Charges : "+gv("f-charges")+" EUR/mois\n":"")
+    +(gv("f-taxe")?"- Taxe foncière : "+gv("f-taxe")+" EUR/an\n":"")
+    +(eq.length?"- Équipements : "+eq.join(", ")+"\n":"")
+    +(gv("f-atouts")?"- Points forts : "+gv("f-atouts")+"\n":"")
+    +"\nPARAMÈTRES : Transaction : "+V.tx+" | Plateforme : "+pfLbl+" | Ton : "+tonLbl+" | Longueur : "+lgLbl
+    +(tpl?"\n\nTEMPLATE OBLIGATOIRE :\nStructure : "+tpl.structure+"\nTon : "+tpl.ton+(tpl.toujours?"\nToujours : "+tpl.toujours:"")+(tpl.eviter?"\nÉviter : "+tpl.eviter:""):"")
+    +(gv("f-instr")?"\n\nINSTRUCTIONS SPÉCIFIQUES : "+gv("f-instr"):"")
+    +"\n\nGénère :\n[ANNONCE] L-annonce complète prête à publier.\n[TITRES] 2-3 titres alternatifs (70 car. max chacun).\n[RESUME] Résumé 60 mots max.\n[SEO] 10 mots-clés de référencement.";
+
+  var ov=document.getElementById("gen-overlay");var st=document.getElementById("gen-status");
+  if(ov)ov.classList.add("show");
+  var steps=["Analyse du bien...","Rédaction de l-accroche...","Structuration...","Finalisation..."];
+  var si=0;var stInt=setInterval(function(){if(st)st.textContent=steps[Math.min(si++,steps.length-1)];},1100);
+  var badge=document.getElementById("badge-gen");
+  if(badge){badge.textContent="Génération...";badge.className="badge gold";}
+  document.getElementById("ph").style.display="none";
+  document.getElementById("txt-annonce").style.display="none";
+
+  fetch('/.netlify/functions/claude-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:2000,messages:[{role:"user",content:prompt}]})}).then(function(data){
+    clearInterval(stInt);running=false;if(ov)ov.classList.remove("show");
+    var txt=data.content&&data.content[0]?data.content[0].text:"";
+    if(!txt){if(badge){badge.textContent="Erreur";badge.className="badge red";}return;}
+    function ex(tag){var p="["+tag+"]";var idx=txt.indexOf(p);if(idx===-1)return "";var tags=["ANNONCE","TITRES","RESUME","SEO"];var ni=txt.length;tags.forEach(function(t){if(t!==tag){var j=txt.indexOf("["+t+"]",idx+1);if(j>idx&&j<ni)ni=j;}});return txt.slice(idx+p.length,ni).trim();}
+    var ann=ex("ANNONCE"),titres=ex("TITRES"),res=ex("RESUME"),seo=ex("SEO");
+    lastTxt=ann;
+    document.getElementById("txt-annonce").textContent=ann;
+    document.getElementById("txt-annonce").style.display="block";
+    document.getElementById("txt-titres").textContent=titres||"Non disponible.";
+    document.getElementById("txt-resume").textContent=res||"Non disponible.";
+    document.getElementById("txt-seo").textContent=seo||"Non disponible.";
+    if(badge){badge.textContent="✓ Prête";badge.className="badge green";}
+    document.getElementById("btn-copy").style.display="inline-block";
+    addHist(ann,type,addr,tpl?tpl.name:"Sans template");
+    localStorage.setItem("sha_ann_count",(+localStorage.getItem("sha_ann_count")||0)+1);
+    updateStats();
+  }).catch(function(e){
+    clearInterval(stInt);running=false;if(ov)ov.classList.remove("show");
+    if(badge){badge.textContent="Erreur";badge.className="badge red";}
+    toast("Erreur : "+e.message,"error");
+  });
+}
+
+function copierAnnonce(){var txt=document.getElementById("txt-annonce").textContent;if(!txt)return;navigator.clipboard.writeText(txt).then(function(){toast("Copié !");}).catch(function(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();toast("Copié !");});}
+
+function addHist(ann,type,addr,tpl){var h=ls("sha_hist").slice(0,8);h.unshift({ann:ann,type:type,addr:addr,tpl:tpl,date:new Date().toLocaleDateString("fr-FR")});lsSave("sha_hist",h);renderHist();}
+function renderHist(){var h=ls("sha_hist");var w=document.getElementById("hist-wrap");var l=document.getElementById("hist-list");if(h.length<=1){w.style.display="none";return;}w.style.display="block";l.innerHTML=h.slice(1).map(function(x,i){return "<div style='background:#fff;border:.5px solid var(--border);border-radius:5px;padding:10px 12px;cursor:pointer' onclick='loadHist("+i+")'><div style='display:flex;justify-content:space-between;margin-bottom:3px'><span style='font-size:10px'>"+x.type+" · "+(x.addr||"").slice(0,28)+"</span><span style='font-size:9px;color:var(--muted)'>"+x.date+" · "+x.tpl+"</span></div><div style='font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap'>"+x.ann.slice(0,100)+"...</div></div>";}).join("");}
+function loadHist(i){var h=ls("sha_hist")[i+1];if(!h)return;document.getElementById("txt-annonce").textContent=h.ann;document.getElementById("txt-annonce").style.display="block";document.getElementById("ph").style.display="none";lastTxt=h.ann;}
+
+function showCtab(name,btn){
+  if(btn)btn.parentElement.querySelectorAll(".ctab").forEach(function(t){t.classList.remove("active");});
+  if(btn)btn.classList.add("active");
+  var names=["annonce","titres","resume","seo"];
+  names.forEach(function(n){var el=document.getElementById("ctab-"+n);if(el)el.style.display=n===name?"block":"none";});
+}
+
+/* TABS / MODAL */
+function switchTab(name){
+  var tabs=["gen","templates","biens"];
+  document.querySelectorAll(".tab").forEach(function(t,i){t.classList.toggle("active",tabs[i]===name);});
+  document.querySelectorAll(".tab-panel").forEach(function(p,i){p.classList.toggle("active",["panel-gen","panel-templates","panel-biens"][i]==="panel-"+name);});
+  if(name==="biens")renderBiens();
+  if(name==="templates")renderTemplates();
+}
+function openModal(id){document.getElementById(id).classList.add("open");}
+function closeModal(id){var el=document.getElementById(id);if(el)el.classList.remove("open");editBienId=null;var mt=document.getElementById("mb-modal-title");if(mt)mt.textContent="Nouveau bien";}
+document.querySelectorAll(".modal-overlay").forEach(function(m){m.addEventListener("click",function(e){if(e.target===m)m.classList.remove("open");});});
+
+function updateStats(){
+  var s=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+  s("stat-biens",ls("shades_biens").length);
+  s("stat-ann",+localStorage.getItem("sha_ann_count")||0);
+  s("stat-tpls",getAllTpls().length);
+}
+
+renderEquip();renderTemplates();updateBienSel();renderBiens();renderHist();updateStats();
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+</body>
+</html>

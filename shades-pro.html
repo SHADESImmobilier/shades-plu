@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES Pro · Outils IA pour agences immobilières</title>
+<meta name="description" content="La suite de 24 outils IA qui fait gagner 3h par dossier à vos agents. Scoring, financement, PLU, LMNP, CRM, rénovation et bien plus. Essai gratuit 30 jours.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--pro:#2a4ab8}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:#fff;color:var(--dark);overflow-x:hidden}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:14px 40px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:.5px solid rgba(26,25,22,.07);transition:all .3s}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-text{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:18px;letter-spacing:.2em;color:var(--dark)}
+.nav-logo-text em{color:var(--gold);font-style:normal}
+.nav-badge{padding:3px 8px;background:var(--pro);color:#fff;border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:400}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:12px;color:rgba(26,25,22,.55);text-decoration:none;font-weight:300;transition:color .2s}
+.nav-links a:hover{color:var(--dark)}
+.nav-cta{padding:9px 20px;background:var(--dark);color:#fff;border-radius:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;text-decoration:none;transition:opacity .2s}
+.nav-cta:hover{opacity:.85}
+
+/* SBAR */
+.sbar{display:flex;height:3px}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 40px 80px;background:linear-gradient(160deg,#f8f7f4 0%,#ffffff 50%,#f0f4ff 100%)}
+.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.hero-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.hero-eyebrow-line{width:30px;height:.5px;background:var(--pro)}
+.hero-eyebrow-text{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--pro);font-weight:400}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1.1;margin-bottom:18px;color:var(--dark)}
+.hero-title em{color:var(--pro);font-style:italic}
+.hero-sub{font-size:14px;color:rgba(26,25,22,.6);font-weight:300;line-height:1.8;margin-bottom:28px;max-width:480px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px}
+.btn-primary{padding:14px 28px;background:var(--dark);color:#fff;border-radius:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:300;text-decoration:none;transition:opacity .2s;display:inline-block}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{padding:14px 28px;background:transparent;color:var(--dark);border:.5px solid rgba(26,25,22,.25);border-radius:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:300;text-decoration:none;transition:all .2s;display:inline-block}
+.btn-secondary:hover{border-color:var(--dark)}
+.hero-social-proof{display:flex;align-items:center;gap:12px}
+.hero-sp-text{font-size:11px;color:rgba(26,25,22,.4);font-weight:300}
+.hero-sp-stars{color:var(--gold);font-size:13px;letter-spacing:2px}
+
+/* HERO DEMO CARD */
+.hero-demo{background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(26,25,22,.1);overflow:hidden;border:.5px solid rgba(26,25,22,.08)}
+.demo-topbar{display:flex;align-items:center;gap:6px;padding:10px 14px;background:#f5f5f3;border-bottom:.5px solid rgba(26,25,22,.08)}
+.demo-dot{width:8px;height:8px;border-radius:50%}
+.demo-url{font-size:9px;color:rgba(26,25,22,.35);font-weight:300;flex:1;text-align:center}
+.demo-body{padding:16px}
+.demo-score-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.demo-score-num{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:var(--dark);line-height:1}
+.demo-score-lbl{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,25,22,.35);font-weight:300;margin-top:4px}
+.demo-jauge{height:5px;background:#eee;border-radius:3px;overflow:hidden;margin-bottom:14px}
+.demo-jauge-fill{height:100%;width:76%;background:linear-gradient(90deg,var(--pro),#5b7fef);border-radius:3px}
+.demo-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.demo-kpi{background:#f8f7f4;border-radius:5px;padding:8px;text-align:center}
+.demo-kpi-val{font-size:13px;font-weight:500;color:var(--dark);margin-bottom:2px}
+.demo-kpi-lbl{font-size:8px;color:rgba(26,25,22,.4);font-weight:300}
+.demo-ia-box{background:linear-gradient(135deg,#f0f4ff,#f8f7f4);border-radius:6px;padding:12px;border:.5px solid rgba(42,74,184,.15)}
+.demo-ia-title{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--pro);font-weight:400;margin-bottom:6px}
+.demo-ia-text{font-size:10px;color:rgba(26,25,22,.65);font-weight:300;line-height:1.6}
+.demo-verdict{display:inline-block;padding:3px 8px;background:rgba(39,80,10,.1);color:#27500a;border-radius:3px;font-size:9px;font-weight:400;margin-bottom:4px}
+
+/* LOGOS / SOCIAL PROOF */
+.logos-section{padding:40px;background:#fff;border-top:.5px solid rgba(26,25,22,.06);border-bottom:.5px solid rgba(26,25,22,.06)}
+.logos-inner{max-width:900px;margin:0 auto;text-align:center}
+.logos-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,25,22,.3);font-weight:300;margin-bottom:20px}
+.logos-row{display:flex;justify-content:center;align-items:center;gap:40px;flex-wrap:wrap}
+.logo-item{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300;color:rgba(26,25,22,.2);letter-spacing:.1em}
+
+/* FEATURES */
+.features{padding:100px 40px;background:var(--light)}
+.section-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(26,25,22,.35);font-weight:300;margin-bottom:12px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:var(--dark);margin-bottom:14px;line-height:1.15}
+.section-title em{color:var(--pro);font-style:italic}
+.section-sub{font-size:13px;color:rgba(26,25,22,.55);font-weight:300;line-height:1.8;max-width:540px;margin-bottom:60px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:0 auto}
+.feature-card{background:#fff;border-radius:10px;padding:28px;border:.5px solid rgba(26,25,22,.08);transition:all .25s}
+.feature-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(26,25,22,.08)}
+.feature-ico{font-size:24px;margin-bottom:14px}
+.feature-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;color:var(--dark);margin-bottom:8px}
+.feature-desc{font-size:11px;color:rgba(26,25,22,.55);font-weight:300;line-height:1.75}
+.feature-tag{display:inline-block;margin-top:12px;padding:3px 8px;background:rgba(42,74,184,.07);color:var(--pro);border-radius:3px;font-size:8px;letter-spacing:.06em;text-transform:uppercase;font-weight:300}
+
+/* ROI */
+.roi-section{padding:100px 40px;background:var(--dark);position:relative;overflow:hidden}
+.roi-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(42,74,184,.12),transparent 60%)}
+.roi-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.roi-label{font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:12px}
+.roi-title{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:#f4f2ee;margin-bottom:18px;line-height:1.15}
+.roi-title em{color:var(--gold);font-style:italic}
+.roi-sub{font-size:13px;color:rgba(244,242,238,.5);font-weight:300;line-height:1.8;margin-bottom:28px}
+.roi-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.roi-stat{background:rgba(244,242,238,.05);border:.5px solid rgba(244,242,238,.08);border-radius:8px;padding:18px}
+.roi-stat-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:#f4f2ee;margin-bottom:4px}
+.roi-stat-lbl{font-size:10px;color:rgba(244,242,238,.35);font-weight:300;line-height:1.5}
+.roi-calc{background:rgba(244,242,238,.04);border:.5px solid rgba(244,242,238,.1);border-radius:10px;padding:24px}
+.roi-calc-title{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:16px}
+.roi-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid rgba(244,242,238,.06);font-size:12px}
+.roi-line:last-child{border:none}
+.roi-line-lbl{color:rgba(244,242,238,.5);font-weight:300}
+.roi-line-val{color:#f4f2ee;font-weight:300}
+.roi-line-val.gold{color:var(--gold);font-weight:500}
+.roi-line-val.green{color:#7bc67e;font-weight:500}
+
+/* PRICING */
+.pricing{padding:100px 40px;background:#fff;scroll-margin-top:80px}
+.pricing-inner{max-width:1000px;margin:0 auto;text-align:center}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:60px;text-align:left}
+.pricing-card{border:.5px solid rgba(26,25,22,.1);border-radius:12px;padding:28px;position:relative;transition:all .2s}
+.pricing-card.featured{border:2px solid var(--pro);background:linear-gradient(160deg,#f8faff,#fff)}
+.pricing-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--pro);color:#fff;padding:3px 14px;border-radius:10px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;font-weight:400;white-space:nowrap}
+.plan-name{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:10px}
+.plan-price{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:300;color:var(--dark);line-height:1}
+.plan-price-period{font-size:13px;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:6px}
+.plan-users{font-size:11px;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:20px;padding-bottom:16px;border-bottom:.5px solid rgba(26,25,22,.08)}
+.plan-features{display:flex;flex-direction:column;gap:7px;margin-bottom:22px}
+.plan-feature{font-size:11px;display:flex;gap:8px;align-items:flex-start;color:rgba(26,25,22,.65);font-weight:300;line-height:1.5}
+.plan-feature .ok{color:#27500a;flex-shrink:0}
+.plan-feature .no{color:rgba(26,25,22,.2);flex-shrink:0}
+.plan-cta{display:block;text-align:center;padding:12px;border-radius:5px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;text-decoration:none;transition:all .2s}
+.plan-cta.dark{background:var(--dark);color:#fff}
+.plan-cta.dark:hover{opacity:.85}
+.plan-cta.border{border:.5px solid rgba(26,25,22,.2);color:var(--dark)}
+.plan-cta.border:hover{background:#f8f7f4}
+.plan-cta.pro{background:var(--pro);color:#fff}
+.plan-cta.pro:hover{opacity:.88}
+
+/* TESTIMONIALS */
+.testimonials{padding:80px 40px;background:var(--light)}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1000px;margin:40px auto 0}
+.testi-card{background:#fff;border-radius:8px;padding:22px;border:.5px solid rgba(26,25,22,.07)}
+.testi-stars{color:var(--gold);font-size:11px;letter-spacing:2px;margin-bottom:10px}
+.testi-text{font-size:12px;color:rgba(26,25,22,.65);font-weight:300;line-height:1.75;margin-bottom:14px;font-style:italic}
+.testi-author{font-size:11px;color:rgba(26,25,22,.45);font-weight:300}
+.testi-author strong{color:var(--dark);font-weight:400;display:block}
+
+/* FAQ */
+.faq{padding:80px 40px;background:#fff}
+.faq-inner{max-width:680px;margin:0 auto}
+.faq-item{border-bottom:.5px solid rgba(26,25,22,.08);padding:18px 0;cursor:pointer}
+.faq-q{font-size:13px;font-weight:400;color:var(--dark);display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-icon{font-size:18px;color:rgba(26,25,22,.3);transition:transform .25s;flex-shrink:0}
+.faq-a{font-size:12px;color:rgba(26,25,22,.55);font-weight:300;line-height:1.8;max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.22,1,.36,1),padding .35s}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-item.open .faq-a{max-height:200px;padding-top:10px}
+
+/* CTA FINAL */
+.cta-final{padding:100px 40px;background:var(--dark);text-align:center;position:relative;overflow:hidden}
+.cta-final::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(42,74,184,.15),transparent 60%)}
+.cta-final-title{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:300;color:#f4f2ee;margin-bottom:16px;line-height:1.15;position:relative}
+.cta-final-title em{color:var(--gold);font-style:italic}
+.cta-final-sub{font-size:13px;color:rgba(244,242,238,.5);font-weight:300;margin-bottom:32px;position:relative}
+.cta-final-actions{display:flex;gap:12px;justify-content:center;position:relative}
+.btn-gold{padding:14px 32px;background:var(--gold);color:var(--dark);border-radius:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:400;text-decoration:none;transition:opacity .2s;display:inline-block}
+.btn-gold:hover{opacity:.88}
+.btn-ghost{padding:14px 32px;background:transparent;color:rgba(244,242,238,.6);border:.5px solid rgba(244,242,238,.2);border-radius:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:300;text-decoration:none;transition:all .2s;display:inline-block}
+.btn-ghost:hover{color:#f4f2ee;border-color:rgba(244,242,238,.4)}
+
+/* FOOTER */
+footer{padding:28px 40px;background:rgba(26,25,22,.97);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:14px;letter-spacing:.2em;color:rgba(244,242,238,.6)}
+.footer-logo em{color:var(--gold);font-style:normal}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:10px;color:rgba(244,242,238,.25);text-decoration:none;font-weight:300;transition:color .2s}
+.footer-links a:hover{color:rgba(244,242,238,.5)}
+
+/* CONTACT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,25,22,.7);z-index:1000;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{position:fixed;top:50%;left:50%;transform:translate(-50%,-48%);z-index:1001;background:#fff;border-radius:12px;width:min(520px,92vw);max-height:90vh;overflow-y:auto;opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.22,1,.36,1);box-shadow:0 24px 80px rgba(26,25,22,.35)}
+.modal-box.open{opacity:1;pointer-events:all;transform:translate(-50%,-50%)}
+.modal-header{padding:24px 26px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.modal-htitle{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--dark)}
+.modal-close{width:28px;height:28px;border:none;background:#f0f0ec;border-radius:50%;cursor:pointer;font-size:14px;color:rgba(26,25,22,.4);display:flex;align-items:center;justify-content:center}
+.modal-body{padding:16px 26px 28px}
+.modal-sub{font-size:12px;color:rgba(26,25,22,.5);font-weight:300;margin-bottom:20px;line-height:1.6}
+.form-field{margin-bottom:12px}
+.form-label{font-size:10px;color:rgba(26,25,22,.5);font-weight:300;display:block;margin-bottom:5px;letter-spacing:.04em}
+.form-input{width:100%;padding:9px 12px;border:.5px solid rgba(26,25,22,.18);border-radius:4px;font-size:12px;font-family:'Outfit',sans-serif;color:var(--dark);outline:none;transition:border-color .2s;background:#fff}
+.form-input:focus{border-color:var(--pro)}
+select.form-input{cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-submit{width:100%;padding:13px;background:var(--dark);color:#fff;border:none;border-radius:5px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;margin-top:6px;transition:opacity .2s}
+.form-submit:hover{opacity:.85}
+.form-note{font-size:10px;color:rgba(26,25,22,.3);text-align:center;margin-top:10px;font-weight:300}
+
+@media(max-width:768px){
+  .hero-inner,.roi-inner{grid-template-columns:1fr}
+  .hero-demo{display:none}
+  .features-grid,.pricing-grid,.testi-grid{grid-template-columns:1fr}
+  .pricing-card.featured{margin:0}
+  .roi-stats{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .cta-final-actions{flex-direction:column;align-items:center}
+}
+</style>
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+</head>
+<body>
+
+<div class="sbar">
+  <span style="flex:1;background:#e8e4dc"></span>
+  <span style="flex:1;background:#c4c0b8"></span>
+  <span style="flex:1;background:#2a4ab8"></span>
+  <span style="flex:1;background:#1e1e1c"></span>
+</div>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">
+    <div class="nav-logo-text">SHADES<em>.</em></div>
+    <div class="nav-badge">Pro</div>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Outils</a>
+    <a href="#roi">ROI</a>
+    <a href="#pricing">Tarifs</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a class="nav-cta" href="#" onclick="openContact();return false">Essai gratuit 30 jours →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">
+        <div class="hero-eyebrow-line"></div>
+        <div class="hero-eyebrow-text">Suite IA pour agences immobilières</div>
+      </div>
+      <h1 class="hero-title">Vos agents gagnent<br><em>3h par dossier.</em><br>Garantis.</h1>
+      <p class="hero-sub">SHADES Pro donne à votre équipe les outils d'analyse IA que seules les grandes banques d'investissement utilisaient. Scoring de biens, dossiers bancaires, marché IDF en temps réel.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" onclick="openContact();return false">Essai gratuit 30 jours →</a>
+        <a href="#features" class="btn-secondary">Voir les outils</a>
+      </div>
+      <div class="hero-social-proof">
+        <div class="hero-sp-stars">★★★★★</div>
+        <div class="hero-sp-text">Utilisé par des agences Paris & IDF · Sans engagement</div>
+      </div>
+    </div>
+    <div class="hero-demo">
+      <div class="demo-topbar">
+        <div class="demo-dot" style="background:#ff5f57"></div>
+        <div class="demo-dot" style="background:#febc2e"></div>
+        <div class="demo-dot" style="background:#28c840"></div>
+        <div class="demo-url">shades-pro.app · Fiche bien & scoring</div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-score-row">
+          <div>
+            <div class="demo-score-lbl">Score bankabilité</div>
+            <div class="demo-score-num">76<span style="font-size:18px;color:rgba(26,25,22,.3)">/100</span></div>
+          </div>
+          <div style="text-align:right">
+            <div class="demo-score-lbl">T2 · Paris 11e</div>
+            <div style="font-size:12px;color:rgba(26,25,22,.5);font-weight:300;margin-top:2px">265 000 € · 42m²</div>
+          </div>
+        </div>
+        <div class="demo-jauge"><div class="demo-jauge-fill"></div></div>
+        <div class="demo-kpis">
+          <div class="demo-kpi">
+            <div class="demo-kpi-val" style="color:#27500a">6.2%</div>
+            <div class="demo-kpi-lbl">Rdt brut</div>
+          </div>
+          <div class="demo-kpi">
+            <div class="demo-kpi-val">+142€</div>
+            <div class="demo-kpi-lbl">Cashflow</div>
+          </div>
+          <div class="demo-kpi">
+            <div class="demo-kpi-val" style="color:#a32d2d">28.4%</div>
+            <div class="demo-kpi-lbl">Endettement</div>
+          </div>
+        </div>
+        <div class="demo-ia-box">
+          <div class="demo-ia-title">⚡ Analyse IA · Locatif LMNP</div>
+          <div class="demo-verdict">VERDICT — Acheter</div>
+          <div class="demo-ia-text">Prix 4% sous le marché. Rendement solide pour Paris 11e. Cashflow positif dès le premier mois en LMNP. Quartier Charonne en forte tension locative...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<div class="logos-section">
+  <div class="logos-inner">
+    <div class="logos-label">Conçu pour les agences qui veulent prendre de l'avance</div>
+    <div class="logos-row">
+      <div class="logo-item">Agences indépendantes</div>
+      <div class="logo-item">Réseaux franchisés</div>
+      <div class="logo-item">Gestionnaires de patrimoine</div>
+      <div class="logo-item">Conseillers en investissement</div>
+      <div class="logo-item">Marchands de biens</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-label">Ce que vos agents obtiennent</div>
+    <h2 class="section-title">24 outils IA.<br><em>Un seul abonnement.</em></h2>
+    <p class="section-sub">Chaque outil remplace des heures de calcul manuel. Vos agents se concentrent sur la relation client — pas sur les tableurs Excel.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-ico">📊</div>
+        <div class="feature-name">Fiche bien & scoring IA</div>
+        <div class="feature-desc">Score bankabilité sur 100 pour chaque bien. Analyse marché 200+ communes IDF, projection 10 ans, Monte Carlo, 16 stratégies d'investissement. Rapport généré par l'IA en 10 secondes.</div>
+        <div class="feature-tag">200+ villes IDF</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ico">🏦</div>
+        <div class="feature-name">Dossier financement clé en main</div>
+        <div class="feature-desc">Score de bankabilité client, stratégie de présentation aux banques, montage optimisé. Dossier PDF complet prêt à déposer. L'IA recommande les banques à cibler en premier.</div>
+        <div class="feature-tag">Analyse IA instantanée</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ico">👥</div>
+        <div class="feature-name">CRM prospects pipeline</div>
+        <div class="feature-desc">Pipeline kanban 6 colonnes pour suivre tous vos prospects. Drag & drop, rappels, historique, filtres par agent. Données sauvegardées en temps réel. Export CSV.</div>
+        <div class="feature-tag">Multi-agents</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ico">🗺️</div>
+        <div class="feature-name">Carte IDF interactive</div>
+        <div class="feature-desc">150+ communes visualisées par prix au m², rendement, loyer ou Grand Paris Express. Données DVF 2025 intégrées. Outil de présentation client parfait en rendez-vous.</div>
+        <div class="feature-tag">Données DVF 2025</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-ico">🎯</div>
+        <div class="feature-name">Recommandation investissement</div>
+        <div class="feature-desc">Entrez le profil client (budget, apport, revenus, stratégie) et l'outil recommande les 3 meilleures villes avec simulation de cashflow. 16 stratégies disponibles.</div>
+        <div class="feature-tag">16 stratégies</div>
+      </div>
+      <div class="feature-card" style="background:linear-gradient(135deg,#f0f4ff,#f8f8ff);border-color:rgba(42,74,184,.15)">
+        <div class="feature-ico">🤖</div>
+        <div class="feature-name">IA SHADES intégrée</div>
+        <div class="feature-desc">Powered by Claude (Anthropic). Chaque analyse IA est personnalisée avec les données réelles du bien et du client. Pas de réponses génériques — des insights actionnables.</div>
+        <div class="feature-tag" style="background:rgba(42,74,184,.1);color:var(--pro)">Powered by Claude</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI -->
+<section class="roi-section" id="roi">
+  <div class="roi-inner">
+    <div>
+      <div class="roi-label">Retour sur investissement</div>
+      <h2 class="roi-title">Un abonnement qui<br><em>s'autofinance</em><br>en une journée.</h2>
+      <p class="roi-sub">Vos agents passent en moyenne 3h à préparer un dossier d'analyse client. Avec SHADES Pro, c'est 20 minutes. À 10 dossiers/mois, vous récupérez 280h de temps agent.</p>
+      <div class="roi-stats">
+        <div class="roi-stat">
+          <div class="roi-stat-num">3h</div>
+          <div class="roi-stat-lbl">économisées<br>par dossier</div>
+        </div>
+        <div class="roi-stat">
+          <div class="roi-stat-num">10×</div>
+          <div class="roi-stat-lbl">plus vite qu'une<br>analyse manuelle</div>
+        </div>
+        <div class="roi-stat">
+          <div class="roi-stat-num">200+</div>
+          <div class="roi-stat-lbl">communes IDF<br>dans la base</div>
+        </div>
+        <div class="roi-stat">
+          <div class="roi-stat-num">16</div>
+          <div class="roi-stat-lbl">stratégies<br>d'investissement</div>
+        </div>
+      </div>
+    </div>
+    <div class="roi-calc">
+      <div class="roi-calc-title">Calculateur ROI mensuel</div>
+      <div class="roi-line"><span class="roi-line-lbl">Dossiers analysés / mois</span><span class="roi-line-val" id="roi-dossiers">15</span></div>
+      <div style="padding:8px 0"><input type="range" min="5" max="50" value="15" style="width:100%" oninput="calcROI(this.value)"></div>
+      <div class="roi-line"><span class="roi-line-lbl">Temps gagné / dossier</span><span class="roi-line-val">2h30</span></div>
+      <div class="roi-line"><span class="roi-line-lbl">Valeur heure agent</span><span class="roi-line-val">45€</span></div>
+      <div class="roi-line"><span class="roi-line-lbl">Valeur temps récupéré</span><span class="roi-line-val gold" id="roi-valeur">1 688€/mois</span></div>
+      <div class="roi-line"><span class="roi-line-lbl">Abonnement Pro</span><span class="roi-line-val">490€/mois</span></div>
+      <div class="roi-line" style="border-top:.5px solid rgba(244,242,238,.15);margin-top:4px;padding-top:12px"><span class="roi-line-lbl" style="color:#f4f2ee">ROI net mensuel</span><span class="roi-line-val green" id="roi-net">+1 198€</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="section-label">Tarification simple</div>
+    <h2 class="section-title">Choisissez votre <em>formule</em></h2>
+    <p class="section-sub" style="margin:0 auto 0">30 jours gratuits, sans carte bancaire. Résiliable à tout moment.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">199€</div>
+        <div class="plan-price-period">/mois · HT</div>
+        <div class="plan-users">Jusqu'à 3 agents</div>
+        <div class="plan-features">
+          <div class="plan-feature"><span class="ok">✓</span>Fiche bien & scoring IA</div>
+          <div class="plan-feature"><span class="ok">✓</span>Dossier financement</div>
+          <div class="plan-feature"><span class="ok">✓</span>Quel bien pour mon budget</div>
+          <div class="plan-feature"><span class="ok">✓</span>50 rapports IA / mois</div>
+          <div class="plan-feature"><span class="no">—</span>CRM pipeline</div>
+          <div class="plan-feature"><span class="no">—</span>Carte IDF interactive</div>
+          <div class="plan-feature"><span class="no">—</span>White label</div>
+          <div class="plan-feature"><span class="no">—</span>Support prioritaire</div>
+        </div>
+        <a href="#" class="plan-cta border" onclick="openContact('Starter');return false">Commencer l'essai gratuit</a>
+      </div>
+
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Le plus populaire</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">490€</div>
+        <div class="plan-price-period">/mois · HT</div>
+        <div class="plan-users">Jusqu'à 10 agents</div>
+        <div class="plan-features">
+          <div class="plan-feature"><span class="ok">✓</span>Tous les outils Starter</div>
+          <div class="plan-feature"><span class="ok">✓</span>CRM pipeline complet</div>
+          <div class="plan-feature"><span class="ok">✓</span>Carte IDF interactive</div>
+          <div class="plan-feature"><span class="ok">✓</span>Rapports IA illimités</div>
+          <div class="plan-feature"><span class="ok">✓</span>Support email prioritaire</div>
+          <div class="plan-feature"><span class="ok">✓</span>Onboarding équipe (2h)</div>
+          <div class="plan-feature"><span class="no">—</span>White label</div>
+          <div class="plan-feature"><span class="no">—</span>Support téléphone</div>
+        </div>
+        <a href="#" class="plan-cta pro" onclick="openContact('Pro');return false">Commencer l'essai gratuit</a>
+      </div>
+
+      <div class="pricing-card">
+        <div class="plan-name">Agence+</div>
+        <div class="plan-price">990€</div>
+        <div class="plan-price-period">/mois · HT</div>
+        <div class="plan-users">Agents illimités</div>
+        <div class="plan-features">
+          <div class="plan-feature"><span class="ok">✓</span>Tous les outils Pro</div>
+          <div class="plan-feature"><span class="ok">✓</span>White label complet</div>
+          <div class="plan-feature"><span class="ok">✓</span>Formation équipe (4h)</div>
+          <div class="plan-feature"><span class="ok">✓</span>Support dédié téléphone</div>
+          <div class="plan-feature"><span class="ok">✓</span>Rapport marché mensuel</div>
+          <div class="plan-feature"><span class="ok">✓</span>Intégration CRM agence</div>
+          <div class="plan-feature"><span class="ok">✓</span>Données exclusives IDF</div>
+          <div class="plan-feature"><span class="ok">✓</span>SLA garanti 99.9%</div>
+        </div>
+        <a href="#" class="plan-cta dark" onclick="openContact('Agence+');return false">Contacter l'équipe</a>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:rgba(26,25,22,.35);margin-top:24px;font-weight:300">Paiement mensuel · Résiliation sans frais · Facture TVA disponible · Prix HT</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div style="max-width:1000px;margin:0 auto;text-align:center">
+    <div class="section-label">Ce que disent nos clients</div>
+    <h2 class="section-title">Des agences qui ont<br><em>transformé leur quotidien</em></h2>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"Avant SHADES Pro, mes agents passaient 2h sur chaque analyse de rentabilité. Maintenant c'est 15 minutes et le résultat est bien plus professionnel. Les clients sont bluffés."</div>
+        <div class="testi-author"><strong>Karim B.</strong>Directeur d'agence, Paris 11e</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"Le dossier financement est extraordinaire. On présente maintenant un score de bankabilité à nos clients avant même d'aller voir une banque. Taux de refus de crédit divisé par 3."</div>
+        <div class="testi-author"><strong>Sophie M.</strong>Responsable transactions, Neuilly</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"La carte IDF interactive en rendez-vous client c'est une arme. On visualise en direct les prix par quartier, le Grand Paris Express, les rendements. Plus besoin de PowerPoint."</div>
+        <div class="testi-author"><strong>Thomas L.</strong>Conseiller patrimoine, Vincennes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-inner" style="text-align:center;margin-bottom:40px">
+    <div class="section-label">Questions fréquentes</div>
+    <h2 class="section-title">Tout ce que vous<br><em>devez savoir</em></h2>
+  </div>
+  <div class="faq-inner">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Quelle est la durée d'engagement ? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Aucun engagement. Vous commencez par 30 jours gratuits sans carte bancaire, puis passez au mois. Résiliation possible à tout moment depuis votre espace client, sans frais.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Les données de mes clients sont-elles sécurisées ? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Oui. Les données saisies dans les outils ne quittent pas votre navigateur (traitement local). Les analyses IA envoyées à Claude (Anthropic) ne contiennent aucune donnée personnelle identifiable — uniquement des données financières et géographiques anonymisées.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Combien de temps pour former mon équipe ? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Les outils sont conçus pour être intuitifs. Comptez 30 minutes de prise en main autonome. Pour la formule Pro et Agence+, une session d'onboarding de 2h avec votre équipe est incluse. La plupart des agents sont opérationnels dès le premier jour.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Les données de marché sont-elles à jour ? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Oui. Les données DVF (Demandes de Valeurs Foncières) sont intégrées jusqu'en 2025, complétées par Meilleurs Agents, Efficity et Journal de l'Agence 2026. La carte IDF est mise à jour trimestriellement.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Puis-je personnaliser les outils avec ma marque ? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Le white label complet est disponible dans la formule Agence+. Votre logo, vos couleurs, votre domaine. Les rapports PDF générés portent votre identité visuelle — vos clients voient votre marque, pas SHADES.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">L'IA remplace-t-elle le conseil de l'agent ? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Non — elle l'amplifie. L'IA analyse les données et génère des insights en quelques secondes. C'est votre agent qui interprète, contextualise et prend la décision finale avec le client. SHADES Pro donne à vos agents les arguments qu'il leur faudrait des heures à calculer manuellement.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-final">
+  <h2 class="cta-final-title">Prêt à équiper<br>votre <em>agence</em> ?</h2>
+  <p class="cta-final-sub">30 jours gratuits · Sans engagement · Sans carte bancaire</p>
+  <div class="cta-final-actions">
+    <a href="#" class="btn-gold" onclick="openContact('Pro');return false">Démarrer l'essai gratuit →</a>
+    <a href="mailto:contact@shadesimmobilier.com" class="btn-ghost">Parler à un conseiller</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">SHADES<em>.</em> <span style="font-size:11px;opacity:.4;margin-left:8px;font-family:'Outfit',sans-serif;font-weight:300">Pro · Suite IA Agences</span></div>
+  <div class="footer-links">
+    <a href="/">Site vitrine</a>
+    <a href='/mentions-legales'>Mentions légales</a>
+    <a href="mailto:contact@shadesimmobilier.com">Contact</a>
+  </div>
+</footer>
+
+<!-- MODAL CONTACT -->
+<div class="modal-overlay" id="pro-overlay" onclick="closeContact()"></div>
+<div class="modal-box" id="pro-modal">
+  <div class="modal-header">
+    <div class="modal-htitle">Démarrer l'essai gratuit</div>
+    <button class="modal-close" onclick="closeContact()">✕</button>
+  </div>
+  <div class="modal-body">
+    <p class="modal-sub">30 jours gratuits, sans carte bancaire. Un conseiller SHADES vous contacte sous 24h pour configurer votre accès.</p>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">Prénom</label><input class="form-input" id="p-prenom" type="text" placeholder="Jean"></div>
+      <div class="form-field"><label class="form-label">Nom</label><input class="form-input" id="p-nom" type="text" placeholder="Dupont"></div>
+    </div>
+    <div class="form-field"><label class="form-label">Email professionnel</label><input class="form-input" id="p-email" type="email" placeholder="jean@agence-dupont.fr"></div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">Téléphone</label><input class="form-input" id="p-tel" type="tel" placeholder="06 XX XX XX XX"></div>
+      <div class="form-field"><label class="form-label">Nom de l'agence</label><input class="form-input" id="p-agence" type="text" placeholder="Agence Dupont Immobilier"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">Nombre d'agents</label>
+        <select class="form-input" id="p-agents">
+          <option>1-2 agents</option><option>3-5 agents</option><option>6-10 agents</option><option>10+ agents</option>
+        </select>
+      </div>
+      <div class="form-field"><label class="form-label">Formule souhaitée</label>
+        <select class="form-input" id="p-plan">
+          <option value="Starter">Starter — 199€/mois</option>
+          <option value="Pro" selected>Pro — 490€/mois</option>
+          <option value="Agence+">Agence+ — 990€/mois</option>
+        </select>
+      </div>
+    </div>
+    <button class="form-submit" onclick="submitPro()">Démarrer mon essai gratuit →</button>
+    <p class="form-note">Sans engagement · Résiliable à tout moment · Réponse sous 24h</p>
+  </div>
+</div>
+
+<script>
+function calcROI(v){
+  var d=+v;
+  document.getElementById('roi-dossiers').textContent=d;
+  var val=Math.round(d*2.5*45);
+  var net=val-490;
+  document.getElementById('roi-valeur').textContent=val.toLocaleString('fr-FR')+'EUR/mois';
+  document.getElementById('roi-net').textContent=(net>=0?'+':'')+net.toLocaleString('fr-FR')+'EUR';
+}
+
+function toggleFaq(el){
+  var isOpen=el.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(function(f){f.classList.remove('open');});
+  if(!isOpen) el.classList.add('open');
+}
+
+function openContact(plan){
+  if(plan){var sel=document.getElementById('p-plan');if(sel) for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===plan){sel.selectedIndex=i;break;}}}
+  document.getElementById('pro-overlay').classList.add('open');
+  document.getElementById('pro-modal').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(function(){document.getElementById('p-prenom').focus();},200);
+}
+
+function closeContact(){
+  document.getElementById('pro-overlay').classList.remove('open');
+  document.getElementById('pro-modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+function submitPro(){
+  var prenom=document.getElementById('p-prenom').value.trim();
+  var nom=document.getElementById('p-nom').value.trim();
+  var email=document.getElementById('p-email').value.trim();
+  var tel=document.getElementById('p-tel').value.trim();
+  var agence=document.getElementById('p-agence').value.trim();
+  var agents=document.getElementById('p-agents').value;
+  var plan=document.getElementById('p-plan').value;
+
+  if(!prenom||!nom){document.getElementById('p-prenom').style.borderColor='#a32d2d';return;}
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(email)){document.getElementById('p-email').style.borderColor='#a32d2d';document.getElementById('p-email').focus();return;}
+
+  var subject='SHADES Pro - Essai gratuit - '+plan+' - '+prenom+' '+nom;
+  var body='Formule: '+plan+'\nNom: '+prenom+' '+nom+'\nEmail: '+email+'\nTel: '+tel+'\nAgence: '+agence+'\nAgents: '+agents;
+  window.location.href='mailto:contact@shadesimmobilier.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  closeContact();
+  document.getElementById('pro-modal').innerHTML='<div style="padding:40px;text-align:center"><div style="font-size:36px;margin-bottom:16px">✓</div><div style="font-family:Cormorant Garamond,serif;font-size:22px;font-weight:300;color:#1a1916;margin-bottom:8px">Demande envoyee</div><div style="font-size:12px;color:rgba(26,25,22,.5);font-weight:300">Je vous contacte sous 24h pour configurer votre acces.</div></div>';
+  document.getElementById('pro-modal').classList.add('open');
+  document.getElementById('pro-overlay').classList.add('open');
+}
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeContact();});
+
+// Nav scroll
+window.addEventListener('scroll',function(){
+  var nav=document.querySelector('.nav');
+  if(nav) nav.style.boxShadow=window.scrollY>60?'0 2px 20px rgba(26,25,22,.08)':'none';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES Admin · Gestion abonnements</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--pro:#2a4ab8;--green:#27500a;--red:#a32d2d}
+body{font-family:'Outfit',sans-serif;background:var(--dark);color:var(--light);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--light);border-radius:12px;padding:40px;width:100%;max-width:360px;text-align:center}
+.login-logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:20px;letter-spacing:.25em;color:var(--dark);margin-bottom:4px}
+.login-logo em{color:var(--gold);font-style:normal}
+.login-badge{display:inline-block;padding:2px 8px;background:var(--pro);color:#fff;border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;margin-bottom:24px}
+.login-inp{width:100%;padding:10px 14px;border:.5px solid rgba(26,25,22,.18);border-radius:4px;font-size:13px;font-family:'Outfit',sans-serif;color:var(--dark);outline:none;text-align:center;letter-spacing:.15em;background:#fff;margin-bottom:10px;transition:border-color .2s}
+.login-inp:focus{border-color:var(--pro)}
+.login-btn{width:100%;padding:11px;background:var(--dark);color:#f4f2ee;border:none;border-radius:4px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .2s}
+.login-btn:hover{opacity:.85}
+.login-err{font-size:11px;color:var(--red);margin-top:8px;display:none}
+
+/* DASHBOARD */
+.dash{display:none;flex-direction:column;min-height:100vh}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:rgba(26,25,22,.97);border-bottom:.5px solid rgba(244,242,238,.06);position:sticky;top:0;z-index:10}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:16px;letter-spacing:.25em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-badge{padding:2px 8px;background:var(--pro);color:#fff;border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:400;margin-left:8px}
+.hdr-r{display:flex;gap:10px;align-items:center}
+.hdr-date{font-size:10px;color:rgba(244,242,238,.3);font-weight:300}
+.btn-sm{padding:6px 14px;border:.5px solid rgba(244,242,238,.15);border-radius:3px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;color:rgba(244,242,238,.5);background:transparent;transition:all .2s}
+.btn-sm:hover{color:#f4f2ee;border-color:rgba(244,242,238,.3)}
+.btn-sm.pro{background:var(--pro);color:#fff;border-color:var(--pro)}
+
+/* LAYOUT */
+.main{display:grid;grid-template-columns:220px 1fr;flex:1}
+.sidebar{background:rgba(26,25,22,.6);border-right:.5px solid rgba(244,242,238,.06);padding:20px 0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:11px;font-weight:300;color:rgba(244,242,238,.45);cursor:pointer;transition:all .2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{color:#f4f2ee;background:rgba(244,242,238,.04)}
+.nav-item.active{color:#f4f2ee;border-left-color:var(--gold);background:rgba(244,242,238,.05)}
+.nav-item-ico{font-size:14px;flex-shrink:0}
+.nav-sep{height:.5px;background:rgba(244,242,238,.06);margin:12px 16px}
+.content{padding:24px;overflow-y:auto}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:rgba(244,242,238,.04);border:.5px solid rgba(244,242,238,.08);border-radius:8px;padding:16px}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:#f4f2ee;margin-bottom:4px}
+.stat-lbl{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300}
+.stat-delta{font-size:10px;font-weight:300;margin-top:4px}
+.stat-delta.up{color:#7bc67e}
+.stat-delta.down{color:#e07070}
+
+/* SECTIONS */
+.section-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:14px}
+.card{background:rgba(244,242,238,.03);border:.5px solid rgba(244,242,238,.07);border-radius:8px;overflow:hidden;margin-bottom:18px}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:.5px solid rgba(244,242,238,.06)}
+.card-title{font-size:12px;font-weight:400;color:#f4f2ee}
+.card-body{padding:0}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{padding:9px 14px;text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;border-bottom:.5px solid rgba(244,242,238,.06)}
+td{padding:11px 14px;font-size:11px;font-weight:300;color:rgba(244,242,238,.75);border-bottom:.5px solid rgba(244,242,238,.04)}
+tr:last-child td{border:none}
+tr:hover td{background:rgba(244,242,238,.03)}
+.badge{padding:2px 8px;border-radius:10px;font-size:9px;font-weight:300;display:inline-block}
+.badge.starter{background:rgba(184,146,42,.1);color:var(--gold)}
+.badge.pro{background:rgba(42,74,184,.15);color:#7a9fff}
+.badge.agence{background:rgba(39,80,10,.15);color:#7bc67e}
+.badge.trial{background:rgba(244,242,238,.08);color:rgba(244,242,238,.5)}
+.badge.active{background:rgba(39,80,10,.15);color:#7bc67e}
+.badge.cancelled{background:rgba(163,45,45,.12);color:#e07070}
+.badge.paused{background:rgba(184,146,42,.1);color:var(--gold)}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-lbl{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300}
+.form-inp{padding:8px 10px;border:.5px solid rgba(244,242,238,.12);border-radius:3px;background:rgba(244,242,238,.04);color:#f4f2ee;font-size:11px;font-family:'Outfit',sans-serif;outline:none;transition:border-color .2s}
+.form-inp:focus{border-color:rgba(42,74,184,.5)}
+select.form-inp option{background:#1a1916}
+.form-actions{padding:14px 18px;border-top:.5px solid rgba(244,242,238,.06);display:flex;gap:8px;justify-content:flex-end}
+.btn-action{padding:8px 18px;border-radius:3px;font-size:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;border:none;transition:all .2s}
+.btn-action.primary{background:var(--pro);color:#fff}
+.btn-action.primary:hover{opacity:.88}
+.btn-action.secondary{background:rgba(244,242,238,.07);color:rgba(244,242,238,.6);border:.5px solid rgba(244,242,238,.1)}
+.btn-action.secondary:hover{background:rgba(244,242,238,.12)}
+
+/* REVENUE CHART */
+.rev-chart{padding:18px;display:flex;align-items:flex-end;gap:6px;height:120px}
+.rev-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+.rev-bar{width:100%;background:rgba(42,74,184,.4);border-radius:2px 2px 0 0;transition:height .5s cubic-bezier(.22,1,.36,1)}
+.rev-bar:hover{background:rgba(42,74,184,.7)}
+.rev-bar-lbl{font-size:8px;color:rgba(244,242,238,.3);font-weight:300}
+.rev-bar-val{font-size:9px;color:rgba(244,242,238,.5);font-weight:300}
+
+/* PAGE SECTIONS */
+.page{display:none}
+.page.active{display:block}
+
+/* KEY GENERATOR */
+.key-box{background:rgba(42,74,184,.08);border:.5px solid rgba(42,74,184,.2);border-radius:6px;padding:14px 18px;font-family:monospace;font-size:12px;color:#7a9fff;letter-spacing:.05em;word-break:break-all;margin:14px 18px}
+.copy-btn{padding:6px 14px;background:rgba(42,74,184,.2);color:#7a9fff;border:.5px solid rgba(42,74,184,.3);border-radius:3px;font-size:9px;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:.08em;text-transform:uppercase;font-weight:300}
+.copy-btn:hover{background:rgba(42,74,184,.35)}
+</style>
+  <meta name="description" content="Administration SHADES — Espace réservé.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-wrap" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">SHADES<em>.</em></div>
+    <div class="login-badge">Admin Pro</div>
+    <input class="login-inp" id="admin-pwd" type="password" placeholder="••••••••••••"
+      onkeydown="if(event.key==='Enter')loginAdmin()">
+    <button class="login-btn" onclick="loginAdmin()">Accéder au dashboard →</button>
+    <div class="login-err" id="login-err">Mot de passe incorrect</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dash" class="dash">
+  <div class="hdr">
+    <div>
+      <span class="logo">SHADES<em>.</em></span>
+      <span class="hdr-badge">Admin Pro</span>
+    </div>
+    <div class="hdr-r">
+      <span class="hdr-date" id="admin-date"></span>
+      <button class="btn-sm" onclick="genKey()">+ Générer une clé</button>
+      <button class="btn-sm pro" onclick="showPage('add')">+ Nouvelle agence</button>
+      <button class="btn-sm" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="sidebar">
+      <a class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-item-ico">📊</span>Dashboard</a>
+      <a class="nav-item" onclick="showPage('agences',this)"><span class="nav-item-ico">🏢</span>Agences</a>
+      <a class="nav-item" onclick="showPage('add',this)"><span class="nav-item-ico">➕</span>Nouvelle agence</a>
+      <a class="nav-item" onclick="showPage('keys',this)"><span class="nav-item-ico">🔑</span>Clés d'accès</a>
+      <div class="nav-sep"></div>
+      <a class='nav-item' href='/shades-pro' target='_blank'><span class="nav-item-ico">🌐</span>Page de vente</a>
+      <a class='nav-item' href='/outils' target='_blank'><span class="nav-item-ico">🔧</span>Mes outils</a>
+    </div>
+
+    <div class="content">
+
+      <!-- PAGE DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num" id="s-total">0</div>
+            <div class="stat-lbl">Agences actives</div>
+            <div class="stat-delta up" id="s-delta-total"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="s-mrr">0€</div>
+            <div class="stat-lbl">MRR</div>
+            <div class="stat-delta up" id="s-delta-mrr"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="s-trials">0</div>
+            <div class="stat-lbl">Essais en cours</div>
+            <div class="stat-delta" id="s-delta-trials"></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="s-arr">0€</div>
+            <div class="stat-lbl">ARR projeté</div>
+            <div class="stat-delta up" id="s-delta-arr"></div>
+          </div>
+        </div>
+
+        <!-- REVENUE CHART -->
+        <div class="card">
+          <div class="card-hdr">
+            <div class="card-title">Revenus MRR</div>
+          </div>
+          <div class="rev-chart" id="rev-chart"></div>
+        </div>
+
+        <!-- RECENT AGENCES -->
+        <div class="section-title">Agences récentes</div>
+        <div class="card">
+          <div class="card-body">
+            <table id="recent-table">
+              <thead><tr>
+                <th>Agence</th><th>Plan</th><th>Statut</th><th>MRR</th><th>Depuis</th><th>Actions</th>
+              </tr></thead>
+              <tbody id="recent-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE AGENCES -->
+      <div class="page" id="page-agences">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="section-title" style="margin:0">Toutes les agences</div>
+          <div style="display:flex;gap:8px">
+            <input class="form-inp" placeholder="Rechercher..." oninput="filterAgences(this.value)" style="width:200px">
+          </div>
+        </div>
+        <div class="card">
+          <table id="all-table">
+            <thead><tr>
+              <th>Agence</th><th>Contact</th><th>Plan</th><th>Statut</th><th>MRR</th><th>Clé d'accès</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="all-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAGE ADD -->
+      <div class="page" id="page-add">
+        <div class="section-title">Ajouter une agence</div>
+        <div class="card">
+          <div class="form-grid">
+            <div class="form-field"><div class="form-lbl">Nom de l'agence *</div><input class="form-inp" id="a-nom" placeholder="Agence Dupont Immobilier"></div>
+            <div class="form-field"><div class="form-lbl">Ville</div><input class="form-inp" id="a-ville" placeholder="Paris 11e"></div>
+            <div class="form-field"><div class="form-lbl">Contact (prénom nom) *</div><input class="form-inp" id="a-contact" placeholder="Jean Dupont"></div>
+            <div class="form-field"><div class="form-lbl">Email *</div><input class="form-inp" id="a-email" type="email" placeholder="jean@agence.fr"></div>
+            <div class="form-field"><div class="form-lbl">Téléphone</div><input class="form-inp" id="a-tel" placeholder="06 XX XX XX XX"></div>
+            <div class="form-field"><div class="form-lbl">Nombre d'agents</div><input class="form-inp" id="a-agents" type="number" value="3" min="1"></div>
+            <div class="form-field"><div class="form-lbl">Formule</div>
+              <select class="form-inp" id="a-plan">
+                <option value="Starter">Starter — 199€/mois</option>
+                <option value="Pro" selected>Pro — 490€/mois</option>
+                <option value="Agence+">Agence+ — 990€/mois</option>
+              </select>
+            </div>
+            <div class="form-field"><div class="form-lbl">Statut</div>
+              <select class="form-inp" id="a-status">
+                <option value="trial">Essai gratuit (30j)</option>
+                <option value="active">Actif (payant)</option>
+                <option value="paused">En pause</option>
+              </select>
+            </div>
+            <div class="form-field" style="grid-column:1/-1"><div class="form-lbl">Notes</div><input class="form-inp" id="a-notes" placeholder="Agence référée par X, spécialisée en locatif Paris Nord..."></div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-action secondary" onclick="showPage('agences')">Annuler</button>
+            <button class="btn-action primary" onclick="addAgence()">Créer l'agence + générer la clé →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE KEYS -->
+      <div class="page" id="page-keys">
+        <div class="section-title">Clés d'accès agences</div>
+        <div class="card" style="margin-bottom:18px">
+          <div class="card-hdr">
+            <div class="card-title">Générer une clé manuelle</div>
+            <button class="copy-btn" onclick="genKey()">Générer</button>
+          </div>
+          <div class="key-box" id="gen-key-display">— Cliquez sur "Générer" —</div>
+          <div style="padding:0 18px 14px;display:flex;gap:8px;align-items:center">
+            <button class="copy-btn" onclick="copyKey()">Copier la clé</button>
+            <span style="font-size:10px;color:rgba(244,242,238,.3);font-weight:300">Envoyez cette clé à l'agence par email</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title">Toutes les clés actives</div></div>
+          <table>
+            <thead><tr><th>Agence</th><th>Plan</th><th>Clé d'accès</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="keys-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// === MOT DE PASSE ADMIN (à changer avant déploiement) ===
+var ADMIN_PWD = 'shades-admin-2025-secure';
+
+// === DONNÉES (localStorage pour persistance) ===
+var agences = JSON.parse(localStorage.getItem('shades_agences') || '[]');
+
+// Données de démo si vide
+if(agences.length === 0){
+  agences = [
+    {id:'ag001',nom:'Agence Immo Paris 11',ville:'Paris 11e',contact:'Karim Benali',email:'k.benali@agence11.fr',tel:'06 12 34 56 78',agents:5,plan:'Pro',status:'active',key:genKeyStr(),since:'2025-01-15',notes:'Référé par contact FNAIM'},
+    {id:'ag002',nom:'Century 21 Vincennes',ville:'Vincennes',contact:'Sophie Martin',email:'s.martin@c21vincennes.fr',tel:'01 43 28 XX XX',agents:8,plan:'Pro',status:'active',key:genKeyStr(),since:'2025-02-03',notes:''},
+    {id:'ag003',nom:'Patrimoine Conseil 92',ville:'Neuilly-sur-Seine',contact:'Thomas Laurent',email:'t.laurent@pc92.fr',tel:'06 98 76 54 32',agents:2,plan:'Starter',status:'trial',key:genKeyStr(),since:'2025-02-20',notes:'Essai 30j en cours'},
+  ];
+  saveAgences();
+}
+
+function genKeyStr(){
+  var chars='abcdefghijklmnopqrstuvwxyz0123456789';
+  var parts=[];
+  for(var i=0;i<4;i++){
+    var p='';
+    for(var j=0;j<6;j++) p+=chars[Math.floor(Math.random()*chars.length)];
+    parts.push(p);
+  }
+  return 'shd_'+parts.join('-');
+}
+
+function saveAgences(){
+  localStorage.setItem('shades_agences',JSON.stringify(agences));
+}
+
+function planPrice(plan){
+  return plan==='Starter'?199:plan==='Pro'?490:plan==='Agence+'?990:0;
+}
+
+function calcStats(){
+  var active=agences.filter(function(a){return a.status==='active';});
+  var trials=agences.filter(function(a){return a.status==='trial';});
+  var mrr=active.reduce(function(s,a){return s+planPrice(a.plan);},0);
+  return {total:active.length,trials:trials.length,mrr:mrr,arr:mrr*12};
+}
+
+function renderStats(){
+  var s=calcStats();
+  document.getElementById('s-total').textContent=s.total;
+  document.getElementById('s-mrr').textContent=s.mrr.toLocaleString('fr-FR')+'EUR';
+  document.getElementById('s-arr').textContent=s.arr.toLocaleString('fr-FR')+'EUR';
+  document.getElementById('s-trials').textContent=s.trials;
+  document.getElementById('s-delta-mrr').textContent='ARR proj. '+(s.mrr*12).toLocaleString('fr-FR')+'EUR';
+}
+
+function renderRecentTable(){
+  var tbody=document.getElementById('recent-tbody');
+  if(!tbody) return;
+  var sorted=agences.slice().sort(function(a,b){return b.since.localeCompare(a.since);}).slice(0,8);
+  tbody.innerHTML=sorted.map(function(a){
+    return '<tr>'
+      +'<td><strong style="color:#f4f2ee;font-weight:400">'+a.nom+'</strong><div style="font-size:9px;color:rgba(244,242,238,.3)">'+a.ville+'</div></td>'
+      +'<td><span class="badge '+a.plan.toLowerCase().replace('+','').replace(' ','')+'">'+a.plan+'</span></td>'
+      +'<td><span class="badge '+a.status+'">'+{active:'Actif',trial:'Essai',paused:'Pause',cancelled:'Annulé'}[a.status]+'</span></td>'
+      +'<td style="font-weight:400;color:#f4f2ee">'+(a.status==='active'?planPrice(a.plan)+'EUR/mois':'—')+'</td>'
+      +'<td>'+a.since+'</td>'
+      +'<td style="display:flex;gap:6px">'
+        +'<button class="copy-btn" onclick="copyAgenceKey(\''+a.key+'\')">Copier clé</button>'
+        +'<button class="copy-btn" style="background:rgba(163,45,45,.1);color:#e07070;border-color:rgba(163,45,45,.2)" onclick="deleteAgence(\''+a.id+'\')">×</button>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function renderAllTable(filter){
+  var tbody=document.getElementById('all-tbody');
+  if(!tbody) return;
+  var list=filter?agences.filter(function(a){return a.nom.toLowerCase().includes(filter.toLowerCase())||a.contact.toLowerCase().includes(filter.toLowerCase());}) : agences;
+  tbody.innerHTML=list.map(function(a){
+    return '<tr>'
+      +'<td><strong style="color:#f4f2ee;font-weight:400">'+a.nom+'</strong><div style="font-size:9px;color:rgba(244,242,238,.3)">'+a.agents+' agents · '+a.ville+'</div></td>'
+      +'<td style="font-size:10px">'+a.contact+'<div style="font-size:9px;color:rgba(244,242,238,.3)">'+a.email+'</div></td>'
+      +'<td><span class="badge '+a.plan.toLowerCase().replace('+','')+'">'+a.plan+'</span></td>'
+      +'<td><span class="badge '+a.status+'">'+{active:'Actif',trial:'Essai',paused:'Pause',cancelled:'Annulé'}[a.status]+'</span></td>'
+      +'<td>'+(a.status==='active'?planPrice(a.plan)+'EUR':'—')+'</td>'
+      +'<td style="font-family:monospace;font-size:9px;color:rgba(42,74,184,.8)">'+a.key.substring(0,20)+'...</td>'
+      +'<td style="display:flex;gap:4px">'
+        +'<button class="copy-btn" onclick="copyAgenceKey(\''+a.key+'\')">Clé</button>'
+        +'<button class="copy-btn" onclick="sendEmail(\''+a.email+'\',\''+a.nom+'\',\''+a.key+'\')">Email</button>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function renderKeysTable(){
+  var tbody=document.getElementById('keys-tbody');
+  if(!tbody) return;
+  tbody.innerHTML=agences.map(function(a){
+    return '<tr>'
+      +'<td>'+a.nom+'</td>'
+      +'<td><span class="badge '+a.plan.toLowerCase().replace('+','')+'">'+a.plan+'</span></td>'
+      +'<td style="font-family:monospace;font-size:10px;color:rgba(42,74,184,.8)">'+a.key+'</td>'
+      +'<td><span class="badge '+a.status+'">'+a.status+'</span></td>'
+      +'<td><button class="copy-btn" onclick="copyAgenceKey(\''+a.key+'\')">Copier</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+function renderRevChart(){
+  var chart=document.getElementById('rev-chart');
+  if(!chart) return;
+  // Données de démo sur 6 mois
+  var months=['Sep','Oct','Nov','Dec','Jan','Feb'];
+  var mrr=calcStats().mrr;
+  var vals=[Math.round(mrr*0.3),Math.round(mrr*0.45),Math.round(mrr*0.5),Math.round(mrr*0.65),Math.round(mrr*0.85),mrr];
+  var max=Math.max.apply(null,vals)||1;
+  chart.innerHTML=vals.map(function(v,i){
+    var h=Math.round(v/max*80);
+    return '<div class="rev-bar-wrap">'
+      +'<div class="rev-bar-val">'+v+'EUR</div>'
+      +'<div class="rev-bar" style="height:'+h+'%"></div>'
+      +'<div class="rev-bar-lbl">'+months[i]+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function renderAll(){
+  renderStats();
+  renderRecentTable();
+  renderAllTable();
+  renderKeysTable();
+  renderRevChart();
+}
+
+function filterAgences(v){ renderAllTable(v); }
+
+function addAgence(){
+  var nom=document.getElementById('a-nom').value.trim();
+  var contact=document.getElementById('a-contact').value.trim();
+  var email=document.getElementById('a-email').value.trim();
+  if(!nom||!contact||!email){ alert('Nom, contact et email requis'); return; }
+  var ag={
+    id:'ag'+Date.now(),
+    nom:nom,
+    ville:document.getElementById('a-ville').value.trim(),
+    contact:contact,
+    email:email,
+    tel:document.getElementById('a-tel').value.trim(),
+    agents:+document.getElementById('a-agents').value||1,
+    plan:document.getElementById('a-plan').value,
+    status:document.getElementById('a-status').value,
+    key:genKeyStr(),
+    since:new Date().toISOString().split('T')[0],
+    notes:document.getElementById('a-notes').value.trim()
+  };
+  agences.unshift(ag);
+  saveAgences();
+  renderAll();
+  // Afficher la clé générée
+  document.getElementById('gen-key-display').textContent=ag.key;
+  showPage('keys');
+  // Vider le form
+  ['a-nom','a-ville','a-contact','a-email','a-tel','a-notes'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+}
+
+function deleteAgence(id){
+  if(!confirm('Supprimer cette agence ?')) return;
+  agences=agences.filter(function(a){return a.id!==id;});
+  saveAgences();
+  renderAll();
+}
+
+function genKey(){
+  var k=genKeyStr();
+  var el=document.getElementById('gen-key-display');
+  if(el) el.textContent=k;
+  showPage('keys');
+}
+
+function copyKey(){
+  var el=document.getElementById('gen-key-display');
+  if(!el||el.textContent==='— Cliquez sur "Générer" —') return;
+  navigator.clipboard.writeText(el.textContent).then(function(){
+    alert('Cle copiee: '+el.textContent);
+  }).catch(function(){
+    prompt('Copiez cette cle:',el.textContent);
+  });
+}
+
+function copyAgenceKey(key){
+  navigator.clipboard.writeText(key).then(function(){
+    // Flash visuel silencieux
+  }).catch(function(){
+    prompt('Cle d\'acces:',key);
+  });
+}
+
+function sendEmail(email, nom, key){
+  var subject='Votre acces SHADES Pro - '+nom;
+  var body='Bonjour,\n\nVoici votre cle d\'acces SHADES Pro:\n\n'+key+'\n\nPour vous connecter:\n1. Rendez-vous sur https://singular-dodol-9e000d.netlify.app/outils-agence.html\n2. Entrez cette cle\n3. Acces immediat a tous vos outils\n\nBonne utilisation !\nSHADES Pro';
+  window.open('mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
+}
+
+function showPage(page, navEl){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var p=document.getElementById('page-'+page);
+  if(p) p.classList.add('active');
+  if(navEl) navEl.classList.add('active');
+  renderAll();
+}
+
+// AUTH
+function loginAdmin(){
+  var pwd=document.getElementById('admin-pwd').value;
+  if(pwd===ADMIN_PWD){
+    sessionStorage.setItem('shades_admin','1');
+    showDash();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('admin-pwd').value='';
+    document.getElementById('admin-pwd').focus();
+  }
+}
+
+function showDash(){
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('dash').style.display='flex';
+  document.getElementById('admin-date').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  renderAll();
+}
+
+function logout(){
+  sessionStorage.removeItem('shades_admin');
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('dash').style.display='none';
+  document.getElementById('admin-pwd').value='';
+}
+
+// Init
+if(sessionStorage.getItem('shades_admin')==='1') showDash();
+else document.getElementById('admin-pwd').focus();
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&document.getElementById('login-wrap').style.display!=='none') loginAdmin();
+});
+</script>
+</body>
+</html>

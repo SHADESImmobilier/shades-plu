@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Dossier de financement</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--green:#27500a;--red:#a32d2d}
+body{font-family:'Outfit',sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:rgba(26,25,22,.97);border-bottom:.5px solid rgba(244,242,238,.06);position:sticky;top:0;z-index:100}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:16px;letter-spacing:.25em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-sub{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,242,238,.28);margin-top:1px}
+.hdr-r{display:flex;gap:8px;align-items:center}
+.btn-hdr{padding:6px 14px;border:.5px solid rgba(244,242,238,.15);border-radius:3px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;color:rgba(244,242,238,.5);background:transparent;transition:all .2s}
+.btn-hdr:hover{color:#f4f2ee;border-color:rgba(244,242,238,.3)}
+.btn-hdr.gold{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+.btn-hdr.gold:hover{opacity:.85}
+
+/* NUANCES */
+.sbar{display:flex;height:2px}
+
+/* LAYOUT */
+.wrap{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 50px)}
+
+/* PANNEAU GAUCHE */
+.left{background:var(--wall);border-right:.5px solid rgba(26,25,22,.08);overflow-y:auto;padding:20px 16px;max-height:calc(100vh - 52px);position:sticky;top:52px}
+.ct{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:rgba(26,25,22,.38);font-weight:300;margin:18px 0 8px;padding-bottom:6px;border-bottom:.5px solid rgba(26,25,22,.07)}
+.ct:first-child{margin-top:0}
+.fld{margin-bottom:10px}
+.lbl{font-size:10px;color:rgba(26,25,22,.5);font-weight:300;margin-bottom:4px;letter-spacing:.02em}
+.inp{width:100%;padding:7px 10px;border:.5px solid rgba(26,25,22,.18);border-radius:3px;font-size:11px;font-family:'Outfit',sans-serif;color:var(--dark);background:#fff;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rtabs{display:flex;gap:4px;flex-wrap:wrap}
+.rtab{padding:5px 10px;border:.5px solid rgba(26,25,22,.15);border-radius:3px;font-size:9px;font-weight:300;cursor:pointer;background:#fff;color:rgba(26,25,22,.55);transition:all .15s;font-family:'Outfit',sans-serif}
+.rtab.on,.rtab:hover{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+
+/* SCAN DOCS */
+.doc-zone{border:.5px dashed rgba(26,25,22,.2);border-radius:6px;padding:12px;cursor:pointer;transition:all .2s;position:relative;text-align:center;background:#fff}
+.doc-zone:hover{border-color:var(--gold);background:rgba(184,146,42,.03)}
+.doc-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.doc-zone-ico{font-size:20px;margin-bottom:4px}
+.doc-zone-txt{font-size:9px;color:rgba(26,25,22,.45);font-weight:300;line-height:1.4}
+.doc-zone-txt strong{color:rgba(26,25,22,.7);display:block;font-weight:400;margin-bottom:2px}
+.doc-list{margin-top:8px;display:flex;flex-direction:column;gap:3px}
+.doc-item{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;background:rgba(39,80,10,.08);border:.5px solid rgba(39,80,10,.2);border-radius:3px}
+.doc-item-name{font-size:9px;color:var(--green);font-weight:300;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.doc-item-rm{font-size:11px;cursor:pointer;color:rgba(26,25,22,.3);line-height:1}
+.doc-item-rm:hover{color:var(--red)}
+.doc-status{font-size:9px;font-weight:300;margin-top:6px}
+.doc-status.ok{color:var(--green)}
+.doc-status.warn{color:var(--gold)}
+
+/* PANNEAU DROIT */
+.right{padding:24px 28px;overflow-y:auto}
+
+/* SCORE HERO */
+.score-hero{background:var(--dark);border-radius:10px;padding:24px 28px;margin-bottom:20px;position:relative;overflow:hidden}
+.score-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(184,146,42,.12) 0%,transparent 60%);pointer-events:none}
+.score-row{display:flex;justify-content:space-between;align-items:center}
+.score-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:6px}
+.score-num{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:#f4f2ee;line-height:1}
+.score-num em{font-size:22px;color:var(--gold);font-style:normal;margin-left:2px}
+.score-verdict{font-size:13px;font-weight:300;margin-top:6px}
+.score-jauge{flex:1;margin:0 24px}
+.jauge-track{height:6px;background:rgba(244,242,238,.1);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.jauge-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+.jauge-labels{display:flex;justify-content:space-between;font-size:8px;color:rgba(244,242,238,.2);font-weight:300}
+.score-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.skpi{background:rgba(244,242,238,.05);border-radius:5px;padding:10px 12px}
+.skpi-lbl{font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,242,238,.3);font-weight:300;margin-bottom:4px}
+.skpi-val{font-size:15px;font-weight:300;color:#f4f2ee}
+.skpi-val.good{color:#7bc67e}
+.skpi-val.warn{color:#f9c74f}
+.skpi-val.bad{color:#e07070}
+
+/* SECTIONS */
+.section{background:#fff;border-radius:8px;border:.5px solid rgba(26,25,22,.08);padding:20px 22px;margin-bottom:14px}
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--dark)}
+.sec-badge{padding:3px 10px;border-radius:10px;font-size:8px;letter-spacing:.06em;text-transform:uppercase;font-weight:300}
+.sec-badge.green{background:rgba(39,80,10,.1);color:var(--green);border:.5px solid rgba(39,80,10,.2)}
+.sec-badge.gold{background:rgba(184,146,42,.1);color:var(--gold);border:.5px solid rgba(184,146,42,.3)}
+.sec-badge.red{background:rgba(163,45,45,.1);color:var(--red);border:.5px solid rgba(163,45,45,.2)}
+
+/* IA BOX */
+.ia-box{background:var(--wall);border-radius:6px;padding:16px;min-height:80px}
+@keyframes iaDot{0%,80%,100%{transform:scale(.4);opacity:.3}40%{transform:scale(1);opacity:1}}
+
+/* DOCS TABLE */
+.docs-checklist{display:flex;flex-direction:column;gap:6px}
+.doc-check{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:4px;border:.5px solid rgba(26,25,22,.08)}
+.doc-check-ico{font-size:14px;flex-shrink:0}
+.doc-check-name{font-size:11px;font-weight:300;color:rgba(26,25,22,.7);flex:1}
+.doc-check-status{font-size:9px;font-weight:300;letter-spacing:.04em}
+.doc-check-status.ok{color:var(--green)}
+.doc-check-status.missing{color:rgba(26,25,22,.3)}
+.doc-check-status.warn{color:var(--gold)}
+
+/* TABLE RECAP */
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.recap-item{padding:10px 12px;background:var(--wall);border-radius:4px;border:.5px solid rgba(26,25,22,.07)}
+.recap-lbl{font-size:9px;color:rgba(26,25,22,.38);font-weight:300;margin-bottom:3px;letter-spacing:.03em}
+.recap-val{font-size:13px;color:var(--dark);font-weight:300}
+
+/* PRINT */
+@media print{
+  .hdr .btn-hdr,.left{display:none!important}
+  .wrap{grid-template-columns:1fr!important}
+  .right{padding:0!important}
+  .section{break-inside:avoid}
+  body{background:#fff}
+}
+
+.tunnel-bar{position:sticky;bottom:0;z-index:100;background:#1a1916;border-top:.5px solid rgba(184,146,42,.25);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tunnel-label{font-size:10px;color:rgba(244,242,238,.4);letter-spacing:.06em}
+.tunnel-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:var(--gold, #b8922a);color:#1a1916;text-decoration:none;border-radius:3px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;font-family:inherit;border:none;cursor:pointer}
+.tunnel-btn:hover{opacity:.85}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+</style>
+  <meta name="description" content="Dossier financement immobilier IA — Score de bankabilité /100, stratégie banques, rapport PDF.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+
+<div class="sbar">
+  <span style="flex:1;background:#e8e4dc"></span>
+  <span style="flex:1;background:#c4c0b8"></span>
+  <span style="flex:1;background:#b8922a"></span>
+  <span style="flex:1;background:#1e1e1c"></span>
+</div>
+
+<div class="hdr">
+  <div>
+    <div class="logo">SHADES<em>.</em></div>
+    <div class="hdr-sub">Dossier de financement · Outil interne</div>
+  </div>
+  <div class="hdr-r">
+    <button class="btn-hdr" onclick="resetForm()">↺ Nouveau dossier</button>
+    <button class="btn-hdr" onclick="lancerAnalyseIA()">⚡ Analyse IA</button>
+    <button class="btn-hdr gold" onclick="window.print()">↓ Exporter PDF</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- GAUCHE : SAISIE -->
+  <div class="left">
+
+    <div class="ct">Identité du client</div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Prénom</div><input class="inp" id="prenom" type="text" placeholder="Jean" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Nom</div><input class="inp" id="nom" type="text" placeholder="Dupont" oninput="calc()"></div>
+    </div>
+    <div class="fld">
+      <div class="lbl">Situation professionnelle</div>
+      <div class="rtabs" id="tabs-situation">
+        <button class="rtab on" onclick="setSit('cdi',this)">CDI</button>
+        <button class="rtab" onclick="setSit('cdd',this)">CDD</button>
+        <button class="rtab" onclick="setSit('fonctionnaire',this)">Fonct.</button>
+        <button class="rtab" onclick="setSit('independant',this)">Indépt.</button>
+        <button class="rtab" onclick="setSit('retraite',this)">Retraité</button>
+      </div>
+    </div>
+    <div class="fld">
+      <div class="lbl">Situation familiale</div>
+      <div class="rtabs">
+        <button class="rtab on" onclick="setFam('celibataire',this)">Célibataire</button>
+        <button class="rtab" onclick="setFam('couple',this)">En couple</button>
+        <button class="rtab" onclick="setFam('marie',this)">Marié(e)</button>
+        <button class="rtab" onclick="setFam('divorce',this)">Divorcé(e)</button>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Enfants à charge</div><input class="inp" id="enfants" type="number" value="0" min="0" max="10" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Ancienneté (ans)</div><input class="inp" id="anciennete" type="number" value="3" min="0" max="40" oninput="calc()"></div>
+    </div>
+
+    <div class="ct">Revenus & charges</div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Revenus nets/mois</div><input class="inp" id="revenus" type="number" value="3500" min="0" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Revenus co-emp. (si)</div><input class="inp" id="revenus2" type="number" value="0" min="0" placeholder="0" oninput="calc()"></div>
+    </div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Revenus locatifs (si)</div><input class="inp" id="rev_loc" type="number" value="0" min="0" placeholder="0" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Autres revenus/mois</div><input class="inp" id="rev_autres" type="number" value="0" min="0" placeholder="0" oninput="calc()"></div>
+    </div>
+    <div class="fld"><div class="lbl">Charges mensuelles (crédits en cours)</div><input class="inp" id="charges" type="number" value="0" min="0" placeholder="0 si aucun crédit" oninput="calc()"></div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Épargne totale (€)</div><input class="inp" id="epargne" type="number" value="20000" min="0" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Apport (€)</div><input class="inp" id="apport" type="number" value="30000" min="0" oninput="calc()"></div>
+    </div>
+    <div class="fld"><div class="lbl">TMI (%)</div>
+      <div class="rtabs">
+        <button class="rtab" onclick="setTMI(0,this)">0%</button>
+        <button class="rtab" onclick="setTMI(11,this)">11%</button>
+        <button class="rtab on" onclick="setTMI(30,this)">30%</button>
+        <button class="rtab" onclick="setTMI(41,this)">41%</button>
+        <button class="rtab" onclick="setTMI(45,this)">45%</button>
+      </div>
+    </div>
+
+    <div class="ct">Le projet</div>
+    <div class="fld">
+      <div class="lbl">Type de projet</div>
+      <div class="rtabs">
+        <button class="rtab on" onclick="setProjet('locatif',this)">Locatif</button>
+        <button class="rtab" onclick="setProjet('rp',this)">Résidence principale</button>
+        <button class="rtab" onclick="setProjet('mixte',this)">Mixte</button>
+      </div>
+    </div>
+    <div class="fld"><div class="lbl">Adresse du bien</div><input class="inp" id="bien_adresse" type="text" placeholder="Ex: 12 rue Victor Hugo, 93100" oninput="calc()"></div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Prix du bien (€)</div><input class="inp" id="bien_prix" type="number" value="250000" min="0" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Budget travaux (€)</div><input class="inp" id="travaux" type="number" value="0" min="0" placeholder="0" oninput="calc()"></div>
+    </div>
+    <div class="row2">
+      <div class="fld"><div class="lbl">Durée crédit (ans)</div><input class="inp" id="duree" type="number" value="25" min="5" max="30" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Taux estimé (%)</div><input class="inp" id="taux" type="number" value="3.5" min="0.5" max="8" step="0.1" oninput="calc()"></div>
+    </div>
+    <div class="fld"><div class="lbl">Loyer visé (€/mois) — si locatif</div><input class="inp" id="loyer" type="number" value="0" min="0" placeholder="0" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Banque(s) ciblée(s)</div><input class="inp" id="banques" type="text" placeholder="Ex: BNP, Caisse d'Épargne, Crédit Agricole" oninput="calc()"></div>
+
+    <div class="ct">Documents scannés</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div class="doc-zone" id="dz-bulletins">
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('bulletins',this)">
+        <div class="doc-zone-ico">📄</div>
+        <div class="doc-zone-txt"><strong>Bulletins de salaire</strong>3 derniers mois</div>
+      </div>
+      <div id="list-bulletins" class="doc-list"></div>
+
+      <div class="doc-zone" id="dz-impots">
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('impots',this)">
+        <div class="doc-zone-ico">📋</div>
+        <div class="doc-zone-txt"><strong>Avis d'imposition</strong>2 dernières années</div>
+      </div>
+      <div id="list-impots" class="doc-list"></div>
+
+      <div class="doc-zone" id="dz-releves">
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('releves',this)">
+        <div class="doc-zone-ico">🏦</div>
+        <div class="doc-zone-txt"><strong>Relevés bancaires</strong>3 derniers mois</div>
+      </div>
+      <div id="list-releves" class="doc-list"></div>
+
+      <div class="doc-zone" id="dz-identite">
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('identite',this)">
+        <div class="doc-zone-ico">🪪</div>
+        <div class="doc-zone-txt"><strong>Pièce d'identité</strong>CNI ou passeport</div>
+      </div>
+      <div id="list-identite" class="doc-list"></div>
+
+      <div class="doc-zone" id="dz-domicile">
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('domicile',this)">
+        <div class="doc-zone-ico">🏠</div>
+        <div class="doc-zone-txt"><strong>Justificatif de domicile</strong>Moins de 3 mois</div>
+      </div>
+      <div id="list-domicile" class="doc-list"></div>
+
+      <div class="doc-zone" id="dz-compromis">
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('compromis',this)">
+        <div class="doc-zone-ico">📝</div>
+        <div class="doc-zone-txt"><strong>Compromis de vente</strong>Si signé</div>
+      </div>
+      <div id="list-compromis" class="doc-list"></div>
+
+      <div class="doc-zone" id="dz-autres">
+        <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="addDoc('autres',this)">
+        <div class="doc-zone-ico">📁</div>
+        <div class="doc-zone-txt"><strong>Autres documents</strong>Épargne, placements, etc.</div>
+      </div>
+      <div id="list-autres" class="doc-list"></div>
+    </div>
+
+  </div>
+
+  <!-- DROITE : RÉSULTATS -->
+  <div class="right" id="right-panel">
+
+    <!-- SCORE HERO -->
+    <div class="score-hero">
+      <div class="score-row">
+        <div>
+          <div class="score-label">Score bankabilité SHADES</div>
+          <div class="score-num" id="score-num">—<em>/100</em></div>
+          <div class="score-verdict" id="score-verdict" style="color:rgba(244,242,238,.4)">Renseignez les données du client</div>
+        </div>
+        <div class="score-jauge">
+          <div class="jauge-track"><div class="jauge-fill" id="jauge-fill" style="width:0%;background:var(--gold)"></div></div>
+          <div class="jauge-labels"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+        </div>
+      </div>
+      <div class="score-kpis">
+        <div class="skpi">
+          <div class="skpi-lbl">Taux d'endettement</div>
+          <div class="skpi-val" id="kpi-endo">— %</div>
+        </div>
+        <div class="skpi">
+          <div class="skpi-lbl">Reste à vivre</div>
+          <div class="skpi-val" id="kpi-rav">— €/mois</div>
+        </div>
+        <div class="skpi">
+          <div class="skpi-lbl">Apport</div>
+          <div class="skpi-val" id="kpi-apport">— %</div>
+        </div>
+        <div class="skpi">
+          <div class="skpi-lbl">Capacité d'emprunt</div>
+          <div class="skpi-val" id="kpi-emprunt">— €</div>
+        </div>
+        <div class="skpi">
+          <div class="skpi-lbl">Mensualité</div>
+          <div class="skpi-val" id="kpi-mens">— €/mois</div>
+        </div>
+        <div class="skpi">
+          <div class="skpi-lbl">Épargne résiduelle</div>
+          <div class="skpi-val" id="kpi-epargne-res">— €</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RÉCAPITULATIF CLIENT -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Récapitulatif du dossier</div>
+        <div class="sec-badge green" id="badge-docs">Documents : 0/7</div>
+      </div>
+      <div class="recap-grid" id="recap-grid">
+        <div class="recap-item"><div class="recap-lbl">Client</div><div class="recap-val" id="r-client">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Situation</div><div class="recap-val" id="r-situation">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Revenus nets totaux</div><div class="recap-val" id="r-revenus">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Charges actuelles</div><div class="recap-val" id="r-charges">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Type de projet</div><div class="recap-val" id="r-projet">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Bien ciblé</div><div class="recap-val" id="r-bien">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Montant emprunté</div><div class="recap-val" id="r-montant">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Banque(s) ciblée(s)</div><div class="recap-val" id="r-banques">—</div></div>
+      </div>
+    </div>
+
+    <!-- CHECKLIST DOCUMENTS -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Checklist documents</div>
+        <div class="sec-badge" id="badge-check">0 / 7 requis</div>
+      </div>
+      <div class="docs-checklist">
+        <div class="doc-check" id="check-bulletins">
+          <span class="doc-check-ico">📄</span>
+          <span class="doc-check-name">Bulletins de salaire (3 derniers mois)</span>
+          <span class="doc-check-status missing">Manquant</span>
+        </div>
+        <div class="doc-check" id="check-impots">
+          <span class="doc-check-ico">📋</span>
+          <span class="doc-check-name">Avis d'imposition (2 dernières années)</span>
+          <span class="doc-check-status missing">Manquant</span>
+        </div>
+        <div class="doc-check" id="check-releves">
+          <span class="doc-check-ico">🏦</span>
+          <span class="doc-check-name">Relevés bancaires (3 derniers mois)</span>
+          <span class="doc-check-status missing">Manquant</span>
+        </div>
+        <div class="doc-check" id="check-identite">
+          <span class="doc-check-ico">🪪</span>
+          <span class="doc-check-name">Pièce d'identité valide</span>
+          <span class="doc-check-status missing">Manquant</span>
+        </div>
+        <div class="doc-check" id="check-domicile">
+          <span class="doc-check-ico">🏠</span>
+          <span class="doc-check-name">Justificatif de domicile (moins de 3 mois)</span>
+          <span class="doc-check-status missing">Manquant</span>
+        </div>
+        <div class="doc-check" id="check-compromis">
+          <span class="doc-check-ico">📝</span>
+          <span class="doc-check-name">Compromis de vente (si signé)</span>
+          <span class="doc-check-status warn">Optionnel</span>
+        </div>
+        <div class="doc-check" id="check-autres">
+          <span class="doc-check-ico">📁</span>
+          <span class="doc-check-name">Documents complémentaires (épargne, placements)</span>
+          <span class="doc-check-status warn">Recommandé</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYSE IA -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Analyse IA · Stratégie de financement</div>
+        <div class="sec-badge gold" id="badge-ia">⚡ Cliquez pour analyser</div>
+      </div>
+      <div class="ia-box" id="ia-box">
+        <div style="text-align:center;padding:20px 0">
+          <div style="font-size:11px;color:rgba(26,25,22,.35);font-weight:300;margin-bottom:10px">L'IA analysera le profil du client et recommandera la meilleure stratégie de présentation aux banques.</div>
+          <button onclick="lancerAnalyseIA()" style="padding:10px 22px;background:var(--dark);color:#f4f2ee;border:none;border-radius:4px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:Outfit,sans-serif">⚡ Lancer l'analyse</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POINTS FORTS / FAIBLES -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Points forts & axes d'amélioration</div>
+      </div>
+      <div id="swot-box" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:rgba(39,80,10,.05);border:.5px solid rgba(39,80,10,.15);border-radius:6px;padding:14px">
+          <div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);font-weight:300;margin-bottom:8px">✓ Points forts</div>
+          <div id="points-forts" style="font-size:11px;color:rgba(26,25,22,.65);font-weight:300;line-height:1.8">—</div>
+        </div>
+        <div style="background:rgba(163,45,45,.04);border:.5px solid rgba(163,45,45,.12);border-radius:6px;padding:14px">
+          <div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);font-weight:300;margin-bottom:8px">⚠ Axes d'amélioration</div>
+          <div id="points-faibles" style="font-size:11px;color:rgba(26,25,22,.65);font-weight:300;line-height:1.8">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULATION CRÉDIT -->
+    <div class="section">
+      <div class="sec-hdr">
+        <div class="sec-title">Simulation crédit détaillée</div>
+      </div>
+      <div id="sim-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div class="recap-item"><div class="recap-lbl">Montant emprunté</div><div class="recap-val" id="sim-montant">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Mensualité</div><div class="recap-val" id="sim-mens">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Coût total crédit</div><div class="recap-val" id="sim-cout">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Taux d'endettement après</div><div class="recap-val" id="sim-endo">—</div></div>
+        <div class="recap-item"><div class="recap-lbl">Reste à vivre après</div><div class="recap-val" id="sim-rav">—</div></div>
+        <div class="recap-item" id="sim-cash-item"><div class="recap-lbl">Cashflow locatif</div><div class="recap-val" id="sim-cash">—</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+var situation = 'cdi';
+var familiale = 'celibataire';
+var typeProjet = 'locatif';
+var tmi = 30;
+var docs = {bulletins:[],impots:[],releves:[],identite:[],domicile:[],compromis:[],autres:[]};
+var iaGenerating = false;
+
+function setSit(v,btn){
+  situation=v;
+  document.querySelectorAll('#tabs-situation .rtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  calc();
+}
+function setFam(v,btn){
+  familiale=v;
+  btn.parentElement.querySelectorAll('.rtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  calc();
+}
+function setProjet(v,btn){
+  typeProjet=v;
+  btn.parentElement.querySelectorAll('.rtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  var cashItem=document.getElementById('sim-cash-item');
+  if(cashItem) cashItem.style.display=v==='rp'?'none':'';
+  calc();
+}
+function setTMI(v,btn){
+  tmi=v;
+  btn.parentElement.querySelectorAll('.rtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  calc();
+}
+
+function addDoc(type, input){
+  if(!input.files.length) return;
+  Array.from(input.files).forEach(function(file){
+    docs[type].push(file.name);
+  });
+  renderDocs(type);
+  updateChecklist();
+  calc();
+}
+
+function removeDoc(type, idx){
+  docs[type].splice(idx,1);
+  renderDocs(type);
+  updateChecklist();
+  calc();
+}
+
+function renderDocs(type){
+  var el=document.getElementById('list-'+type);
+  if(!el) return;
+  el.innerHTML=docs[type].map(function(name,i){
+    return '<div class="doc-item"><span class="doc-item-name">'+name+'</span><span class="doc-item-rm" onclick="removeDoc(\''+type+'\','+i+')">✕</span></div>';
+  }).join('');
+}
+
+function updateChecklist(){
+  var types=['bulletins','impots','releves','identite','domicile','compromis','autres'];
+  var count=0;
+  types.forEach(function(t){
+    var el=document.getElementById('check-'+t);
+    var statusEl=el?el.querySelector('.doc-check-status'):null;
+    if(!statusEl) return;
+    var hasDoc=docs[t].length>0;
+    var isOptional=t==='compromis'||t==='autres';
+    if(hasDoc){
+      statusEl.textContent=docs[t].length+' fichier'+(docs[t].length>1?'s':'');
+      statusEl.className='doc-check-status ok';
+      el.style.background='rgba(39,80,10,.03)';
+      count++;
+    } else {
+      statusEl.textContent=isOptional?'Optionnel':'Manquant';
+      statusEl.className='doc-check-status '+(isOptional?'warn':'missing');
+      el.style.background='';
+    }
+  });
+  var badge=document.getElementById('badge-docs');
+  var checkBadge=document.getElementById('badge-check');
+  if(badge) badge.textContent='Documents : '+count+'/7';
+  if(checkBadge){
+    checkBadge.textContent=count+' / 7 fournis';
+    checkBadge.className='sec-badge '+(count>=5?'green':count>=3?'gold':'red');
+  }
+}
+
+function f(n){ return Math.round(n).toLocaleString('fr-FR'); }
+
+function mens(cap,ta,d){
+  if(ta===0||cap===0) return cap/(d*12);
+  var tm=ta/100/12;
+  var n=d*12;
+  return cap*tm*Math.pow(1+tm,n)/(Math.pow(1+tm,n)-1);
+}
+
+function calc(){
+  var rev1=+(document.getElementById('revenus')||{value:0}).value||0;
+  var rev2=+(document.getElementById('revenus2')||{value:0}).value||0;
+  var rev_loc=+(document.getElementById('rev_loc')||{value:0}).value||0;
+  var rev_autres=+(document.getElementById('rev_autres')||{value:0}).value||0;
+  var charges=+(document.getElementById('charges')||{value:0}).value||0;
+  var epargne=+(document.getElementById('epargne')||{value:0}).value||0;
+  var apport=+(document.getElementById('apport')||{value:0}).value||0;
+  var bien_prix=+(document.getElementById('bien_prix')||{value:0}).value||0;
+  var travaux=+(document.getElementById('travaux')||{value:0}).value||0;
+  var duree=+(document.getElementById('duree')||{value:25}).value||25;
+  var taux=+(document.getElementById('taux')||{value:3.5}).value||3.5;
+  var loyer=+(document.getElementById('loyer')||{value:0}).value||0;
+  var anciennete=+(document.getElementById('anciennete')||{value:0}).value||0;
+  var enfants=+(document.getElementById('enfants')||{value:0}).value||0;
+  var prenom=(document.getElementById('prenom')||{value:''}).value;
+  var nom=(document.getElementById('nom')||{value:''}).value;
+  var adresse=(document.getElementById('bien_adresse')||{value:''}).value;
+  var banques=(document.getElementById('banques')||{value:''}).value;
+
+  // Revenus bancaires (70% revenus locatifs comptés par les banques)
+  var rev_total = rev1 + rev2 + rev_loc*0.7 + rev_autres;
+  var notaire = bien_prix * 0.08;
+  var montant = bien_prix + travaux + notaire - apport;
+  var mensualite = montant > 0 ? mens(montant, taux, duree) : 0;
+  var taux_endo = rev_total > 0 ? ((charges + mensualite) / rev_total * 100) : 0;
+  var rav = rev_total - charges - mensualite;
+  var apport_pct = bien_prix > 0 ? (apport / (bien_prix + travaux + notaire) * 100) : 0;
+  var epargne_res = epargne - apport;
+  var cout_total = mensualite * duree * 12 - montant;
+  var cashflow = loyer - mensualite;
+
+  // Capacité max (35% endettement - charges actuelles)
+  var mensMax = Math.max(0, rev_total * 0.35 - charges);
+  var tm = taux/100/12;
+  var n = duree*12;
+  var capacite = tm > 0 ? mensMax*(Math.pow(1+tm,n)-1)/(tm*Math.pow(1+tm,n)) : mensMax*n;
+
+  // SCORE
+  var score = 0;
+  // Taux endettement (30pts)
+  if(taux_endo < 20) score+=30;
+  else if(taux_endo < 25) score+=24;
+  else if(taux_endo < 30) score+=16;
+  else if(taux_endo < 35) score+=8;
+  else score+=0;
+  // Reste à vivre (20pts)
+  if(rav > 3000) score+=20;
+  else if(rav > 2000) score+=15;
+  else if(rav > 1500) score+=10;
+  else if(rav > 1000) score+=5;
+  // Apport (20pts)
+  if(apport_pct >= 20) score+=20;
+  else if(apport_pct >= 15) score+=16;
+  else if(apport_pct >= 10) score+=10;
+  else if(apport_pct >= 5) score+=5;
+  // Épargne résiduelle (10pts)
+  if(epargne_res > 30000) score+=10;
+  else if(epargne_res > 15000) score+=7;
+  else if(epargne_res > 5000) score+=4;
+  // Stabilité emploi (10pts)
+  if(situation==='cdi'||situation==='fonctionnaire') score+=10;
+  else if(situation==='retraite') score+=8;
+  else if(situation==='independant') score+=5;
+  else score+=3;
+  // Ancienneté (5pts)
+  if(anciennete >= 3) score+=5;
+  else if(anciennete >= 1) score+=3;
+  // Documents (5pts)
+  var docsCount=Object.values(docs).filter(function(d){return d.length>0;}).length;
+  score += Math.round(docsCount/7*5);
+
+  score = Math.min(Math.max(Math.round(score),0),100);
+
+  // Couleur et verdict
+  var color = score>=75?'#7bc67e':score>=50?'#f9c74f':'#e07070';
+  var verdict = score>=80?'✓ Dossier solide — financement très probable' :
+                score>=65?'◎ Bon dossier — présentation soignée conseillée' :
+                score>=50?'△ Dossier moyen — optimisation recommandée' :
+                '✗ Dossier fragile — renforcement nécessaire avant dépôt';
+
+  // Affichage score
+  var scoreEl=document.getElementById('score-num');
+  if(scoreEl) scoreEl.innerHTML=score+'<em>/100</em>';
+  var verdictEl=document.getElementById('score-verdict');
+  if(verdictEl){ verdictEl.textContent=verdict; verdictEl.style.color=color; }
+  var jaugeEl=document.getElementById('jauge-fill');
+  if(jaugeEl){ jaugeEl.style.width=score+'%'; jaugeEl.style.background=color; }
+
+  // KPIs
+  function setKpi(id,val,cls){
+    var el=document.getElementById(id);
+    if(el){ el.textContent=val; el.className='skpi-val'+(cls?' '+cls:''); }
+  }
+  var endoClass=taux_endo<30?'good':taux_endo<35?'warn':'bad';
+  setKpi('kpi-endo',taux_endo.toFixed(1)+'%',endoClass);
+  setKpi('kpi-rav',f(Math.round(rav))+'€/mois',rav>1500?'good':rav>1000?'warn':'bad');
+  setKpi('kpi-apport',apport_pct.toFixed(1)+'%',apport_pct>=10?'good':apport_pct>=5?'warn':'bad');
+  setKpi('kpi-emprunt',f(Math.round(capacite))+'€',null);
+  setKpi('kpi-mens',f(Math.round(mensualite))+'€/mois',null);
+  setKpi('kpi-epargne-res',f(Math.round(epargne_res))+'€',epargne_res>10000?'good':epargne_res>0?'warn':'bad');
+
+  // Récap
+  function setR(id,val){ var el=document.getElementById(id); if(el) el.textContent=val; }
+  setR('r-client',prenom&&nom?prenom+' '+nom:'—');
+  var sitLabels={cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Indépendant',retraite:'Retraité'};
+  setR('r-situation',(sitLabels[situation]||situation)+' · '+familiale+(enfants>0?' · '+enfants+' enfant'+(enfants>1?'s':''):''));
+  setR('r-revenus',f(Math.round(rev_total))+'€/mois nets');
+  setR('r-charges',charges>0?f(Math.round(charges))+'€/mois':'Aucun crédit en cours');
+  var projLabels={locatif:'Investissement locatif',rp:'Résidence principale',mixte:'Mixte'};
+  setR('r-projet',projLabels[typeProjet]||typeProjet);
+  setR('r-bien',adresse||(bien_prix>0?f(bien_prix)+'€':'—'));
+  setR('r-montant',montant>0?f(Math.round(montant))+'€':'—');
+  setR('r-banques',banques||'Non précisé');
+
+  // Simulation
+  setR('sim-montant',f(Math.round(montant))+'€');
+  setR('sim-mens',f(Math.round(mensualite))+'€/mois');
+  setR('sim-cout',f(Math.round(cout_total))+'€ d\'intérêts');
+  setR('sim-endo',taux_endo.toFixed(1)+'%');
+  setR('sim-rav',f(Math.round(rav))+'€/mois');
+  if(typeProjet!=='rp') setR('sim-cash',(cashflow>=0?'+':'')+f(Math.round(cashflow))+'€/mois');
+
+  // Points forts / faibles
+  var forts=[],faibles=[];
+  if(situation==='cdi'||situation==='fonctionnaire') forts.push('Stabilité emploi '+(situation==='cdi'?'CDI':'Fonctionnaire'));
+  if(anciennete>=3) forts.push('Ancienneté solide ('+anciennete+' ans)');
+  if(apport_pct>=20) forts.push('Apport excellent ('+apport_pct.toFixed(0)+'%)');
+  else if(apport_pct>=10) forts.push('Apport correct ('+apport_pct.toFixed(0)+'%)');
+  if(epargne_res>20000) forts.push('Épargne résiduelle rassurante ('+f(epargne_res)+'€)');
+  if(taux_endo<30) forts.push('Taux d\'endettement maîtrisé ('+taux_endo.toFixed(1)+'%)');
+  if(rav>2500) forts.push('Reste à vivre confortable ('+f(Math.round(rav))+'€/mois)');
+  if(typeProjet==='locatif'&&loyer>0&&cashflow>0) forts.push('Cashflow locatif positif (+'+f(Math.round(cashflow))+'€/mois)');
+
+  if(taux_endo>=35) faibles.push('⚠ Taux endettement > 35% (limite HCSF)');
+  else if(taux_endo>=30) faibles.push('Taux endettement proche du seuil ('+taux_endo.toFixed(1)+'%)');
+  if(apport_pct<10) faibles.push('Apport insuffisant ('+apport_pct.toFixed(0)+'% — min. 10% conseillé)');
+  if(epargne_res<5000) faibles.push('Épargne résiduelle faible après apport');
+  if(situation==='cdd') faibles.push('CDD : certaines banques exigeantes sur la stabilité');
+  if(situation==='independant') faibles.push('Indépendant : 3 bilans requis, bilan positif');
+  if(anciennete<1) faibles.push('Ancienneté < 1 an dans le poste actuel');
+  if(rav<1200) faibles.push('Reste à vivre limité ('+f(Math.round(rav))+'€/mois)');
+  if(charges>0) faibles.push('Charges existantes réduisant la capacité ('+f(charges)+'€/mois)');
+
+  var fortsEl=document.getElementById('points-forts');
+  var faiblesEl=document.getElementById('points-faibles');
+  if(fortsEl) fortsEl.innerHTML=forts.length?forts.map(function(f){return '✓ '+f;}).join('<br>'):'Renseignez les données client';
+  if(faiblesEl) faiblesEl.innerHTML=faibles.length?faibles.map(function(f){return '• '+f;}).join('<br>'):'Aucun point bloquant identifié';
+}
+
+function lancerAnalyseIA(){
+  if(iaGenerating) return;
+  var rev1=+(document.getElementById('revenus')||{value:0}).value||0;
+  var rev2=+(document.getElementById('revenus2')||{value:0}).value||0;
+  var rev_loc=+(document.getElementById('rev_loc')||{value:0}).value||0;
+  var charges=+(document.getElementById('charges')||{value:0}).value||0;
+  var epargne=+(document.getElementById('epargne')||{value:0}).value||0;
+  var apport=+(document.getElementById('apport')||{value:0}).value||0;
+  var bien_prix=+(document.getElementById('bien_prix')||{value:0}).value||0;
+  var travaux=+(document.getElementById('travaux')||{value:0}).value||0;
+  var duree=+(document.getElementById('duree')||{value:25}).value||25;
+  var taux_cr=+(document.getElementById('taux')||{value:3.5}).value||3.5;
+  var loyer=+(document.getElementById('loyer')||{value:0}).value||0;
+  var anciennete=+(document.getElementById('anciennete')||{value:0}).value||0;
+  var enfants=+(document.getElementById('enfants')||{value:0}).value||0;
+  var prenom=(document.getElementById('prenom')||{value:''}).value||'Client';
+  var nom=(document.getElementById('nom')||{value:''}).value||'';
+  var adresse=(document.getElementById('bien_adresse')||{value:''}).value;
+  var banques=(document.getElementById('banques')||{value:''}).value;
+
+  var rev_total=rev1+rev2+rev_loc*0.7;
+  var notaire=bien_prix*0.08;
+  var montant=bien_prix+travaux+notaire-apport;
+  var tm2=taux_cr/100/12; var n2=duree*12;
+  var mensualite=tm2>0?montant*tm2*Math.pow(1+tm2,n2)/(Math.pow(1+tm2,n2)-1):montant/n2;
+  var taux_endo=rev_total>0?(charges+mensualite)/rev_total*100:0;
+  var rav=rev_total-charges-mensualite;
+  var apport_pct=bien_prix>0?apport/(bien_prix+travaux+notaire)*100:0;
+  var cashflow=loyer-mensualite;
+  var docsCount=Object.values(docs).filter(function(d){return d.length>0;}).length;
+
+  var sitLabels={cdi:'CDI',cdd:'CDD',fonctionnaire:'Fonctionnaire',independant:'Travailleur indépendant (3 bilans)',retraite:'Retraité'};
+  var projLabels={locatif:'Investissement locatif',rp:'Résidence principale',mixte:'Mixte RP + locatif'};
+
+  var prompt = [
+    'Tu es un expert en financement immobilier et courtier spécialisé. Analyse ce dossier et fournis une stratégie complète pour maximiser les chances d\'obtention du crédit.',
+    '',
+    'PROFIL CLIENT :',
+    '- Nom : '+prenom+' '+nom,
+    '- Situation : '+sitLabels[situation]+' · Ancienneté : '+anciennete+' ans',
+    '- Famille : '+familiale+(enfants?' · '+enfants+' enfant(s) à charge':''),
+    '- TMI : '+tmi+'%',
+    '',
+    'FINANCES :',
+    '- Revenus nets mensuels : '+f(Math.round(rev1))+'EUR'+(rev2?' + co-emprunteur '+f(Math.round(rev2))+'EUR':'')+(rev_loc?' + locatifs '+f(Math.round(rev_loc))+'EUR (70% retenus)':''),
+    '- Revenus totaux retenus par la banque : '+f(Math.round(rev_total))+'EUR/mois',
+    '- Charges mensuelles actuelles : '+f(Math.round(charges))+'EUR/mois',
+    '- Épargne totale : '+f(Math.round(epargne))+'EUR · Apport : '+f(Math.round(apport))+'EUR ('+apport_pct.toFixed(1)+'%)',
+    '- Épargne résiduelle après apport : '+f(Math.round(epargne-apport))+'EUR',
+    '',
+    'LE PROJET :',
+    '- Type : '+projLabels[typeProjet],
+    '- Bien : '+(adresse||'non précisé')+' · Prix : '+f(Math.round(bien_prix))+'EUR + travaux : '+f(Math.round(travaux))+'EUR',
+    '- Montant emprunté : '+f(Math.round(montant))+'EUR sur '+duree+' ans à '+taux_cr+'%',
+    '- Mensualité estimée : '+f(Math.round(mensualite))+'EUR/mois',
+    '- Taux d\'endettement résultant : '+taux_endo.toFixed(1)+'%',
+    '- Reste à vivre : '+f(Math.round(rav))+'EUR/mois',
+    (loyer?'- Loyer visé : '+f(Math.round(loyer))+'EUR/mois · Cashflow : '+(cashflow>=0?'+':'')+f(Math.round(cashflow))+'EUR/mois':''),
+    '- Banque(s) ciblée(s) : '+(banques||'non précisé'),
+    '- Documents fournis : '+docsCount+'/7',
+    '',
+    'Fournis une analyse structurée avec ces 5 sections (titres entre [crochets]) :',
+    '[VERDICT BANKABILITE] Évalue la bancabilité globale du dossier. Score probable 0-100. Chances d\'accord estimées. Banques les plus réceptives à ce profil.',
+    '[STRATEGIE DE PRESENTATION] Comment présenter ce dossier pour maximiser les chances. Ordre de démarchage des banques. Arguments clés à mettre en avant. Pièges à éviter.',
+    '[OPTIMISATIONS AVANT DEPOT] 3-5 actions concrètes pour renforcer le dossier si nécessaire (épargne, remboursement charges, PTZ, co-emprunteur, etc.).',
+    '[MONTAGE FINANCIER RECOMMANDE] Structure optimale du financement (apport, durée, type de prêt, PTZ si éligible, prêt employeur, assurance emprunteur). Taux négociables actuels mars 2025.',
+    '[RISQUES & POINTS DE VIGILANCE] Points qui pourraient bloquer ou retarder l\'accord. Comment les anticiper.'
+  ].join('\n');
+
+  var box=document.getElementById('ia-box');
+  var badge=document.getElementById('badge-ia');
+  if(!box) return;
+  iaGenerating=true;
+  if(badge){ badge.textContent='Analyse en cours...'; badge.className='sec-badge gold'; }
+
+  box.innerHTML='<style>@keyframes iaDt{0%,80%,100%{transform:scale(.4);opacity:.3}40%{transform:scale(1);opacity:1}}</style>'
+    +'<div style="padding:24px;text-align:center">'
+    +'<div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:12px">Analyse du dossier de financement...</div>'
+    +'<div style="display:flex;justify-content:center;gap:6px;margin-bottom:12px">'
+    +'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:iaDt 1.2s infinite 0s"></div>'
+    +'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:iaDt 1.2s infinite .2s"></div>'
+    +'<div style="width:7px;height:7px;border-radius:50%;background:var(--gold);animation:iaDt 1.2s infinite .4s"></div>'
+    +'</div>'
+    +'<div style="font-size:10px;color:rgba(26,25,22,.35);font-weight:300">Claude analyse le profil et construit la stratégie...</div>'
+    +'</div>';
+
+  fetch('/.netlify/functions/claude-proxy',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-5',
+      max_tokens:2000,
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    iaGenerating=false;
+    var txt=data.content&&data.content[0]?data.content[0].text:'';
+    if(!txt){
+      box.innerHTML='<div style="padding:12px;color:var(--red);font-size:11px;background:#fcebeb;border-radius:5px">Erreur API : '+(data.error?data.error.message:(data.type==='error'?data.error.message:'Vérifiez ANTHROPIC_API_KEY sur Netlify'))+'</div>';
+      if(badge){ badge.textContent='Erreur'; badge.className='sec-badge red'; }
+      return;
+    }
+    var secs=['VERDICT BANKABILITE','STRATEGIE DE PRESENTATION','OPTIMISATIONS AVANT DEPOT','MONTAGE FINANCIER RECOMMANDE','RISQUES & POINTS DE VIGILANCE'];
+    var icos={'VERDICT BANKABILITE':'◈','STRATEGIE DE PRESENTATION':'▶','OPTIMISATIONS AVANT DEPOT':'⚡','MONTAGE FINANCIER RECOMMANDE':'💡','RISQUES & POINTS DE VIGILANCE':'⚠'};
+    var out='<div style="padding:2px">';
+    var found=[];
+    secs.forEach(function(s){
+      var p='['+s+']';
+      var i=txt.indexOf(p);
+      if(i===-1) return;
+      var ni=txt.length;
+      secs.forEach(function(s2){if(s2!==s){var j=txt.indexOf('['+s2+']',i+1);if(j>i&&j<ni)ni=j;}});
+      found.push({s:s,c:txt.slice(i+p.length,ni).trim()});
+    });
+    if(!found.length){
+      out+='<div style="font-size:11px;line-height:1.8;color:rgba(26,25,22,.72);white-space:pre-wrap">'+txt+'</div>';
+    } else {
+      found.forEach(function(item){
+        var ico=icos[item.s]||'▸';
+        var isV=item.s==='VERDICT BANKABILITE';
+        out+='<div style="margin-bottom:14px;'+(isV?'padding:12px;background:rgba(184,146,42,.07);border-radius:5px;border:.5px solid rgba(184,146,42,.2)':'')+'">'
+          +'<div style="font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:'+(isV?'var(--gold)':'rgba(26,25,22,.38)')+';font-weight:300;margin-bottom:6px">'+ico+' '+item.s+'</div>'
+          +'<div style="font-size:11px;line-height:1.75;color:rgba(26,25,22,.72);font-weight:300;white-space:pre-wrap">'+item.c+'</div>'
+          +'</div>';
+      });
+    }
+    out+='</div>';
+    box.innerHTML=out;
+    if(badge){ badge.textContent='✓ Analyse complète'; badge.className='sec-badge green'; }
+  
+  })
+  .catch(function(err){iaGenerating=false;
+    box.innerHTML='<div style="padding:12px;color:var(--red);font-size:11px;background:#fcebeb;border-radius:5px">Erreur connexion.<br><small>'+err.message+'</small></div>';
+    if(badge){ badge.textContent='Erreur'; badge.className='sec-badge red'; }
+  });
+}
+
+function resetForm(){
+  if(!confirm('Réinitialiser le dossier ? Toutes les données seront effacées.')) return;
+  location.reload();
+}
+
+// Init
+calc();
+
+function toast(msg,dur){
+  var t=document.getElementById('_toast');
+  if(!t){t=document.createElement('div');t.id='_toast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1916;color:#f4f2ee;padding:10px 20px;border-radius:4px;font-size:12px;z-index:9999;pointer-events:none;transition:opacity .3s;font-family:Outfit,sans-serif';
+    document.body.appendChild(t);}
+  t.textContent=msg;t.style.opacity='1';
+  clearTimeout(t._tid);t._tid=setTimeout(function(){t.style.opacity='0';},dur||2500);
+}
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+
+<div class="tunnel-bar">
+  <span class="tunnel-label">Étape suivante</span>
+  <a class='tunnel-btn' href='/shades_rendement_locatif'>→ Calculer le rendement →</a>
+</div>
+</body>
+</html>

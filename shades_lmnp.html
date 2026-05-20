@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SHADES · Simulateur LMNP / LMP Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#b8922a;--dark:#1a1916;--light:#f4f2ee;--wall:#eceae5;--border:rgba(26,25,22,.09);--g:#27500a;--r:#a32d2d}
+body{font-family:'Outfit',sans-serif;background:var(--light);color:var(--dark);min-height:100vh}
+.sbar{display:flex;height:2px}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:12px 24px;background:rgba(26,25,22,.97);border-bottom:.5px solid rgba(244,242,238,.06);position:sticky;top:0;z-index:100}
+.logo{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:16px;letter-spacing:.25em;color:#f4f2ee}
+.logo em{color:var(--gold);font-style:normal}
+.hdr-sub{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,242,238,.28);margin-top:1px}
+.btn{padding:6px 14px;border:.5px solid rgba(244,242,238,.15);border-radius:3px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:'Outfit',sans-serif;color:rgba(244,242,238,.5);background:transparent;transition:all .2s}
+.btn:hover{color:#f4f2ee}
+.btn.gold{background:var(--gold);color:var(--dark);border-color:var(--gold)}
+.layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 52px)}
+.panel{background:var(--wall);border-right:.5px solid var(--border);padding:18px 14px;overflow-y:auto;max-height:calc(100vh - 52px);position:sticky;top:52px}
+.main{padding:22px 26px;overflow-y:auto}
+.ct{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(26,25,22,.35);font-weight:400;margin:16px 0 7px;padding-bottom:5px;border-bottom:.5px solid rgba(26,25,22,.07)}
+.ct:first-child{margin-top:0}
+.fld{margin-bottom:9px}
+.lbl{font-size:9.5px;color:rgba(26,25,22,.48);font-weight:300;margin-bottom:3px}
+.inp{width:100%;padding:7px 10px;border:.5px solid rgba(26,25,22,.16);border-radius:3px;font-size:11px;font-family:'Outfit',sans-serif;color:var(--dark);background:#fff;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--gold)}
+select.inp{cursor:pointer}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.chips{display:flex;gap:4px;flex-wrap:wrap}
+.chip{padding:4px 9px;border:.5px solid rgba(26,25,22,.14);border-radius:3px;font-size:9px;font-weight:300;cursor:pointer;background:#fff;color:rgba(26,25,22,.5);transition:all .15s;font-family:'Outfit',sans-serif}
+.chip.on{background:var(--dark);color:#f4f2ee;border-color:var(--dark)}
+
+/* HERO RÉSULTAT */
+.hero{background:var(--dark);border-radius:10px;padding:20px 24px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(184,146,42,.15),transparent 60%);pointer-events:none}
+.hero-lbl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,242,238,.28);font-weight:300;margin-bottom:5px}
+.big{font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:#f4f2ee;line-height:1}
+.big em{font-size:20px;color:var(--gold);font-style:normal}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.kpi{background:rgba(244,242,238,.05);border-radius:5px;padding:9px 11px}
+.kpi-l{font-size:7px;letter-spacing:.08em;text-transform:uppercase;color:rgba(244,242,238,.28);font-weight:300;margin-bottom:3px}
+.kpi-v{font-size:13px;font-weight:300;color:#f4f2ee}
+
+/* COMPARATEUR 4 RÉGIMES */
+.regimes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.regime-card{background:#fff;border:.5px solid var(--border);border-radius:7px;padding:14px;position:relative;transition:all .2s}
+.regime-card.best{border-color:rgba(184,146,42,.4);background:rgba(184,146,42,.04)}
+.regime-card.best::before{content:'OPTIMAL';position:absolute;top:-1px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--dark);font-size:7px;letter-spacing:.1em;font-weight:500;padding:2px 8px;border-radius:0 0 4px 4px}
+.reg-name{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:10px}
+.reg-cf{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--dark);line-height:1;margin-bottom:3px}
+.reg-cf em{font-size:14px;color:var(--gold);font-style:normal}
+.reg-lbl{font-size:9px;color:rgba(26,25,22,.4);font-weight:300;margin-bottom:10px}
+.reg-rows{}
+.reg-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:.5px solid rgba(26,25,22,.06)}
+.reg-row:last-child{border-bottom:none}
+.reg-row-lbl{font-size:9.5px;color:rgba(26,25,22,.5);font-weight:300}
+.reg-row-val{font-size:9.5px;font-weight:400}
+.green{color:var(--g)}
+.red{color:var(--r)}
+.gold{color:var(--gold)}
+
+/* TABLES */
+.sec{background:#fff;border-radius:7px;border:.5px solid var(--border);padding:18px 20px;margin-bottom:12px}
+.sec-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}
+.sec-t{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:300}
+.badge{padding:3px 9px;border-radius:10px;font-size:7.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:300}
+.badge.gold-b{background:rgba(184,146,42,.1);color:var(--gold);border:.5px solid rgba(184,146,42,.3)}
+.badge.green-b{background:rgba(39,80,10,.08);color:var(--g);border:.5px solid rgba(39,80,10,.2)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,25,22,.35);font-weight:300;padding:6px 8px;border-bottom:.5px solid rgba(26,25,22,.08)}
+td{padding:7px 8px;border-bottom:.5px solid rgba(26,25,22,.05);font-weight:300;color:rgba(26,25,22,.7)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(26,25,22,.02)}
+td.hi{font-weight:400;color:var(--dark)}
+td.pos{color:var(--g);font-weight:400}
+td.neg{color:var(--r);font-weight:400}
+
+/* IA */
+.ia-box{background:linear-gradient(135deg,rgba(26,25,22,.03),rgba(184,146,42,.04));border:.5px solid rgba(184,146,42,.15);border-radius:7px;padding:16px;font-size:11px;line-height:1.8;color:rgba(26,25,22,.68);font-weight:300}
+.ia-sec-t{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(26,25,22,.3);font-weight:400;margin:12px 0 5px;display:flex;align-items:center;gap:6px}
+.ia-sec-t::after{content:'';flex:1;height:.5px;background:rgba(26,25,22,.08)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:16px;height:16px;border:1.5px solid rgba(184,146,42,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;display:inline-block}
+@media print{.hdr .btn,.panel{display:none!important}.layout{grid-template-columns:1fr!important}.main{padding:0!important}body{background:#fff}}
+
+/* === MODE SOMBRE === */
+body.dark-mode{background:#111110 !important;color:#f4f2ee !important}
+.dark-mode .hdr,.dark-mode .header{background:#1a1916 !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode .art,.dark-mode .card,.dark-mode .lay,.dark-mode .section,.dark-mode .box,.dark-mode .panel,
+.dark-mode .vig,.dark-mode .opp,.dark-mode .te-item,.dark-mode .col-body,.dark-mode .article-card,
+.dark-mode .synthese-card,.dark-mode .vigil-card,.dark-mode .plu-box,.dark-mode .kpi-box,
+.dark-mode .form-section,.dark-mode .sim-card{background:#1a1916 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.1) !important}
+.dark-mode input,.dark-mode select,.dark-mode textarea{background:#222 !important;color:#f4f2ee !important;border-color:rgba(244,242,238,.2) !important}
+.dark-mode label,.dark-mode .lbl,.dark-mode .field-label{color:rgba(244,242,238,.6) !important}
+.dark-mode .muted,.dark-mode .sub,.dark-mode .hint{color:rgba(244,242,238,.4) !important}
+
+.tunnel-bar{position:sticky;bottom:0;z-index:100;background:#1a1916;border-top:.5px solid rgba(184,146,42,.3);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.tunnel-label{font-size:10px;color:rgba(244,242,238,.4)}
+.tunnel-btn{padding:8px 18px;background:var(--gold,#b8922a);color:#1a1916;text-decoration:none;border-radius:3px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:500;border:none;cursor:pointer;font-family:inherit}
+</style>
+  <meta name="description" content="Simulateur LMNP 2025 — Micro-BIC vs Réel, amortissement, optimisation fiscale IA pour loueurs meublés.">
+  <script defer data-domain="shadesimmobilier.com" src="https://plausible.io/js/script.js"></script>
+  <script src="shades-config.js"></script>
+</head>
+<body>
+<div class="sbar"><span style="flex:1;background:#e8e4dc"></span><span style="flex:1;background:#c4c0b8"></span><span style="flex:1;background:#b8922a"></span><span style="flex:1;background:#1e1e1c"></span></div>
+<div class="hdr">
+  <div><div class="logo">SHADES<em>.</em></div><div class="hdr-sub">Simulateur LMNP / LMP · Optimisation fiscale location meublée</div></div>
+  <div style="display:flex;gap:7px">
+    <button class="btn" onclick="lancerIA()">⚡ Conseil IA fiscal</button>
+    <button class="btn gold" onclick="window.print()">↓ PDF</button>
+  </div>
+</div>
+<div class="layout">
+<div class="panel">
+  <div class="ct">Le bien</div>
+  <div class="fld"><div class="lbl">Prix d'acquisition (€)</div><input class="inp" id="prix_achat" type="number" min="0" value="280000" oninput="calc()"></div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Surface (m²)</div><input class="inp" id="surface" type="number" min="0" value="42" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Frais notaire (€)</div><input class="inp" id="frais_notaire" type="number" min="0" value="22400" oninput="calc()"></div>
+  </div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Travaux (€)</div><input class="inp" id="travaux" type="number" min="0" value="15000" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Mobilier / équipement (€)</div><input class="inp" id="mobilier" type="number" min="0" value="8000" oninput="calc()"></div>
+  </div>
+  <div class="fld"><div class="lbl">Valeur terrain estimée (%)</div>
+    <div class="chips" id="c-terrain">
+      <button class="chip" onclick="setV('terrain',10,this)">10%</button>
+      <button class="chip on" onclick="setV('terrain',15,this)">15%</button>
+      <button class="chip" onclick="setV('terrain',20,this)">20%</button>
+      <button class="chip" onclick="setV('terrain',25,this)">25%</button>
+    </div>
+  </div>
+  <div class="fld"><div class="lbl">Type de location meublée</div>
+    <div class="chips" id="c-typloc">
+      <button class="chip on" onclick="setV('typloc','classique',this)">Classique</button>
+      <button class="chip" onclick="setV('typloc','etudiant',this)">Étudiant</button>
+      <button class="chip" onclick="setV('typloc','saisonnier',this)">Saisonnier</button>
+      <button class="chip" onclick="setV('typloc','coliving',this)">Coliving</button>
+    </div>
+  </div>
+
+  <div class="ct">Revenus locatifs</div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Loyer mensuel HC (€)</div><input class="inp" id="loyer" type="number" min="0" value="1100" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Taux de vacance (%)</div><input class="inp" id="vacance" type="number" value="5" step="0.5" oninput="calc()"></div>
+  </div>
+
+  <div class="ct">Charges & financement</div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Charges de copropriété (€/an)</div><input class="inp" id="charges_copro" type="number" min="0" value="1800" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Taxe foncière (€/an)</div><input class="inp" id="taxe_fonciere" type="number" min="0" value="900" oninput="calc()"></div>
+  </div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">Assurance PNO (€/an)</div><input class="inp" id="assurance" type="number" min="0" value="250" oninput="calc()"></div>
+    <div class="fld"><div class="lbl">Frais de gestion (€/an)</div><input class="inp" id="gestion" type="number" min="0" value="0" oninput="calc()"></div>
+  </div>
+  <div class="fld"><div class="lbl">Emprunt</div>
+    <div class="chips" id="c-emprunt">
+      <button class="chip on" onclick="setV('emprunt','oui',this)">Avec emprunt</button>
+      <button class="chip" onclick="setV('emprunt','non',this)">Comptant</button>
+    </div>
+  </div>
+  <div id="emprunt-fields">
+    <div class="r3">
+      <div class="fld"><div class="lbl">Capital emprunté (€)</div><input class="inp" id="capital_pret" type="number" min="0" value="250000" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Taux (%)</div><input class="inp" id="taux_pret" type="number" value="3.8" step="0.05" oninput="calc()"></div>
+      <div class="fld"><div class="lbl">Durée (ans)</div><input class="inp" id="duree_pret" type="number" min="0" value="20" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="ct">Situation fiscale du client</div>
+  <div class="r2">
+    <div class="fld"><div class="lbl">TMI (%)</div>
+      <select class="inp" id="tmi" onchange="calc()">
+        <option value="0">0%</option><option value="11">11%</option><option value="30" selected>30%</option><option value="41">41%</option><option value="45">45%</option>
+      </select>
+    </div>
+    <div class="fld"><div class="lbl">Autres revenus locatifs (€/an)</div><input class="inp" id="autres_revenus" type="number" min="0" value="0" oninput="calc()"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="hero-lbl">Cash-flow net annuel optimal</div>
+        <div class="big" id="h-cf">—<em>€/an</em></div>
+        <div style="font-size:11px;color:rgba(244,242,238,.4);font-weight:300;margin-top:5px" id="h-regime">Calculez pour voir le régime optimal</div>
+      </div>
+      <div style="text-align:right">
+        <div class="hero-lbl" style="text-align:right">Rentabilité nette</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#f4f2ee" id="h-renta">—</div>
+        <div style="font-size:9px;color:rgba(244,242,238,.25)" id="h-econ">Économie fiscale vs. nu</div>
+      </div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-l">Revenus bruts</div><div class="kpi-v" id="k-rev">—</div></div>
+      <div class="kpi"><div class="kpi-l">Charges totales</div><div class="kpi-v" id="k-chg">—</div></div>
+      <div class="kpi"><div class="kpi-l">Amortissement</div><div class="kpi-v" id="k-amort">—</div></div>
+      <div class="kpi"><div class="kpi-l">Mensualité prêt</div><div class="kpi-v" id="k-mens">—</div></div>
+    </div>
+  </div>
+
+  <div class="regimes-grid" id="regimes-grid"></div>
+
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-t">Projection sur 10 ans</div>
+      <div class="badge gold-b" id="badge-proj">Régime optimal</div>
+    </div>
+    <table id="table-proj">
+      <thead><tr><th>Année</th><th>Revenus</th><th>Charges</th><th>Amort.</th><th>Résultat</th><th>Impôt</th><th>Cash-flow net</th><th>Cumul</th></tr></thead>
+      <tbody id="tbody-proj"></tbody>
+    </table>
+  </div>
+
+  <div class="sec">
+    <div class="sec-hdr">
+      <div class="sec-t">Conseil IA · Optimisation fiscale</div>
+      <div class="badge gold-b" id="badge-ia">⚡ Cliquer pour analyser</div>
+    </div>
+    <div id="ia-box">
+      <div style="text-align:center;padding:16px 0">
+        <div style="font-size:11px;color:rgba(26,25,22,.32);font-weight:300;margin-bottom:10px">L'IA analysera votre situation et recommandera la stratégie fiscale optimale pour ce bien.</div>
+        <button onclick="lancerIA()" style="padding:9px 22px;background:var(--dark);color:#f4f2ee;border:none;border-radius:4px;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:300;cursor:pointer;font-family:Outfit,sans-serif">⚡ Lancer le conseil IA</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+var S={terrain:15,typloc:"classique",emprunt:"oui"};
+var iaRunning=false;
+
+function setV(k,v,btn){
+  S[k]=v;
+  btn.parentElement.querySelectorAll(".chip").forEach(function(b){b.classList.remove("on");});
+  btn.classList.add("on");
+  if(k==="emprunt"){document.getElementById("emprunt-fields").style.display=v==="oui"?"block":"none";}
+  calc();
+}
+function g(id){var e=document.getElementById(id);return e?+e.value||0:0;}
+function f(n){return Math.round(n).toLocaleString("fr-FR");}
+function fp(n){return n.toFixed(2)+"%";}
+
+function calcMensualite(capital,taux,duree){
+  if(!capital||!taux||!duree) return 0;
+  var tm=taux/100/12,n=duree*12;
+  return capital*(tm*Math.pow(1+tm,n))/(Math.pow(1+tm,n)-1);
+}
+
+function calc(){
+  var prixAchat=g("prix_achat"),fraisNot=g("frais_notaire"),travaux=g("travaux"),mobilier=g("mobilier");
+  var surface=g("surface")||42;
+  var loyer=g("loyer"),vacance=g("vacance")||0;
+  var chargesCopro=g("charges_copro"),taxeFonciere=g("taxe_fonciere"),assurance=g("assurance"),gestion=g("gestion");
+  var capital=g("capital_pret"),taux=g("taux_pret")||3.8,duree=g("duree_pret")||20;
+  var tmi=g("tmi")||30;
+  var autresRev=g("autres_revenus");
+
+  // Base calculs
+  var valeurBien=prixAchat+fraisNot+travaux;
+  var valeurTerrain=valeurBien*(S.terrain/100);
+  var baseAmort=valeurBien-valeurTerrain;
+  var amortImmo=baseAmort/30; // 30 ans
+  var amortMobilier=mobilier/7; // 7 ans
+  var amortTotal=amortImmo+amortMobilier;
+  var revBrut=loyer*12*(1-vacance/100);
+  var chargesTotal=chargesCopro+taxeFonciere+assurance+gestion;
+  var mens=S.emprunt==="oui"?calcMensualite(capital,taux,duree):0;
+  var annuiteTotal=mens*12;
+  // Intérêts année 1
+  var interets1=S.emprunt==="oui"?capital*taux/100:0;
+
+  // KPIs
+  document.getElementById("k-rev").textContent=f(revBrut)+"€";
+  document.getElementById("k-chg").textContent=f(chargesTotal)+"€";
+  document.getElementById("k-amort").textContent=f(amortTotal)+"€/an";
+  document.getElementById("k-mens").textContent=mens>0?f(mens)+"€/mois":"—";
+
+  // === 4 RÉGIMES ===
+  // 1. NU (Revenus fonciers réels)
+  var resultatNu=revBrut-chargesTotal-interets1-amortTotal*0; // pas d-amort en nu
+  resultatNu=revBrut-chargesTotal-interets1; // réel nu: pas d-amort immo
+  var impotNuIR=Math.max(0,resultatNu)*(tmi/100);
+  var impotNuPS=Math.max(0,resultatNu)*0.172;
+  var impotNu=impotNuIR+impotNuPS;
+  var cfNu=revBrut-chargesTotal-annuiteTotal-impotNu;
+
+  // 2. Micro-BIC (50% abattement)
+  var baseImposMicro=revBrut*0.5;
+  var impotMicroIR=baseImposMicro*(tmi/100);
+  var impotMicroPS=baseImposMicro*0.172;
+  var impotMicro=impotMicroIR+impotMicroPS;
+  var cfMicro=revBrut-chargesTotal-annuiteTotal-impotMicro;
+
+  // 3. LMNP réel (BIC réel avec amortissement)
+  var resultatLMNP=revBrut-chargesTotal-interets1-amortTotal;
+  var impotLMNP=resultatLMNP>0?resultatLMNP*(tmi/100+0.172):0;
+  var cfLMNP=revBrut-chargesTotal-annuiteTotal-impotLMNP;
+  var deficitLMNP=resultatLMNP<0?Math.abs(resultatLMNP):0;
+
+  // 4. SCI IS
+  var resultatSCIIS=revBrut-chargesTotal-interets1-amortTotal;
+  var impotSCIIS=resultatSCIIS>0?(resultatSCIIS<=42500?resultatSCIIS*0.15:42500*0.15+(resultatSCIIS-42500)*0.25):0;
+  var cfSCIIS=revBrut-chargesTotal-annuiteTotal-impotSCIIS;
+
+  var regimes=[
+    {name:"Location nue",short:"NU",cf:cfNu,impot:impotNu,resultat:resultatNu,note:"Revenus fonciers réels"},
+    {name:"Micro-BIC",short:"MIC",cf:cfMicro,impot:impotMicro,resultat:baseImposMicro,note:"Abattement 50%"},
+    {name:"LMNP Réel",short:"LMNP",cf:cfLMNP,impot:impotLMNP,resultat:resultatLMNP,note:"Amort. "+f(amortTotal)+"€/an",deficit:deficitLMNP},
+    {name:"SCI à l'IS",short:"SCI IS",cf:cfSCIIS,impot:impotSCIIS,resultat:resultatSCIIS,note:"IS 15% puis 25%"},
+  ];
+
+  var bestIdx=0,bestCF=-Infinity;
+  regimes.forEach(function(r,i){if(r.cf>bestCF){bestCF=r.cf;bestIdx=i;}});
+
+  var grid=document.getElementById("regimes-grid");
+  if(grid){
+    grid.innerHTML=regimes.map(function(r,i){
+      var isBest=i===bestIdx;
+      var rentaNette=valeurBien>0?((r.cf/valeurBien)*100).toFixed(2):0;
+      return "<div class='regime-card"+(isBest?" best":"")+"'>"
+        +"<div class='reg-name'>"+r.name+"</div>"
+        +"<div class='reg-cf'>"+(r.cf>=0?"+":"")+f(r.cf)+"<em>€/an</em></div>"
+        +"<div class='reg-lbl'>"+rentaNette+"% net · "+r.note+"</div>"
+        +"<div class='reg-rows'>"
+        +"<div class='reg-row'><span class='reg-row-lbl'>Revenus bruts</span><span class='reg-row-val'>"+f(revBrut)+"€</span></div>"
+        +"<div class='reg-row'><span class='reg-row-lbl'>Charges réelles</span><span class='reg-row-val red'>-"+f(chargesTotal)+"€</span></div>"
+        +(S.emprunt==="oui"?"<div class='reg-row'><span class='reg-row-lbl'>Annuité prêt</span><span class='reg-row-val red'>-"+f(annuiteTotal)+"€</span></div>":"")
+        +"<div class='reg-row'><span class='reg-row-lbl'>Impôts</span><span class='reg-row-val red'>-"+f(r.impot)+"€</span></div>"
+        +(r.deficit?"<div class='reg-row'><span class='reg-row-lbl'>Déficit reportable</span><span class='reg-row-val green'>+"+f(r.deficit)+"€</span></div>":"")
+        +"</div></div>";
+    }).join("");
+  }
+
+  var best=regimes[bestIdx];
+  var h=document.getElementById("h-cf");if(h) h.innerHTML=(best.cf>=0?"+":"")+f(best.cf)+"<em>€/an</em>";
+  var hr=document.getElementById("h-regime");if(hr) hr.textContent="Régime optimal : "+best.name+" ("+f(best.cf/12)+"€/mois)";
+  var hn=document.getElementById("h-renta");
+  if(hn) hn.textContent=valeurBien?((best.cf/valeurBien)*100).toFixed(2)+"%":"—";
+  var he=document.getElementById("h-econ");
+  if(he){var econ=best.cf-regimes[0].cf;he.textContent="Économie vs. nu : "+(econ>=0?"+":"")+f(econ)+"€/an";}
+
+  // Projection 10 ans
+  var tbody=document.getElementById("tbody-proj");
+  if(tbody){
+    var cumul=0;
+    var rows="";
+    for(var yr=1;yr<=10;yr++){
+      var revYr=revBrut*Math.pow(1.015,yr-1); // +1.5%/an IRL
+      var chgYr=chargesTotal*Math.pow(1.02,yr-1);
+      var interYr=S.emprunt==="oui"?capital*taux/100*Math.pow(0.85,yr-1):0; // simplification
+      var amortYr=amortTotal;
+      var resYr=revYr-chgYr-interYr-amortYr;
+      var impYr=best.name==="LMNP Réel"?Math.max(0,resYr)*(tmi/100+0.172):best.name==="Micro-BIC"?revYr*0.5*(tmi/100+0.172):Math.max(0,resYr)*(tmi/100+0.172);
+      var cfYr=revYr-chgYr-(S.emprunt==="oui"?annuiteTotal:0)-impYr;
+      cumul+=cfYr;
+      rows+="<tr>"
+        +"<td class='hi'>"+yr+"</td>"
+        +"<td>"+f(revYr)+"€</td>"
+        +"<td class='neg'>"+f(chgYr)+"€</td>"
+        +"<td class='gold'>"+f(amortYr)+"€</td>"
+        +"<td class='hi'>"+f(resYr)+"€</td>"
+        +"<td class='neg'>"+f(impYr)+"€</td>"
+        +"<td class='"+(cfYr>=0?"pos":"neg")+"'>"+(cfYr>=0?"+":"")+f(cfYr)+"€</td>"
+        +"<td class='"+(cumul>=0?"pos":"neg")+"'>"+(cumul>=0?"+":"")+f(cumul)+"€</td>"
+        +"</tr>";
+    }
+    tbody.innerHTML=rows;
+  }
+
+  var bp=document.getElementById("badge-proj");
+  if(bp) bp.textContent="Régime : "+best.name;
+}
+
+async function lancerIA(){
+  if(iaRunning) return;
+  iaRunning=true;
+  var box=document.getElementById("ia-box");
+  var badge=document.getElementById("badge-ia");
+  if(badge){badge.textContent="Analyse...";badge.className="badge gold-b";}
+  box.innerHTML="<div style='text-align:center;padding:18px'><div class='spinner'></div><div style='font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,25,22,.35);margin-top:10px'>Analyse fiscale en cours...</div></div>";
+
+  var tmi=g("tmi"),prixAchat=g("prix_achat"),loyer=g("loyer"),travaux=g("travaux"),mobilier=g("mobilier");
+  var revBrut=loyer*12*(1-g("vacance")/100);
+  var chargesTotal=g("charges_copro")+g("taxe_fonciere")+g("assurance")+g("gestion");
+
+  var prompt="Tu es expert-comptable spécialisé LMNP/LMP. Analyse cette situation et donne un conseil fiscal personnalisé.\n\n"
+    +"BIEN : "+prixAchat.toLocaleString()+" EUR - "+g("surface")+"m2 - "+S.typloc+" meublée\n"
+    +"REVENUS BRUTS : "+revBrut.toLocaleString()+" EUR/an (vacance "+g("vacance")+"% incluse)\n"
+    +"CHARGES : "+chargesTotal.toLocaleString()+" EUR/an\n"
+    +"TRAVAUX : "+travaux.toLocaleString()+" EUR · Mobilier : "+mobilier.toLocaleString()+" EUR\n"
+    +"FINANCEMENT : "+(S.emprunt==="oui"?"Emprunt "+g("capital_pret").toLocaleString()+" EUR à "+g("taux_pret")+"% sur "+g("duree_pret")+" ans":"Comptant")+"\n"
+    +"TMI CLIENT : "+tmi+"%\n\n"
+    +"Réponds avec ces 3 sections entre crochets :\n"
+    +"[REGIME] Quel régime recommandes-tu (LMNP réel/Micro-BIC/SCI IS/nu) et pourquoi précisément pour ce profil ?\n"
+    +"[OPTIMISATIONS] Quelles actions concrètes pour optimiser la fiscalité (timing travaux, amortissements, structure, CGA) ?\n"
+    +"[ALERTES] Quels points de vigilance, changements fiscaux 2024-2025, risques à anticiper ?";
+
+  try{
+    var resp=await fetch('/.netlify/functions/claude-proxy',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+    var d=await resp.json();
+    var txt=d.content&&d.content[0]?d.content[0].text:"";
+    if(!txt){box.innerHTML="<div style='color:#a32d2d'>Erreur API.</div>";iaRunning=false;return;}
+    var secs=["REGIME","OPTIMISATIONS","ALERTES"];
+    var lbls={REGIME:"Régime recommandé",OPTIMISATIONS:"Optimisations concrètes",ALERTES:"Alertes & vigilance"};
+    var out="<div class='ia-box'>";
+    secs.forEach(function(s){
+      var p="["+s+"]";var i=txt.indexOf(p);if(i===-1) return;
+      var ni=txt.length;
+      secs.forEach(function(s2){if(s2!==s){var j=txt.indexOf("["+s2+"]",i+1);if(j>i&&j<ni) ni=j;}});
+      out+="<div class='ia-sec-t'>"+lbls[s]+"</div>"
+        +"<div style='font-size:11px;line-height:1.8;color:rgba(26,25,22,.68);font-weight:300;white-space:pre-wrap'>"+txt.slice(i+p.length,ni).trim()+"</div>";
+    });
+    out+="</div>";
+    box.innerHTML=out;
+    if(badge){badge.textContent="Analyse complète";badge.className="badge green-b";}
+  }catch(e){
+    box.innerHTML="<div style='color:#a32d2d;font-size:11px'>Erreur: "+e.message+"</div>";
+    if(badge) badge.className="badge gold-b";
+  }
+  iaRunning=false;
+}
+
+// Init
+document.getElementById("emprunt-fields").style.display="block";
+calc();
+
+/* === TOGGLE MODE SOMBRE === */
+(function(){
+  if(localStorage.getItem('shades_dark')==='1') document.body.classList.add('dark-mode');
+})();
+function toggleDark(){
+  var on=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('shades_dark',on?'1':'0');
+  var btn=document.getElementById('btn-dark');
+  if(btn)btn.textContent=on?'☀ Clair':'☽ Sombre';
+}
+</script>
+<div class="tunnel-bar"><span class="tunnel-label">Étape suivante</span><a class='tunnel-btn' href='/shades_deficit_foncier'>→ Comparer déficit foncier →</a></div>
+</body>
+</html>
