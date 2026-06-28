@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Hineni — Tefillin Connect",
+    "slug": "hineni",
+    "scheme": "hineni",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shades.hineni",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Pour trouver le poseur de tefillin le plus proche et valider la mise.",
+        "NSCameraUsageDescription": "Pour scanner le QR de confirmation et la preuve d'audit."
+      }
+    },
+    "android": {
+      "package": "com.shades.hineni",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA"]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-location",
+      "expo-camera",
+      "expo-secure-store"
+    ],
+    "extra": {
+      "supabaseUrl": "https://YOUR-PROJECT.supabase.co",
+      "supabaseAnonKey": "YOUR-ANON-KEY"
+    }
+  }
+}

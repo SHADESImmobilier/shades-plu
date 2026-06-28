@@ -1,0 +1,48 @@
+import { useEffect, useState } from "react";
+import { View, Text, Switch, Pressable, StyleSheet } from "react-native";
+import { supabase } from "@/lib/supabase";
+import { Profile } from "@/lib/types";
+
+export default function ProfileScreen() {
+  const [profile, setProfile] = useState<Profile | null>(null);
+
+  useEffect(() => {
+    supabase.from("profiles").select("*").single().then(({ data }) => setProfile(data as Profile));
+  }, []);
+
+  async function togglePoseur(v: boolean) {
+    if (!profile) return;
+    setProfile({ ...profile, is_poseur: v });
+    await supabase.from("profiles").update({ is_poseur: v }).eq("id", profile.id);
+  }
+
+  return (
+    <View style={styles.c}>
+      <Text style={styles.name}>{profile?.display_name ?? "Mon profil"}</Text>
+      <Text style={styles.trust}>Niveau de confiance : {profile?.trust ?? "—"}</Text>
+
+      <View style={styles.row}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.label}>Mode poseur</Text>
+          <Text style={styles.help}>Activez pour recevoir des demandes et faire Mivtzaïm.</Text>
+        </View>
+        <Switch value={profile?.is_poseur ?? false} onValueChange={togglePoseur} />
+      </View>
+
+      <Pressable style={styles.logout} onPress={() => supabase.auth.signOut()}>
+        <Text style={styles.logoutT}>Se déconnecter</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  c: { flex: 1, padding: 16, backgroundColor: "#0b1320" },
+  name: { color: "#fff", fontSize: 24, fontWeight: "700", marginTop: 8 },
+  trust: { color: "#9fb0c7", marginBottom: 24 },
+  row: { flexDirection: "row", alignItems: "center", backgroundColor: "#16203a", borderRadius: 12, padding: 16, marginBottom: 16 },
+  label: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  help: { color: "#9fb0c7", marginTop: 2 },
+  logout: { marginTop: "auto", padding: 16, alignItems: "center" },
+  logoutT: { color: "#ff6b6b", fontWeight: "600" },
+});
