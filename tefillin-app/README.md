@@ -50,9 +50,12 @@ scanne** (`validate`), avec **empreinte appareil + hash téléphone réels**.
 ✅ App Expo : auth OTP, **carte react-native-maps** des poseurs proches,
 récompenses, **catalogue partenaires** (échange de points → bon via `issue_voucher`),
 profil (mode poseur).
+✅ **Flux "VTC" temps réel** : le demandeur crée une demande (`request`) et suit
+le poseur en direct ; le poseur reçoit les demandes proches en direct (`incoming`)
+et les accepte (RPC `accept_request` atomique), via **Supabase Realtime**.
 
-🔜 À implémenter : flux de demande "VTC" complet (acceptation + suivi temps réel
-via Realtime), notifications push, photo d'audit (Storage), back-office d'audit
+🔜 À implémenter : notifications push (FCM/APNs), publication continue de la
+position poseur pendant l'approche, photo d'audit (Storage), back-office d'audit
 fraude (web), seed de partenaires, planification cron de `clear_rewards`.
 
 Voir [`docs/CONCEPTION.md`](docs/CONCEPTION.md) pour le détail — **dont les points

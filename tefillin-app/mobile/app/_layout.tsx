@@ -30,6 +30,8 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="request" options={{ presentation: "modal", headerShown: true, title: "Mettre les tefillin" }} />
+      <Stack.Screen name="incoming" options={{ presentation: "modal", headerShown: true, title: "Demandes reçues" }} />
       <Stack.Screen name="serve" options={{ presentation: "modal", headerShown: true, title: "Ouvrir une mise" }} />
       <Stack.Screen name="validate" options={{ presentation: "modal", headerShown: true, title: "Valider la mise" }} />
     </Stack>

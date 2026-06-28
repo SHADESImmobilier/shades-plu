@@ -47,12 +47,12 @@ export default function Home() {
             ? `${poseurs.length} poseur(s) disponible(s) près de vous`
             : "Aucun poseur disponible pour l'instant"}
         </Text>
-        <Pressable style={styles.cta} onPress={refresh}>
+        <Pressable style={styles.cta} onPress={() => router.push("/request")}>
           <Text style={styles.ctaT}>Mettre les tefillin maintenant</Text>
         </Pressable>
         <View style={styles.actions}>
-          <Pressable style={styles.secondary} onPress={() => router.push("/serve")}>
-            <Text style={styles.secondaryT}>Je suis poseur · ouvrir une mise</Text>
+          <Pressable style={styles.secondary} onPress={() => router.push("/incoming")}>
+            <Text style={styles.secondaryT}>Je suis poseur · demandes reçues</Text>
           </Pressable>
           <Pressable style={styles.secondary} onPress={() => router.push("/validate")}>
             <Text style={styles.secondaryT}>Scanner un QR</Text>
