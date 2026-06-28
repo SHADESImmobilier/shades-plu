@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, Switch, Pressable, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@/lib/types";
+import { colors } from "@/lib/theme";
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -37,12 +38,12 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, padding: 16, backgroundColor: "#0b1320" },
-  name: { color: "#fff", fontSize: 24, fontWeight: "700", marginTop: 8 },
-  trust: { color: "#9fb0c7", marginBottom: 24 },
-  row: { flexDirection: "row", alignItems: "center", backgroundColor: "#16203a", borderRadius: 12, padding: 16, marginBottom: 16 },
-  label: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  help: { color: "#9fb0c7", marginTop: 2 },
+  c: { flex: 1, padding: 16, backgroundColor: colors.bg },
+  name: { color: colors.text, fontSize: 24, fontWeight: "800", marginTop: 8 },
+  trust: { color: colors.muted, marginBottom: 24 },
+  row: { flexDirection: "row", alignItems: "center", backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border },
+  label: { color: colors.text, fontSize: 16, fontWeight: "600" },
+  help: { color: colors.muted, marginTop: 2 },
   logout: { marginTop: "auto", padding: 16, alignItems: "center" },
-  logoutT: { color: "#ff6b6b", fontWeight: "600" },
+  logoutT: { color: colors.danger, fontWeight: "600" },
 });

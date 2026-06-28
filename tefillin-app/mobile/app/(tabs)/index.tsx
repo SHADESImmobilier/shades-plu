@@ -5,6 +5,7 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { NearbyPoseur } from "@/lib/types";
+import { colors } from "@/lib/theme";
 
 // Écran principal "VTC" : carte des poseurs disponibles à proximité.
 export default function Home() {
@@ -54,8 +55,8 @@ export default function Home() {
           <Pressable style={styles.secondary} onPress={() => router.push("/incoming")}>
             <Text style={styles.secondaryT}>Je suis poseur · demandes reçues</Text>
           </Pressable>
-          <Pressable style={styles.secondary} onPress={() => router.push("/validate")}>
-            <Text style={styles.secondaryT}>Scanner un QR</Text>
+          <Pressable style={styles.secondary} onPress={() => router.push("/capture")}>
+            <Text style={styles.secondaryT}>Nouvelle mise · photo</Text>
           </Pressable>
         </View>
       </View>
@@ -64,12 +65,12 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, backgroundColor: "#0b1320" },
-  panel: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0b1320", padding: 16, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  count: { color: "#9fb0c7", textAlign: "center", marginBottom: 12 },
-  cta: { backgroundColor: "#f5c542", borderRadius: 12, padding: 16, alignItems: "center" },
-  ctaT: { color: "#0b1320", fontWeight: "700", fontSize: 16 },
+  c: { flex: 1, backgroundColor: colors.bg },
+  panel: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: colors.surface, padding: 16, borderTopLeftRadius: 20, borderTopRightRadius: 20, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 16, shadowOffset: { width: 0, height: -4 }, elevation: 12 },
+  count: { color: colors.muted, textAlign: "center", marginBottom: 12 },
+  cta: { backgroundColor: colors.primary, borderRadius: 12, padding: 16, alignItems: "center" },
+  ctaT: { color: colors.onPrimary, fontWeight: "700", fontSize: 16 },
   actions: { flexDirection: "row", gap: 10, marginTop: 10 },
-  secondary: { flex: 1, backgroundColor: "#1f2d4d", borderRadius: 12, padding: 14, alignItems: "center" },
-  secondaryT: { color: "#f5c542", fontWeight: "600", fontSize: 13, textAlign: "center" },
+  secondary: { flex: 1, backgroundColor: colors.surfaceAlt, borderRadius: 12, padding: 14, alignItems: "center" },
+  secondaryT: { color: colors.primary, fontWeight: "600", fontSize: 13, textAlign: "center" },
 });

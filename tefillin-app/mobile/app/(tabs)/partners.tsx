@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Pressable, Alert } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { colors } from "@/lib/theme";
 
 interface Offer {
   id: string;
@@ -57,15 +58,15 @@ export default function Partners() {
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, padding: 16, backgroundColor: "#0b1320" },
-  h: { color: "#fff", fontSize: 22, fontWeight: "700", marginBottom: 16 },
-  empty: { color: "#9fb0c7", textAlign: "center", marginTop: 40 },
-  card: { backgroundColor: "#16203a", borderRadius: 12, padding: 16, marginBottom: 12 },
-  partner: { color: "#9fb0c7", fontSize: 12, textTransform: "uppercase" },
-  title: { color: "#fff", fontSize: 16, fontWeight: "700", marginTop: 4 },
-  desc: { color: "#9fb0c7", marginTop: 4 },
+  c: { flex: 1, padding: 16, backgroundColor: colors.bg },
+  h: { color: colors.text, fontSize: 22, fontWeight: "800", marginBottom: 16 },
+  empty: { color: colors.muted, textAlign: "center", marginTop: 40 },
+  card: { backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
+  partner: { color: colors.muted, fontSize: 12, textTransform: "uppercase" },
+  title: { color: colors.text, fontSize: 16, fontWeight: "700", marginTop: 4 },
+  desc: { color: colors.muted, marginTop: 4 },
   bottom: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 12 },
-  cost: { color: "#f5c542", fontWeight: "700", fontSize: 16 },
-  btn: { backgroundColor: "#f5c542", borderRadius: 10, paddingVertical: 8, paddingHorizontal: 18 },
-  btnT: { color: "#0b1320", fontWeight: "700" },
+  cost: { color: colors.primary, fontWeight: "800", fontSize: 16 },
+  btn: { backgroundColor: colors.primary, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 18 },
+  btnT: { color: colors.onPrimary, fontWeight: "700" },
 });

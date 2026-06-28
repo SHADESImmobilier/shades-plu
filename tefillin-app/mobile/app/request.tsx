@@ -5,6 +5,7 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { colors } from "@/lib/theme";
 
 type Phase = "creating" | "waiting" | "accepted" | "cancelled";
 
@@ -93,10 +94,10 @@ export default function RequestScreen() {
         {phase === "accepted" && (
           <>
             <Text style={styles.title}>Un poseur arrive vers vous 🙏</Text>
-            <Text style={styles.sub}>Quand vous êtes ensemble, scannez son QR.</Text>
-            <Pressable style={styles.cta} onPress={() => router.replace("/validate")}>
-              <Text style={styles.ctaT}>Scanner le QR du poseur</Text>
-            </Pressable>
+            <Text style={styles.sub}>
+              Une fois ensemble, le poseur prendra une photo de vous deux avec les
+              tefillin (avec votre accord) pour valider la mise.
+            </Text>
           </>
         )}
         <Pressable style={styles.cancel} onPress={cancel}>
@@ -110,20 +111,20 @@ export default function RequestScreen() {
 function Loader({ text }: { text: string }) {
   return (
     <View style={{ alignItems: "center" }}>
-      <ActivityIndicator color="#f5c542" />
+      <ActivityIndicator color={colors.primary} />
       <Text style={styles.sub}>{text}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, backgroundColor: "#0b1320" },
+  c: { flex: 1, backgroundColor: colors.bg },
   map: { ...StyleSheet.absoluteFillObject },
-  panel: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "#0b1320", padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 12 },
-  title: { color: "#fff", fontSize: 18, fontWeight: "700", textAlign: "center" },
-  sub: { color: "#9fb0c7", textAlign: "center", marginTop: 6 },
-  cta: { backgroundColor: "#f5c542", borderRadius: 12, padding: 16, alignItems: "center" },
-  ctaT: { color: "#0b1320", fontWeight: "700", fontSize: 16 },
+  panel: { position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: colors.surface, padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, gap: 12, shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 16, shadowOffset: { width: 0, height: -4 }, elevation: 12 },
+  title: { color: colors.text, fontSize: 18, fontWeight: "800", textAlign: "center" },
+  sub: { color: colors.muted, textAlign: "center", marginTop: 6 },
+  cta: { backgroundColor: colors.primary, borderRadius: 12, padding: 16, alignItems: "center" },
+  ctaT: { color: colors.onPrimary, fontWeight: "700", fontSize: 16 },
   cancel: { padding: 12, alignItems: "center" },
-  cancelT: { color: "#ff6b6b", fontWeight: "600" },
+  cancelT: { color: colors.danger, fontWeight: "600" },
 });

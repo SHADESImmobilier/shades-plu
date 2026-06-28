@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { Reward } from "@/lib/types";
+import { colors } from "@/lib/theme";
 
 const LABEL: Record<string, string> = {
   pending: "En attente (anti-fraude)",
@@ -51,14 +52,14 @@ export default function Rewards() {
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, padding: 16, backgroundColor: "#0b1320" },
-  balanceBox: { backgroundColor: "#16203a", borderRadius: 16, padding: 24, alignItems: "center", marginBottom: 24 },
-  balanceLabel: { color: "#9fb0c7" },
-  balance: { color: "#f5c542", fontSize: 48, fontWeight: "800" },
-  hint: { color: "#9fb0c7", textAlign: "center", marginTop: 8 },
-  h: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 12 },
-  empty: { color: "#9fb0c7", textAlign: "center", marginTop: 24 },
-  row: { flexDirection: "row", justifyContent: "space-between", backgroundColor: "#16203a", borderRadius: 10, padding: 14, marginBottom: 8 },
-  pts: { color: "#fff", fontWeight: "700" },
-  status: { color: "#9fb0c7" },
+  c: { flex: 1, padding: 16, backgroundColor: colors.bg },
+  balanceBox: { backgroundColor: colors.primary, borderRadius: 16, padding: 24, alignItems: "center", marginBottom: 24 },
+  balanceLabel: { color: "#dbe7ff" },
+  balance: { color: colors.onPrimary, fontSize: 48, fontWeight: "900" },
+  hint: { color: "#dbe7ff", textAlign: "center", marginTop: 8 },
+  h: { color: colors.text, fontSize: 18, fontWeight: "700", marginBottom: 12 },
+  empty: { color: colors.muted, textAlign: "center", marginTop: 24 },
+  row: { flexDirection: "row", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: 10, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: colors.border },
+  pts: { color: colors.text, fontWeight: "700" },
+  status: { color: colors.muted },
 });

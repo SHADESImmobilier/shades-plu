@@ -11,7 +11,7 @@
       "bundleIdentifier": "com.shades.hineni",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Pour trouver le poseur de tefillin le plus proche et valider la mise.",
-        "NSCameraUsageDescription": "Pour scanner le QR de confirmation et la preuve d'audit."
+        "NSCameraUsageDescription": "Pour prendre la photo de la mise (poseur + posé avec les tefillin) qui valide le Mivtza."
       }
     },
     "android": {

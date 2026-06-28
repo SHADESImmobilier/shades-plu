@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from "react-native";
 import { supabase } from "@/lib/supabase";
+import { colors } from "@/lib/theme";
 
 // Auth par OTP SMS (un compte = un numéro vérifié → barrière anti-fraude #1).
 export default function Login() {
@@ -66,11 +67,11 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: "#0b1320" },
-  title: { fontSize: 56, color: "#f5c542", textAlign: "center", fontWeight: "700" },
-  sub: { fontSize: 18, color: "#e8eef7", textAlign: "center", marginBottom: 16 },
-  p: { color: "#9fb0c7", textAlign: "center", marginBottom: 32 },
-  input: { backgroundColor: "#16203a", color: "#fff", borderRadius: 12, padding: 16, fontSize: 16, marginBottom: 12 },
-  btn: { backgroundColor: "#f5c542", borderRadius: 12, padding: 16, alignItems: "center" },
-  btnText: { color: "#0b1320", fontWeight: "700", fontSize: 16 },
+  c: { flex: 1, justifyContent: "center", padding: 24, backgroundColor: colors.bg },
+  title: { fontSize: 56, color: colors.primary, textAlign: "center", fontWeight: "800" },
+  sub: { fontSize: 18, color: colors.text, textAlign: "center", marginBottom: 16, fontWeight: "600" },
+  p: { color: colors.muted, textAlign: "center", marginBottom: 32 },
+  input: { backgroundColor: colors.surface, color: colors.text, borderRadius: 12, padding: 16, fontSize: 16, marginBottom: 12, borderWidth: 1, borderColor: colors.border },
+  btn: { backgroundColor: colors.primary, borderRadius: 12, padding: 16, alignItems: "center" },
+  btnText: { color: colors.onPrimary, fontWeight: "700", fontSize: 16 },
 });

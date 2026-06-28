@@ -43,20 +43,23 @@ tefillin-app/
 
 ## État
 
-✅ Conception · ✅ Schéma & RLS (PostGIS) · ✅ Edge Functions anti-fraude
-(`validate_session`) et clearing (`clear_rewards`).
-✅ Boucle de mise complète : **poseur génère un QR** (`serve`) ↔ **bénéficiaire
-scanne** (`validate`), avec **empreinte appareil + hash téléphone réels**.
+✅ Conception · ✅ Schéma & RLS (PostGIS + pgvector) · ✅ Edge Functions
+anti-fraude (`submit_session`) et clearing (`clear_rewards`).
+✅ Thème **blanc & bleu** centralisé (`lib/theme.ts`).
+✅ **Preuve par selfie LIVE** (`capture`) : photo in-app du poseur + posé avec
+tefillin (tête + bras) → upload Storage privé → analyse serveur (vision +
+empreinte faciale anti-farming + score de risque). **Plus de QR.**
 ✅ App Expo : auth OTP, **carte react-native-maps** des poseurs proches,
 récompenses, **catalogue partenaires** (échange de points → bon via `issue_voucher`),
 profil (mode poseur).
 ✅ **Flux "VTC" temps réel** : le demandeur crée une demande (`request`) et suit
-le poseur en direct ; le poseur reçoit les demandes proches en direct (`incoming`)
-et les accepte (RPC `accept_request` atomique), via **Supabase Realtime**.
+le poseur en direct ; le poseur reçoit les demandes proches en direct (`incoming`),
+les accepte (RPC `accept_request`), puis prend la photo de la mise (`capture`).
 
-🔜 À implémenter : notifications push (FCM/APNs), publication continue de la
-position poseur pendant l'approche, photo d'audit (Storage), back-office d'audit
-fraude (web), seed de partenaires, planification cron de `clear_rewards`.
+🔜 À implémenter : **brancher le modèle de vision** (détection visages + tefillin
++ embedding facial + liveness) dans `submit_session.analyzePhoto()` ; consentement
+RGPD du posé tracé + politique de conservation ; notifications push (FCM/APNs) ;
+back-office d'audit fraude (web) ; seed de partenaires ; cron de `clear_rewards`.
 
 Voir [`docs/CONCEPTION.md`](docs/CONCEPTION.md) pour le détail — **dont les points
 à trancher** : nature halachique de la récompense, et le fournisseur SMS.

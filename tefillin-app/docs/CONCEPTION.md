@@ -66,18 +66,18 @@ Ouvre l'app → "Mettre les tefillin maintenant"
 Active "mode poseur" (vérifié) → bascule "Disponible"
    → Notification push : demande à 300 m
    → Accepte → navigation vers le demandeur
-   → Mise des tefillin → ouvre l'écran de validation
-   → Le demandeur scanne le QR / confirme → session "pending"
+   → Mise des tefillin → ouvre l'appareil photo (capture LIVE)
+   → Selfie poseur + posé côte à côte, tefillin visibles (tête + bras)
+   → Consentement du posé à l'écran → envoi → session "pending"
    → Récompense créditée (en attente de clearing anti-fraude)
 ```
 
 ### 3.3 Mivtza de rue
 ```
 Poseur dans la rue → "Nouvelle mise"
-   → Affiche un QR dynamique (token court, 60 s)
-   → Le demandeur scanne (ou tape un code) sur SON téléphone vérifié
-   → Confirmation à proximité (GPS + BLE/handshake)
-   → Session "pending"
+   → Appareil photo LIVE (pas d'import galerie)
+   → Selfie poseur + posé, tefillin tête + bras visibles
+   → Consentement du posé → envoi (GPS + horodatage) → session "pending"
 ```
 
 ---
@@ -92,73 +92,81 @@ Le principe directeur : **aucune confiance unilatérale.** Une session n'est jam
 récompensée sur la seule déclaration du poseur. Elle doit franchir plusieurs barrières
 indépendantes, et la récompense reste **« en attente » (pending)** jusqu'au *clearing*.
 
-### 4.1 Les 8 barrières
+> **Modèle V2 (décision produit) : preuve par SELFIE LIVE + reconnaissance faciale.**
+> On abandonne le QR/double-confirmation (trop complexe pour l'utilisateur). La preuve
+> d'une mise est désormais **une photo prise en direct dans l'app** (jamais importée de
+> la galerie) montrant **le poseur et le posé côte à côte, avec les tefillin (tête + bras)**.
+> La **vision par ordinateur** vérifie la scène et la **reconnaissance faciale** sert
+> surtout à l'**anti-farming** (un même posé ne peut pas être réutilisé en boucle).
+
+### 4.1 Les barrières
 
 1. **Identité téléphonique unique (OTP SMS).**
-   Un compte = un numéro de téléphone vérifié. Le **demandeur aussi** doit avoir un
-   numéro vérifié pour qu'une session soit éligible à récompense (vérification légère :
-   il peut juste confirmer un OTP sans créer un profil complet).
+   Un compte poseur = un numéro vérifié. (Le posé n'a plus besoin de compte : sa preuve
+   est la photo + son empreinte faciale anonymisée + son consentement à l'écran.)
 
-2. **Double confirmation bilatérale.**
-   La mise doit être confirmée par **le poseur ET le bénéficiaire**, chacun sur son
-   propre appareil, via **scan de QR dynamique** (token 60 s, signé) ou code à 6 chiffres.
-   → Casse la mise fictive « solo ».
+2. **Capture LIVE uniquement (anti-rejeu / liveness).**
+   La photo est prise **par l'appareil photo de l'app**, horodatée et géotaguée côté
+   appareil. **Import depuis la galerie interdit** ; on capture une courte rafale /
+   métadonnées caméra pour détecter les photos d'écran ou réutilisées.
+   → Casse « je renvoie une vieille photo ».
 
-3. **Preuve de co-présence physique.**
-   Au moment de la validation, les deux appareils doivent prouver qu'ils sont
-   **physiquement proches** :
-   - **GPS** : les deux positions concordent (< ~80 m) ;
-   - **Handshake de proximité** : échange BLE / NFC / QR à l'écran (le QR affiché sur un
-     écran ne peut pas être scanné à distance) ;
-   - **Horodatage serveur** : les deux confirmations dans une fenêtre courte (< 2 min).
-   → Casse la collusion à distance.
+3. **Vérification de la scène par vision (le posé + les tefillin).**
+   Un modèle de vision contrôle automatiquement sur la photo :
+   - **≥ 2 visages** distincts (poseur + posé) ;
+   - **tefillin détectés sur la tête** (chel rosh) **et sur le bras** (chel yad).
+   Si la scène n'est pas conforme → la session part en revue manuelle (pas de crédit auto).
+   → Casse « selfie sans tefillin / sans seconde personne ».
 
-4. **Unicité & cooldown du bénéficiaire.**
-   La récompense vise surtout des **mises réelles, pas du farming**. On suit le bénéficiaire
-   (hash du numéro + empreinte appareil) :
-   - récompense **pleine** pour un bénéficiaire **nouveau / rare** ;
-   - **cooldown** : le même couple (poseur ↔ bénéficiaire) ne génère pas de récompense
-     répétée (ex. 1 fois / 30 jours, dégressif) ;
-   - plafond de bénéficiaires récompensés par poseur / jour.
-   → Casse « deux amis se valident en boucle ».
+4. **Reconnaissance faciale = anti-farming du posé.**
+   Pour chaque posé, on calcule une **empreinte faciale (embedding)** stockée de façon
+   sécurisée (pas la photo brute pour le matching). On l'utilise pour :
+   - **dédupliquer** : récompense pleine pour un posé **nouveau** ; **cooldown** si le même
+     visage revient (ex. 1 fois / 30 jours, dégressif) ;
+   - détecter la **collusion** (mêmes 2 visages qui se répètent, ronde de visages, etc.).
+   → Casse « deux amis se prennent en photo en boucle ».
+   ⚠️ **Donnée biométrique** : consentement explicite du posé, finalité limitée
+   (anti-fraude), durée de conservation courte, droit à l'effacement (cf. §8).
 
-5. **Preuve photo (audit, pas confiance auto).**
-   Photo **caméra live uniquement** (pas la galerie) de la personne avec les tefillin,
-   horodatée + géotaguée. Utilisée pour l'**audit aléatoire/ciblé**, jamais pour créditer
-   automatiquement (on n'analyse pas le visage : RGPD/halacha → flou possible, opt-in).
+5. **Co-présence géographique & horodatage.**
+   GPS + heure de capture : vélocité impossible (50 mises en 5 min à travers la ville),
+   rafales nocturnes, position incohérente → signaux de risque.
 
 6. **Score de risque & détection d'anomalies.**
-   Calcul serveur par session : vélocité géographique impossible (50 mises en 5 min à
-   travers la ville), rafales nocturnes, même appareil pour poseur et bénéficiaire,
-   numéros séquentiels, IP/appareil partagés, etc. → score `low/medium/high`.
+   Agrège tout : scène non conforme, visage déjà vu (cooldown), même appareil poseur/posé,
+   vélocité géo, numéros séquentiels, IP/appareil partagés → score `low/medium/high`.
 
 7. **Niveaux de confiance & probation.**
-   - Nouveau poseur = **probation** : récompenses gelées plus longtemps, plus d'audits.
+   - Nouveau poseur = **probation** : récompenses gelées plus longtemps, plus d'audits,
+     **toutes** ses premières sessions passent en revue manuelle.
    - Poseur **certifié** (endossé par une organisation reconnue, cf. V2) = clearing rapide.
    - Le niveau monte avec l'historique propre ; il chute en cas de signaux frauduleux.
 
 8. **File d'audit + clearing différé.**
    Toute récompense naît **`pending`**. Clearing :
-   - **auto** après X h si `risk=low` et poseur établi ;
-   - **revue manuelle** (back-office) si `risk≥medium`, probation, ou tirage aléatoire.
+   - **auto** après X h si `risk=low`, scène conforme et poseur établi ;
+   - **revue manuelle** (back-office, la photo est revue par un humain) si `risk≥medium`,
+     probation, scène non conforme, ou tirage aléatoire.
    Sanctions graduées : avertissement → gel → bannissement + récupération des récompenses.
 
 ### 4.2 Cycle de vie d'une session
 
 ```
-created
-  → awaiting_confirmation   (un côté a confirmé, on attend l'autre)
-  → confirmed               (double confirmation + co-présence OK)
-  → under_review            (score de risque ≥ medium OU tirage audit)   ─┐
-  → validated               (a passé le clearing)                          │
-  → rewarded                (récompense créditée et clearée)               │
-  → rejected                (échec confirmation / co-présence / audit)  ◄──┘
+created                     (le poseur ouvre la caméra)
+  → submitted               (selfie live envoyé + consentement du posé)
+  → confirmed               (vision conforme + visage nouveau + risk=low)
+  → under_review            (scène douteuse, visage déjà vu, ou tirage audit)  ─┐
+  → validated               (a passé le clearing)                               │
+  → rewarded                (récompense créditée et clearée)                    │
+  → rejected                (scène non conforme / fraude avérée)             ◄──┘
 ```
 
 ### 4.3 Ce qu'on NE fait pas (anti-patterns)
-- ❌ Créditer sur simple déclaration ou simple photo.
-- ❌ Faire confiance au GPS seul (spoofable) — toujours **combiné** au handshake écran/BLE.
-- ❌ Stocker des données biométriques sans base légale.
+- ❌ Créditer **automatiquement** sur la seule photo : la vision pré-filtre, mais le doute
+  va toujours en **revue humaine** avant crédit.
+- ❌ Accepter une image importée de la galerie (capture live obligatoire).
+- ❌ Faire confiance au GPS seul (spoofable) — toujours combiné scène + visage + temps.
+- ❌ Stocker des empreintes faciales sans **consentement explicite** ni base légale.
 
 ---
 

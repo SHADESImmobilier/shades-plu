@@ -4,6 +4,7 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { colors } from "@/lib/theme";
 
 interface PendingRequest {
   id: string;
@@ -59,8 +60,8 @@ export default function Incoming() {
   async function accept(id: string) {
     const { error } = await supabase.rpc("accept_request", { req_id: id });
     if (error) { Alert.alert("Indisponible", "Demande déjà prise ou expirée."); loadNearby(); return; }
-    // ouvre directement l'écran de génération du QR pour la mise
-    router.replace("/serve");
+    // une fois ensemble, le poseur prend la photo de la mise
+    router.replace({ pathname: "/capture", params: { request_id: id } });
   }
 
   return (
@@ -88,13 +89,13 @@ export default function Incoming() {
 }
 
 const styles = StyleSheet.create({
-  c: { flex: 1, padding: 16, backgroundColor: "#0b1320" },
-  h: { color: "#fff", fontSize: 22, fontWeight: "700", marginTop: 8 },
-  sub: { color: "#9fb0c7", marginBottom: 16 },
-  empty: { color: "#9fb0c7", textAlign: "center", marginTop: 40 },
-  card: { flexDirection: "row", alignItems: "center", backgroundColor: "#16203a", borderRadius: 12, padding: 16, marginBottom: 10 },
-  dist: { color: "#fff", fontSize: 16, fontWeight: "700" },
-  note: { color: "#9fb0c7", marginTop: 4 },
-  btn: { backgroundColor: "#f5c542", borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20 },
-  btnT: { color: "#0b1320", fontWeight: "700" },
+  c: { flex: 1, padding: 16, backgroundColor: colors.bg },
+  h: { color: colors.text, fontSize: 22, fontWeight: "800", marginTop: 8 },
+  sub: { color: colors.muted, marginBottom: 16 },
+  empty: { color: colors.muted, textAlign: "center", marginTop: 40 },
+  card: { flexDirection: "row", alignItems: "center", backgroundColor: colors.surface, borderRadius: 12, padding: 16, marginBottom: 10, borderWidth: 1, borderColor: colors.border },
+  dist: { color: colors.text, fontSize: 16, fontWeight: "700" },
+  note: { color: colors.muted, marginTop: 4 },
+  btn: { backgroundColor: colors.primary, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20 },
+  btnT: { color: colors.onPrimary, fontWeight: "700" },
 });
