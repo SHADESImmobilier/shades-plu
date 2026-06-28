@@ -33,6 +33,7 @@ export default function RootLayout() {
       <Stack.Screen name="request" options={{ presentation: "modal", headerShown: true, title: "Mettre les tefillin" }} />
       <Stack.Screen name="incoming" options={{ presentation: "modal", headerShown: true, title: "Demandes reçues" }} />
       <Stack.Screen name="capture" options={{ presentation: "modal", headerShown: true, title: "Photo de la mise" }} />
+      <Stack.Screen name="donate" options={{ presentation: "modal", headerShown: true, title: "Donner à la tsedaka" }} />
     </Stack>
   );
 }

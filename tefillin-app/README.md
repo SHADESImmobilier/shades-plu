@@ -1,10 +1,10 @@
-# Hineni — Tefillin Connect
+# Mitsv'APP
 
 App mobile iOS + Android pour **faire des Mivtzaïm tefillin** et **collecter des
 récompenses**, avec un mode « VTC des tefillin » (appeler le poseur disponible
 le plus proche).
 
-> Nom de travail provisoire : **Hineni** (הנני).
+> **Mitsv'APP** — de *mitsva* + *app*. Logo : le Shin (ש) du tefillin shel rosh.
 
 ## Structure
 

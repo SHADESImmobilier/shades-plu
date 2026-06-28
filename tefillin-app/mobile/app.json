@@ -1,21 +1,21 @@
 {
   "expo": {
-    "name": "Hineni — Tefillin Connect",
-    "slug": "hineni",
-    "scheme": "hineni",
+    "name": "Mitsv'APP",
+    "slug": "mitsvapp",
+    "scheme": "mitsvapp",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shades.hineni",
+      "bundleIdentifier": "com.shades.mitsvapp",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Pour trouver le poseur de tefillin le plus proche et valider la mise.",
         "NSCameraUsageDescription": "Pour prendre la photo de la mise (poseur + posé avec les tefillin) qui valide le Mivtza."
       }
     },
     "android": {
-      "package": "com.shades.hineni",
+      "package": "com.shades.mitsvapp",
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA"]
     },
     "plugins": [

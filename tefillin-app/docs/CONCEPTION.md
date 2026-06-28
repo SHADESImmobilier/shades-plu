@@ -1,6 +1,7 @@
-# Hineni — Tefillin Connect · Conception produit & technique
+# Mitsv'APP · Conception produit & technique
 
-> **Nom de travail : « Hineni » (הנני, « me voici »)** — provisoire, à valider.
+> **Mitsv'APP** — de *mitsva* + *app*. Logo : le **Shin (ש)** gravé sur le boîtier du
+> tefillin shel rosh, avec les lanières (retsouot).
 > Application mobile iOS + Android permettant de **faire des Mivtzaïm tefillin** et de
 > **collecter des récompenses**, avec un mode **« VTC des tefillin »** : un Juif qui veut
 > mettre les tefillin peut appeler le poseur disponible le plus proche.
@@ -20,8 +21,8 @@ Deux problèmes résolus, deux faces d'une même marketplace :
 
 ### Deux flux d'usage principaux
 
-1. **Flux « VTC » (à la demande)** — le demandeur ouvre l'app → voit les poseurs dispo sur la carte → envoie une demande → le poseur le plus proche accepte → ils se rencontrent → mise des tefillin → **double confirmation** → récompense créditée au poseur.
-2. **Flux « Mivtza de rue » (spontané)** — le poseur aborde quelqu'un dans la rue / sur un stand. Pour valider, le demandeur **scanne le QR du poseur** (ou saisit un code), confirme sur son propre téléphone vérifié, et la session est enregistrée.
+1. **Flux « VTC » (à la demande)** — le demandeur ouvre l'app → voit les poseurs dispo sur la carte → envoie une demande → le poseur le plus proche accepte → ils se rencontrent → mise des tefillin → **selfie live de validation** → récompense créditée au poseur.
+2. **Flux « Mivtza de rue » (spontané)** — le poseur aborde quelqu'un dans la rue / sur un stand. Pour valider, il prend un **selfie live des deux** avec les tefillin (consentement du posé), et la session est enregistrée.
 
 L'anti-fraude (section 4) est commun aux deux flux.
 
@@ -34,9 +35,10 @@ L'anti-fraude (section 4) est commun aux deux flux.
 - Profil + activation du **mode poseur** (avec vérification renforcée, cf. §4).
 - Carte temps réel des poseurs disponibles (PostGIS + Supabase Realtime).
 - Demande à la demande + acceptation par le poseur le plus proche.
-- Validation d'une session **Mivtza** avec double confirmation + preuve de proximité.
+- Validation d'une session **Mivtza** par selfie live (vision + reconnaissance faciale).
 - Portefeuille de récompenses (points / cashback en attente → validé).
 - Catalogue partenaires + génération de bons (codes de réduction).
+- **Don du solde à la tsedaka** (tout ou partie, déductible du maasser).
 - File d'audit anti-fraude côté back-office.
 
 ### Plus tard (V2+)
@@ -177,6 +179,11 @@ created                     (le poseur ouvre la caméra)
   - **Cashback** (cagnotte → virement / carte cadeau via PSP en V2),
   - **Bons d'achat / réductions** chez **partenaires** (épiceries, librairies juives,
     restaurants, sofer/réparation tefillin, etc.) → génération de **codes de réduction**.
+  - **Don à la tsedaka** : l'utilisateur peut reverser **tout ou partie** de son solde
+    à une association habilitée. Les points sont convertis en valeur monétaire reversée,
+    et un **reçu** est émis ; si l'association est éligible, ce don peut être **déductible
+    et déclaré au titre du maasser**. Forte valeur communautaire + simplifie la question
+    halachique (la récompense peut intégralement devenir tsedaka).
 - **États d'une récompense** : `pending` (anti-fraude) → `cleared` → `redeemed` / `expired`.
 - **Barème modulable** côté serveur (config), pas en dur dans l'app.
 - Garde-fous : plafonds quotidiens, expiration des bons, anti-rejeu des codes.

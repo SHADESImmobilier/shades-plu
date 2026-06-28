@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mitsv'APP">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="strap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dbe7ff"/>
+      <stop offset="1" stop-color="#93b4ff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- fond (app icon) -->
+  <rect x="0" y="0" width="512" height="512" rx="116" fill="url(#bg)"/>
+
+  <!-- boîtier du tefillin (bayit) -->
+  <rect x="196" y="120" width="120" height="96" rx="20" fill="#ffffff"/>
+  <rect x="196" y="188" width="120" height="34" rx="12" fill="#cfe0ff"/>
+
+  <!-- lanières (retsouot) qui descendent -->
+  <path d="M206 216 C 150 300, 150 360, 196 432" fill="none" stroke="url(#strap)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M306 216 C 362 300, 362 360, 316 432" fill="none" stroke="url(#strap)" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- lettre Shin (ש), gravée sur le boîtier -->
+  <text x="256" y="196" text-anchor="middle" font-family="Arial, Helvetica, sans-serif"
+        font-weight="700" font-size="78" fill="#1e3a8a">ש</text>
+</svg>
