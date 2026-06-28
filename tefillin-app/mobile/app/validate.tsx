@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet, Alert } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import { supabase } from "@/lib/supabase";
+import { deviceFingerprint, phoneHash } from "@/lib/identity";
 
 // Écran de validation (double confirmation à proximité).
 // Côté BÉNÉFICIAIRE : scanne le QR affiché par le poseur -> appelle l'Edge
@@ -20,14 +21,19 @@ export default function Validate() {
       if (status !== "granted") throw new Error("Localisation requise pour prouver la présence.");
       const loc = await Location.getCurrentPositionAsync({});
 
-      // device_fingerprint & phone_hash : à générer proprement (expo-application + hash).
+      // Identifiants anti-fraude réels : empreinte appareil + hash du numéro
+      // vérifié du bénéficiaire (récupéré de sa session auth).
+      const { data: auth } = await supabase.auth.getUser();
+      const fp = await deviceFingerprint();
+      const ph = await phoneHash(auth.user?.phone ?? "");
+
       const { data, error } = await supabase.functions.invoke("validate_session", {
         body: {
           token,
           beneficiary_lat: loc.coords.latitude,
           beneficiary_lng: loc.coords.longitude,
-          device_fingerprint: "TODO-device-fingerprint",
-          beneficiary_phone_hash: "TODO-phone-hash",
+          device_fingerprint: fp,
+          beneficiary_phone_hash: ph,
         },
       });
       if (error) throw error;

@@ -33,6 +33,8 @@ export interface NearbyPoseur {
   display_name: string | null;
   trust: TrustLevel;
   distance_m: number;
+  lat_p: number;
+  lng_p: number;
 }
 
 export interface Reward {

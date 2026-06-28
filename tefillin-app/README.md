@@ -43,12 +43,17 @@ tefillin-app/
 
 ## État
 
-✅ Conception · ✅ Schéma & RLS · ✅ Edge Function anti-fraude · ✅ Scaffold app
-(auth OTP, carte poseurs proches, validation par QR, récompenses, profil).
+✅ Conception · ✅ Schéma & RLS (PostGIS) · ✅ Edge Functions anti-fraude
+(`validate_session`) et clearing (`clear_rewards`).
+✅ Boucle de mise complète : **poseur génère un QR** (`serve`) ↔ **bénéficiaire
+scanne** (`validate`), avec **empreinte appareil + hash téléphone réels**.
+✅ App Expo : auth OTP, **carte react-native-maps** des poseurs proches,
+récompenses, **catalogue partenaires** (échange de points → bon via `issue_voucher`),
+profil (mode poseur).
 
-🔜 À implémenter : carte react-native-maps, flux de demande complet, génération
-QR côté poseur, empreinte appareil/hash téléphone réels, clearing différé (cron),
-back-office d'audit, catalogue partenaires.
+🔜 À implémenter : flux de demande "VTC" complet (acceptation + suivi temps réel
+via Realtime), notifications push, photo d'audit (Storage), back-office d'audit
+fraude (web), seed de partenaires, planification cron de `clear_rewards`.
 
 Voir [`docs/CONCEPTION.md`](docs/CONCEPTION.md) pour le détail — **dont les points
 à trancher** : nature halachique de la récompense, et le fournisseur SMS.
