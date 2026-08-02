@@ -243,6 +243,34 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
 @media (prefers-reduced-motion: reduce){
   .radar .ping,.logo-badge .halo,.applepay .sheen,.scanline,.pin.bob{animation:none !important}
 }
+
+/* ===== Démo guidée (gameplay / coach marks) ===== */
+#coach{position:fixed; inset:0; z-index:9990; pointer-events:none; display:none}
+#coach.on{display:block}
+#coachHole{position:fixed; border-radius:14px; display:none; pointer-events:none;
+  box-shadow:0 0 0 9999px rgba(6,9,20,.76); outline:2px solid var(--gold); outline-offset:3px; transition:left .25s,top .25s,width .25s,height .25s}
+#coachHole::after{content:""; position:absolute; inset:-4px; border-radius:16px;
+  box-shadow:0 0 0 3px rgba(245,181,68,.4); animation:coachPulse 1.6s ease-in-out infinite}
+@keyframes coachPulse{0%,100%{box-shadow:0 0 0 3px rgba(245,181,68,.45)}50%{box-shadow:0 0 0 12px rgba(245,181,68,0)}}
+#coachTip{position:fixed; max-width:300px; width:max-content; background:linear-gradient(160deg,#1c2350,#141a33);
+  border:1px solid var(--border); border-radius:16px; padding:14px 16px; pointer-events:auto; z-index:9991;
+  box-shadow:0 24px 60px -16px rgba(0,0,0,.75); display:none}
+#coach.on #coachTip{display:block}
+#coachTip .step{font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--gold); font-weight:800; margin-bottom:6px}
+#coachTip .txt{font-size:13.5px; line-height:1.5; color:var(--ink)}
+#coachTip .txt b{color:var(--gold-2)}
+#coachTip .row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:13px}
+#coachTip .skip{background:none; border:0; color:var(--faint); font-size:12px; cursor:pointer; padding:4px 2px}
+#coachTip .skip:hover{color:var(--muted)}
+#coachTip .tap{color:var(--gold); font-weight:800; font-size:12px; display:inline-flex; align-items:center; gap:5px}
+#coachTip .tap i{font-style:normal; animation:tapBob 1.3s ease-in-out infinite; display:inline-block}
+@keyframes tapBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
+#coachTip .next{background:linear-gradient(135deg,var(--gold),var(--gold-2)); color:#241a05; font-weight:800;
+  font-size:12.5px; border:0; border-radius:10px; padding:9px 15px; cursor:pointer}
+#tourBtn{position:fixed; right:18px; bottom:18px; z-index:9980; display:none; cursor:pointer;
+  background:linear-gradient(135deg,var(--gold),var(--gold-2)); color:#241a05; font-weight:800; font-size:13px;
+  border:0; border-radius:999px; padding:12px 18px; box-shadow:0 12px 34px -10px rgba(245,181,68,.7)}
+#tourBtn.show{display:block}
 </style>
 
 <div class="wrap">
@@ -442,6 +470,13 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
   </div>
 
   <p class="hint">Fais le parcours&nbsp;: <b>Tefillin → « Mettre les tefillin »</b> (le poseur arrive, le selfie se valide, récompense 🎉), puis <b>Tsedaka → Apple Pay</b>. Prototype de démonstration.</p>
+
+  <!-- ===== Démo guidée (gameplay) ===== -->
+  <div id="coach">
+    <div id="coachHole"></div>
+    <div id="coachTip"></div>
+  </div>
+  <button id="tourBtn">▶ Revoir la démo</button>
 </div>
 
 <script>
@@ -650,5 +685,105 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
 
   /* init sheet after splash */
   setTimeout(idleSheet, reduce?600:2700);
+
+  /* ================= DÉMO GUIDÉE (gameplay) ================= */
+  const coach=$('#coach'), hole=$('#coachHole'), tip=$('#coachTip'), tourBtn=$('#tourBtn');
+
+  const STEPS=[
+    {type:'intro', title:'Bienvenue 👋',
+     text:"Suivez le guide : je vous montre <b>comment utiliser MitzvaNOW</b> en 10 étapes. Touchez simplement les zones surlignées.", next:'Commencer'},
+    {type:'action', sel:'#ask', place:'top',
+     text:"<b>Pilier 1 · Tefillin.</b> Touchez pour appeler le poseur bénévole le plus proche."},
+    {type:'action', sel:'#track', place:'top',
+     text:"Un poseur <b>certifié</b> est trouvé près de vous. Touchez pour suivre son arrivée en temps réel."},
+    {type:'action', sel:'#toselfie', place:'top',
+     text:"Le poseur est arrivé. Mettez les tefillin ensemble, puis touchez pour <b>prendre la photo</b> de la mise."},
+    {type:'action', sel:'#sendProof', place:'top', cond:el=>!el.disabled,
+     text:"L'<b>IA</b> vérifie la scène : poseur reconnu, tefillin sur le posé, 1ʳᵉ mise du jour. Touchez <b>Envoyer</b>."},
+    {type:'action', sel:'#rewClose', place:'top',
+     text:"Mise validée 🎉 Vous gagnez des <b>points</b>. Touchez Continuer."},
+    {type:'info', sel:'#ptsBal', place:'bottom', next:'Suivant',
+     text:"Vos points s'accumulent ici — échangeables en <b>bons chez vos commerces cachers</b>, ou reversés à la tsedaka."},
+    {type:'action', sel:'.tab[data-go="tsedaka"]', place:'top',
+     text:"Passons au <b>Pilier 2</b>. Touchez l'onglet Tsedaka."},
+    {type:'action', sel:'#chips', place:'bottom',
+     text:"Choisissez un <b>montant</b> (ou « Autre » pour un montant libre)."},
+    {type:'action', sel:'#pay', place:'top',
+     text:"Donnez en un geste — <b>Apple Pay / Google Pay</b>. Votre maasser est suivi automatiquement."},
+    {type:'action', sel:'#tsClose', place:'top',
+     text:"Don effectué ❤️ Touchez Terminer."},
+    {type:'done', title:'Bravo ! 🎉',
+     text:"Vous savez utiliser MitzvaNOW : <b>appeler un poseur</b>, valider la mise, gagner des points, et <b>donner la tsedaka</b>.", next:'Revoir la démo'},
+  ];
+  // numérotation des étapes (action + info)
+  let _n=0; STEPS.forEach(s=>{ if(s.type==='action'||s.type==='info') s._n=++_n; });
+  const NSTEPS=_n;
+
+  let si=0, rafC=null, actEl=null, actHandler=null;
+
+  function visible(el){ let e=el; while(e && e.nodeType===1){ const cs=getComputedStyle(e);
+    if(cs.display==='none'||cs.visibility==='hidden'||parseFloat(cs.opacity)===0) return false; e=e.parentElement; }
+    return el.getBoundingClientRect().width>0; }
+  function waitFor(sel,cond){ return new Promise(res=>{ (function chk(){ const el=$(sel);
+    if(el && visible(el) && (!cond||cond(el))) return res(el); requestAnimationFrame(chk); })(); }); }
+
+  function placeTip(r,place){
+    const m=12, vw=innerWidth, vh=innerHeight, tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=Math.min(Math.max(m, r.left+r.width/2-tw/2), vw-tw-m), top;
+    if(place==='bottom'){ top=r.bottom+m; if(top+th>vh-m) top=Math.max(m,r.top-th-m); }
+    else { top=r.top-th-m; if(top<m) top=Math.min(vh-th-m, r.bottom+m); }
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function centerTip(){ tip.style.left=(innerWidth/2-tip.offsetWidth/2)+'px'; tip.style.top=(innerHeight/2-tip.offsetHeight/2)+'px'; }
+  function startSync(sel,place){ stopSync(); (function loop(){ const el=$(sel);
+    if(el){ const r=el.getBoundingClientRect(); hole.style.display='block';
+      hole.style.left=(r.left-6)+'px'; hole.style.top=(r.top-6)+'px';
+      hole.style.width=(r.width+12)+'px'; hole.style.height=(r.height+12)+'px'; placeTip(r,place); }
+    rafC=requestAnimationFrame(loop); })(); }
+  function stopSync(){ if(rafC)cancelAnimationFrame(rafC); rafC=null; }
+  function clearHandler(){ if(actEl&&actHandler){ actEl.removeEventListener('click',actHandler,true);} actEl=actHandler=null; }
+
+  async function go(i){
+    clearHandler(); stopSync(); si=i; const s=STEPS[i];
+    if(!s){ endTour(); return; }
+
+    if(s.type==='intro'||s.type==='done'){
+      hole.style.display='none';
+      tip.innerHTML=`<div class="step">${s.title||''}</div><div class="txt">${s.text}</div>
+        <div class="row"><button class="skip">${s.type==='done'?'Fermer':'Passer'}</button><button class="next">${s.next||'Suivant'} ›</button></div>`;
+      centerTip();
+      tip.querySelector('.next').onclick=()=>{ if(s.type==='done'){ endTour(); } else go(i+1); };
+      tip.querySelector('.skip').onclick=endTour;
+      return;
+    }
+
+    // libellé (affiché immédiatement, centré, le temps que la cible apparaisse)
+    const tapRow = s.type==='action'
+      ? `<span class="tap"><i>👆</i> Touchez la zone</span>`
+      : `<button class="next">${s.next||'Suivant'} ›</button>`;
+    tip.innerHTML=`<div class="step">Étape ${s._n} / ${NSTEPS}</div><div class="txt">${s.text}</div>
+      <div class="row"><button class="skip">Passer la démo</button>${tapRow}</div>`;
+    tip.querySelector('.skip').onclick=endTour;
+    centerTip();
+
+    const el=await waitFor(s.sel,s.cond);
+    if(si!==i) return; // annulé entre-temps
+    startSync(s.sel,s.place||'top');
+
+    if(s.type==='info'){
+      tip.querySelector('.next').onclick=()=>go(i+1);
+    } else {
+      actEl=el; actHandler=()=>{ clearHandler(); stopSync(); setTimeout(()=>go(i+1),80); };
+      el.addEventListener('click',actHandler,true);
+    }
+  }
+
+  function resetApp(){ ['selfie','reward','tsdone'].forEach(o=>{const e=$(`.overlay[data-ov="${o}"],.reward[data-ov="${o}"]`); if(e)e.classList.remove('on');}); show('tefillin'); idleSheet(); }
+  function startTour(){ resetApp(); tourBtn.classList.remove('show'); coach.classList.add('on'); go(0); }
+  function endTour(){ clearHandler(); stopSync(); coach.classList.remove('on'); hole.style.display='none'; tourBtn.classList.add('show'); }
+  tourBtn.addEventListener('click', startTour);
+
+  // lancement auto après le splash + le tiroir d'accueil
+  setTimeout(startTour, reduce?900:3200);
 })();
 </script>
