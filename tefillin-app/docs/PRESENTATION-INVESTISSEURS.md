@@ -1,7 +1,7 @@
 # MitzvaNOW — Fiche de présentation investisseurs
 
-> *« Mitzva » + « now » : la mitsva, à la demande.* La première plateforme qui **récompense et organise les
-> Mivtzaïm tefillin**, façon « VTC de la mitsva ».
+> *« Mitzva » + « now » : la mitsva, à la demande.* La plateforme des **mitzvot du
+> quotidien** — deux piliers : **les tefillin** et **la tsedaka (maasser)**.
 >
 > **Document confidentiel · version préliminaire.** Les chiffres de marché sont des
 > estimations sourcées ; les éléments financiers (valorisation, montant de levée, projections)
@@ -11,10 +11,10 @@
 
 ## 1. En une phrase
 
-**MitzvaNOW met en relation, en temps réel, les Juifs qui veulent mettre les tefillin avec
-des « poseurs » bénévoles à proximité — et récompense chaque mise authentifiée par des
-avantages convertibles en bons partenaires, cashback ou don à la tsedaka (déductible du
-maasser).**
+**MitzvaNOW réunit deux mitzvot dans une seule app : (1) mettre les tefillin à la demande
+— un « poseur » bénévole proche vient aider, chaque mise authentifiée étant récompensée ;
+(2) donner la tsedaka en quelques secondes chaque jour (Apple Pay / PayPal), à l'association
+de son choix, avec suivi du maasser.** Deux gestes simples, un usage quotidien, un impact mesuré.
 
 ---
 

@@ -1,8 +1,11 @@
 # MitzvaNOW
 
-App mobile iOS + Android pour **faire des Mivtzaïm tefillin** et **collecter des
-récompenses**, avec un mode « VTC des tefillin » (appeler le poseur disponible
-le plus proche).
+App mobile iOS + Android réunissant **deux mitzvot** :
+- **Pilier 1 · Tefillin** — faire/mettre les tefillin à la demande (« VTC des tefillin »)
+  et collecter des récompenses.
+- **Pilier 2 · Tsedaka / Maasser** — donner la tsedaka en quelques secondes chaque jour
+  (Apple Pay / Google Pay / PayPal), anonyme ou non, à l'association de son choix
+  (dont MitzvaNOW), avec suivi du maasser.
 
 > **MitzvaNOW** — *mitzva* + *now* : la mitsva, à la demande. Logo : le Shin (ש) du tefillin shel rosh.
 
@@ -55,6 +58,10 @@ profil (mode poseur).
 ✅ **Flux "VTC" temps réel** : le demandeur crée une demande (`request`) et suit
 le poseur en direct ; le poseur reçoit les demandes proches en direct (`incoming`),
 les accepte (RPC `accept_request`), puis prend la photo de la mise (`capture`).
+
+✅ **Pilier Tsedaka** : onglet Tsedaka (don express Apple Pay / Google Pay / carte via
+Stripe PaymentSheet), annuaire d'associations (dont MitzvaNOW), anonymat, suivi du maasser
+(`money_donations`, `create_donation`, `maaser_summary`), **rappel quotidien** (notification).
 
 🔜 À implémenter : **brancher le modèle de vision** (détection visages + tefillin
 + embedding facial + liveness) dans `submit_session.analyzePhoto()` ; consentement

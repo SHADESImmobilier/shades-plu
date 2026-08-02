@@ -2,15 +2,26 @@
 
 > **MitzvaNOW** — *mitzva* + *now* : la mitsva, à la demande. Logo : le **Shin (ש)** gravé
 > sur le boîtier du tefillin shel rosh, avec les lanières (retsouot).
-> Application mobile iOS + Android permettant de **faire des Mivtzaïm tefillin** et de
-> **collecter des récompenses**, avec un mode **« VTC des tefillin »** : un Juif qui veut
-> mettre les tefillin peut appeler le poseur disponible le plus proche.
+> Application mobile iOS + Android réunissant **deux mitzvot** :
+> **Pilier 1 — Tefillin** : faire/mettre les tefillin (mode « VTC des tefillin »).
+> **Pilier 2 — Tsedaka / Maasser** : donner la tsedaka en quelques secondes, chaque jour.
 
 ---
 
 ## 1. Vision produit
 
-Deux problèmes résolus, deux faces d'une même marketplace :
+MitzvaNOW rassemble **deux mitzvot du quotidien** dans une seule app :
+
+- **Pilier 1 · Tefillin** — une marketplace à deux faces pour mettre les tefillin à la
+  demande (détaillée ci-dessous).
+- **Pilier 2 · Tsedaka / Maasser** — un rituel de don **quotidien, ultra-rapide** (Apple Pay
+  / PayPal en quelques secondes), avec choix de l'association et suivi du maasser
+  (voir §5ter).
+
+Les deux piliers se renforcent : la récompense d'une mise de tefillin peut être **reversée en
+tsedaka** (§5), et le don quotidien ancre un usage récurrent de l'app.
+
+### Pilier 1 — deux faces d'une même marketplace :
 
 | Face | Persona | Besoin | Ce que l'app apporte |
 |------|---------|--------|----------------------|
@@ -193,6 +204,55 @@ created                     (le poseur ouvre la caméra)
 > Pistes : présenter la récompense comme un **remboursement de frais / encouragement
 > communautaire** plutôt qu'un « paiement à l'acte », plafonds symboliques, dons reversés
 > à une tsedaka au choix de l'utilisateur. **À cadrer avant lancement.**
+
+---
+
+## 5ter. Pilier Tsedaka / Maasser (dons réels)
+
+> Deuxième mitzva de MitzvaNOW : **donner la tsedaka**, et suivre son **maasser**
+> (le dixième que l'on met de côté). Objectif : rendre le don **quotidien, instantané et
+> sans friction** — quelques secondes, quelques taps.
+
+### 5ter.1 Parcours « don quotidien »
+```
+Notification quotidienne (heure choisie) : « C'est l'heure de la tsedaka 🙏 »
+   → Ouvre l'écran Tsedaka (montant pré-suggéré : 1€, 2€, 5€, 10€, libre)
+   → Choix de l'association (favoris, causes, ou MitzvaNOW pour soutenir le projet)
+   → Anonyme ou non (nom affiché à l'association / au mur de dons, ou masqué)
+   → Payer : Apple Pay / Google Pay / PayPal / carte  (2 taps, Face ID)
+   → Reçu + compteur de maasser mis à jour
+```
+
+### 5ter.2 Fonctionnalités clés
+- **Rappel quotidien** configurable (heure), via notification push. Idéal avant une heure
+  de prière ou en fin de journée.
+- **Don express** : montants pré-réglés + montant libre ; **don récurrent** possible (ex.
+  chaque jour / semaine / avant Shabbat).
+- **Annuaire d'associations** : plusieurs causes (aide aux familles, étude/yéchivot,
+  hachnasat kala, malades, MitzvaNOW pour soutenir le projet…). Favoris + recherche.
+- **Anonyme ou nominatif** : le donateur choisit, par don, s'il apparaît (mur de dons /
+  reçu association) ou reste anonyme.
+- **Suivi du maasser** : tableau de bord « donné ce mois / cette année », objectif de
+  maasser (10 % d'un revenu déclaré, optionnel), historique, **reçus** téléchargeables.
+- **Soutien à la plateforme** : « donner à MitzvaNOW » comme association parmi les autres.
+
+### 5ter.3 Paiement (recommandation)
+- **Stripe** = rail principal : `@stripe/stripe-react-native` → **PaymentSheet** natif qui
+  expose **Apple Pay + Google Pay + cartes** en une intégration ; dons récurrents ; reçus.
+- **PayPal** en alternative (donateurs qui le préfèrent).
+- **HelloAsso** pour les associations françaises : **gratuit pour l'asso** et **émet les
+  reçus fiscaux** (essentiel pour la déductibilité côté donateur).
+- **Stripe Connect (destination charges)** : les fonds vont **directement sur le compte de
+  chaque association** ; MitzvaNOW ne détient pas l'argent (bien plus simple juridiquement)
+  et peut prélever une **commission de plateforme** optionnelle (ou 0).
+
+### 5ter.4 Conformité (dons réels)
+- MitzvaNOW se positionne en **intermédiaire technique**, pas en collecteur de fonds :
+  via Stripe Connect / HelloAsso, l'argent ne transite pas par ses comptes.
+- **Reçus fiscaux** émis par l'association habilitée (pas par MitzvaNOW) ; on stocke la
+  référence du reçu et le statut « au titre du maasser ».
+- KYC/anti-blanchiment gérés par le PSP (Stripe/HelloAsso). RGPD : minimisation, choix
+  d'anonymat respecté jusque dans les données transmises à l'association.
 
 ---
 

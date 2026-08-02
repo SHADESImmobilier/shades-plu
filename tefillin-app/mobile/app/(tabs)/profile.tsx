@@ -3,18 +3,40 @@ import { View, Text, Switch, Pressable, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@/lib/types";
 import { colors } from "@/lib/theme";
+import { enableDailyTsedakaReminder, disableDailyTsedakaReminder } from "@/lib/notifications";
+
+const REMINDER_HOUR = 18; // rappel par défaut à 18h (configurable plus tard)
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [reminder, setReminder] = useState(false);
 
   useEffect(() => {
-    supabase.from("profiles").select("*").single().then(({ data }) => setProfile(data as Profile));
+    supabase.from("profiles").select("*").single().then(({ data }) => {
+      const p = data as any;
+      setProfile(p);
+      setReminder(!!p?.tsedaka_reminder_enabled);
+    });
   }, []);
 
   async function togglePoseur(v: boolean) {
     if (!profile) return;
     setProfile({ ...profile, is_poseur: v });
     await supabase.from("profiles").update({ is_poseur: v }).eq("id", profile.id);
+  }
+
+  async function toggleReminder(v: boolean) {
+    if (!profile) return;
+    if (v) {
+      const ok = await enableDailyTsedakaReminder(REMINDER_HOUR);
+      if (!ok) return; // permission refusée
+    } else {
+      await disableDailyTsedakaReminder();
+    }
+    setReminder(v);
+    await supabase.from("profiles")
+      .update({ tsedaka_reminder_enabled: v, tsedaka_reminder_hour: v ? REMINDER_HOUR : null })
+      .eq("id", profile.id);
   }
 
   return (
@@ -28,6 +50,14 @@ export default function ProfileScreen() {
           <Text style={styles.help}>Activez pour recevoir des demandes et faire Mivtzaïm.</Text>
         </View>
         <Switch value={profile?.is_poseur ?? false} onValueChange={togglePoseur} />
+      </View>
+
+      <View style={styles.row}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.label}>Rappel quotidien de tsedaka</Text>
+          <Text style={styles.help}>Une notification chaque jour à {REMINDER_HOUR}h pour donner.</Text>
+        </View>
+        <Switch value={reminder} onValueChange={toggleReminder} />
       </View>
 
       <Pressable style={styles.logout} onPress={() => supabase.auth.signOut()}>

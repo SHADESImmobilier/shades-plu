@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { Session } from "@supabase/supabase-js";
+import { StripeProvider } from "@stripe/stripe-react-native";
+import Constants from "expo-constants";
 import { supabase } from "@/lib/supabase";
+
+const stripeKey = (Constants.expoConfig?.extra?.stripePublishableKey as string) ?? "";
 
 // Gate d'authentification : redirige vers (auth) si pas de session.
 export default function RootLayout() {
@@ -27,13 +31,15 @@ export default function RootLayout() {
   }, [ready, session, segments]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="(auth)" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="request" options={{ presentation: "modal", headerShown: true, title: "Mettre les tefillin" }} />
-      <Stack.Screen name="incoming" options={{ presentation: "modal", headerShown: true, title: "Demandes reçues" }} />
-      <Stack.Screen name="capture" options={{ presentation: "modal", headerShown: true, title: "Photo de la mise" }} />
-      <Stack.Screen name="donate" options={{ presentation: "modal", headerShown: true, title: "Donner à la tsedaka" }} />
-    </Stack>
+    <StripeProvider publishableKey={stripeKey} merchantIdentifier="merchant.com.shades.mitzvanow">
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="request" options={{ presentation: "modal", headerShown: true, title: "Mettre les tefillin" }} />
+        <Stack.Screen name="incoming" options={{ presentation: "modal", headerShown: true, title: "Demandes reçues" }} />
+        <Stack.Screen name="capture" options={{ presentation: "modal", headerShown: true, title: "Photo de la mise" }} />
+        <Stack.Screen name="donate" options={{ presentation: "modal", headerShown: true, title: "Donner mon solde" }} />
+      </Stack>
+    </StripeProvider>
   );
 }

@@ -22,11 +22,20 @@
       "expo-router",
       "expo-location",
       "expo-camera",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-notifications",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.shades.mitzvanow",
+          "enableGooglePay": true
+        }
+      ]
     ],
     "extra": {
       "supabaseUrl": "https://YOUR-PROJECT.supabase.co",
-      "supabaseAnonKey": "YOUR-ANON-KEY"
+      "supabaseAnonKey": "YOUR-ANON-KEY",
+      "stripePublishableKey": "pk_test_YOUR-KEY"
     }
   }
 }

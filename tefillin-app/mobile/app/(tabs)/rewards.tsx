@@ -42,6 +42,10 @@ export default function Rewards() {
         <Text style={styles.donateSub}>Tout ou partie · déductible du maasser</Text>
       </Pressable>
 
+      <Pressable style={styles.partners} onPress={() => router.push("/partners")}>
+        <Text style={styles.partnersT}>🎁  Nos partenaires · échanger mes points</Text>
+      </Pressable>
+
       <Text style={styles.h}>Historique</Text>
       <FlatList
         data={rewards}
@@ -64,9 +68,11 @@ const styles = StyleSheet.create({
   balanceLabel: { color: "#dbe7ff" },
   balance: { color: colors.onPrimary, fontSize: 48, fontWeight: "900" },
   hint: { color: "#dbe7ff", textAlign: "center", marginTop: 8 },
-  donate: { backgroundColor: colors.surfaceAlt, borderRadius: 14, padding: 16, marginBottom: 24, alignItems: "center" },
+  donate: { backgroundColor: colors.surfaceAlt, borderRadius: 14, padding: 16, marginBottom: 12, alignItems: "center" },
   donateT: { color: colors.primaryDark, fontWeight: "700", fontSize: 15 },
   donateSub: { color: colors.primary, fontSize: 12, marginTop: 3 },
+  partners: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 16, marginBottom: 24, alignItems: "center" },
+  partnersT: { color: colors.text, fontWeight: "700", fontSize: 15 },
   h: { color: colors.text, fontSize: 18, fontWeight: "700", marginBottom: 12 },
   empty: { color: colors.muted, textAlign: "center", marginTop: 24 },
   row: { flexDirection: "row", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: 10, padding: 14, marginBottom: 8, borderWidth: 1, borderColor: colors.border },
