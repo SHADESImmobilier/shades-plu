@@ -52,6 +52,12 @@ anti-fraude (`submit_session`) et clearing (`clear_rewards`).
 ✅ **Preuve par selfie LIVE** (`capture`) : photo in-app du poseur + posé avec
 tefillin (tête + bras) → upload Storage privé → analyse serveur (vision +
 empreinte faciale anti-farming + score de risque). **Plus de QR.**
+✅ **Vision réelle branchée** : `submit_session` appelle le modèle Claude
+(`claude-opus-5`, SDK Anthropic, sortie structurée JSON schema) pour vérifier la
+scène (2 personnes, poseur visible, tefillin tête + bras **sur le posé**, liveness)
+**et** authentifier le poseur (comparaison à sa photo de référence `face_ref_path`).
+Le poseur enrôle sa référence via `enroll_face`. Le dédoublonnage « 1×/jour » du posé
+utilise un service de reconnaissance dédié (`FACE_API`) ; s'il est absent → revue manuelle.
 ✅ App Expo : auth OTP, **carte react-native-maps** des poseurs proches,
 récompenses, **catalogue partenaires** (échange de points → bon via `issue_voucher`),
 profil (mode poseur).
@@ -63,10 +69,15 @@ les accepte (RPC `accept_request`), puis prend la photo de la mise (`capture`).
 Stripe PaymentSheet), annuaire d'associations (dont MitzvaNOW), anonymat, suivi du maasser
 (`money_donations`, `create_donation`, `maaser_summary`), **rappel quotidien** (notification).
 
-🔜 À implémenter : **brancher le modèle de vision** (détection visages + tefillin
-+ embedding facial + liveness) dans `submit_session.analyzePhoto()` ; consentement
-RGPD du posé tracé + politique de conservation ; notifications push (FCM/APNs) ;
-back-office d'audit fraude (web) ; seed de partenaires ; cron de `clear_rewards`.
+🔜 À implémenter : brancher un **service de reconnaissance faciale** (`FACE_API`)
+pour l'embedding du posé (règle 1×/jour) ; consentement RGPD du posé tracé +
+politique de conservation ; notifications push (FCM/APNs) ; back-office d'audit
+fraude (web) ; cron de `clear_rewards`.
+_(Partenaires cachers seedés : Hyper Cacher, Chez Yaacov, Boucherie Cachère du Roi,
+Librairie Sinaï — migration `0010`.)_
+
+**Secrets Edge Functions** : `ANTHROPIC_API_KEY` (vision, requis), `FACE_API_URL` /
+`FACE_API_KEY` (reconnaissance faciale, optionnel), `STRIPE_SECRET_KEY` (dons).
 
 Voir [`docs/CONCEPTION.md`](docs/CONCEPTION.md) pour le détail — **dont les points
 à trancher** : nature halachique de la récompense, et le fournisseur SMS.

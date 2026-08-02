@@ -126,19 +126,25 @@ indépendantes, et la récompense reste **« en attente » (pending)** jusqu'au 
    → Casse « je renvoie une vieille photo ».
 
 3. **Vision — les tefillin sont portés par le POSÉ, et le poseur est visible.**
-   Le modèle de vision contrôle automatiquement que :
+   Un **vrai modèle de vision** (Claude `claude-opus-5`, appelé depuis l'Edge Function
+   `submit_session` via le SDK Anthropic, sortie structurée JSON schema) contrôle que :
    - le **posé (le bénéficiaire)** porte les tefillin **sur la tête** (chel rosh) **et sur le
      bras** (chel yad) — les tefillin doivent être **attribués au posé**, pas au poseur ;
-   - le **poseur est présent** sur la même photo (≥ 2 visages).
+   - le **poseur est présent** sur la même photo (deux personnes distinctes) ;
+   - la scène paraît **prise en direct** (anti photo-d'écran / montage).
    Si la scène n'est pas conforme → revue manuelle (pas de crédit auto).
    → Casse « selfie sans tefillin » et « tefillin portés par le poseur seul ».
 
 4. **Double reconnaissance faciale.**
-   - **(a) Poseur authentifié** : le visage du poseur sur la photo est comparé à sa
-     **photo de référence enrôlée sur son profil** (empreinte faciale). On confirme que
-     **c'est bien lui** qui réalise la mise → empêche prête-nom / partage de compte / farming.
+   - **(a) Poseur authentifié** : le **même modèle de vision** compare le visage du poseur
+     sur la photo de mise à sa **photo de référence enrôlée** (`face_ref_path`), avec un
+     **niveau de confiance**. On confirme que **c'est bien lui** qui réalise la mise →
+     empêche prête-nom / partage de compte / farming.
    - **(b) Posé unique, une fois par jour** : on met les tefillin **une seule fois par
      jour**, donc un même **visage de posé ne peut être validé qu'une fois par jour**.
+     Le dédoublonnage inter-sessions repose sur des **empreintes faciales** (service de
+     reconnaissance dédié, branché via `FACE_API`) ; **s'il est indisponible, la mise part
+     en revue manuelle** — jamais de crédit automatique sans ce garde-fou.
      → Casse « refaire la même personne » et la collusion en boucle.
    ⚠️ **Donnée biométrique** : consentement du posé, **enrôlement volontaire** du poseur,
    finalité strictement anti-fraude, conservation limitée, droit à l'effacement (cf. §8).
@@ -190,8 +196,10 @@ created                     (le poseur ouvre la caméra)
 - **Unité interne** : *points* (ex. 1 mise validée = N points), pour découpler de l'argent.
 - **Conversion** :
   - **Cashback** (cagnotte → virement / carte cadeau via PSP en V2),
-  - **Bons d'achat / réductions** chez **partenaires** (épiceries, librairies juives,
-    restaurants, sofer/réparation tefillin, etc.) → génération de **codes de réduction**.
+  - **Bons d'achat / réductions** chez **partenaires cachers** : **supermarchés / épiceries
+    cachères**, **restaurants cachers**, **librairies juives / judaïca**, boucheries cachères,
+    sofer/réparation tefillin, etc. → génération de **codes de réduction** (voir seed de démo :
+    Hyper Cacher, Chez Yaacov, Boucherie Cachère du Roi, Librairie Sinaï).
   - **Don à la tsedaka** : l'utilisateur peut reverser **tout ou partie** de son solde
     à une association habilitée. Les points sont convertis en valeur monétaire reversée,
     et un **reçu** est émis ; si l'association est éligible, ce don peut être **déductible
