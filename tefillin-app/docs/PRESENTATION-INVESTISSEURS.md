@@ -1,6 +1,6 @@
-# Mitsv'APP — Fiche de présentation investisseurs
+# MitzvaNOW — Fiche de présentation investisseurs
 
-> *De « mitsva » + « app ».* La première plateforme qui **récompense et organise les
+> *« Mitzva » + « now » : la mitsva, à la demande.* La première plateforme qui **récompense et organise les
 > Mivtzaïm tefillin**, façon « VTC de la mitsva ».
 >
 > **Document confidentiel · version préliminaire.** Les chiffres de marché sont des
@@ -11,7 +11,7 @@
 
 ## 1. En une phrase
 
-**Mitsv'APP met en relation, en temps réel, les Juifs qui veulent mettre les tefillin avec
+**MitzvaNOW met en relation, en temps réel, les Juifs qui veulent mettre les tefillin avec
 des « poseurs » bénévoles à proximité — et récompense chaque mise authentifiée par des
 avantages convertibles en bons partenaires, cashback ou don à la tsedaka (déductible du
 maasser).**
@@ -215,4 +215,4 @@ puis étendre le modèle (bougies de Shabbat, mezouza, tsedaka, étude…) — u
 
 ---
 
-*Mitsv'APP — חזק חזק ונתחזק*
+*MitzvaNOW — חזק חזק ונתחזק*

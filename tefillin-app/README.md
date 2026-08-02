@@ -1,10 +1,10 @@
-# Mitsv'APP
+# MitzvaNOW
 
 App mobile iOS + Android pour **faire des Mivtzaïm tefillin** et **collecter des
 récompenses**, avec un mode « VTC des tefillin » (appeler le poseur disponible
 le plus proche).
 
-> **Mitsv'APP** — de *mitsva* + *app*. Logo : le Shin (ש) du tefillin shel rosh.
+> **MitzvaNOW** — *mitzva* + *now* : la mitsva, à la demande. Logo : le Shin (ש) du tefillin shel rosh.
 
 ## Structure
 

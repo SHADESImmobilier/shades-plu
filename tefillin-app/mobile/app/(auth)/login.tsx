@@ -29,7 +29,7 @@ export default function Login() {
   return (
     <View style={styles.c}>
       <Text style={styles.title}>ש</Text>
-      <Text style={styles.sub}>Mitsv'APP</Text>
+      <Text style={styles.sub}>MitzvaNOW</Text>
       <Text style={styles.p}>
         Mettez les tefillin, faites-les mettre, et participez aux Mivtzaïm.
       </Text>

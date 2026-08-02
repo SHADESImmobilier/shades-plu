@@ -1,21 +1,21 @@
 {
   "expo": {
-    "name": "Mitsv'APP",
-    "slug": "mitsvapp",
-    "scheme": "mitsvapp",
+    "name": "MitzvaNOW",
+    "slug": "mitzvanow",
+    "scheme": "mitzvanow",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shades.mitsvapp",
+      "bundleIdentifier": "com.shades.mitzvanow",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Pour trouver le poseur de tefillin le plus proche et valider la mise.",
         "NSCameraUsageDescription": "Pour prendre la photo de la mise (poseur + posé avec les tefillin) qui valide le Mivtza."
       }
     },
     "android": {
-      "package": "com.shades.mitsvapp",
+      "package": "com.shades.mitzvanow",
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA"]
     },
     "plugins": [

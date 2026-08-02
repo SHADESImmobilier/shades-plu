@@ -1,7 +1,7 @@
-# Mitsv'APP · Conception produit & technique
+# MitzvaNOW · Conception produit & technique
 
-> **Mitsv'APP** — de *mitsva* + *app*. Logo : le **Shin (ש)** gravé sur le boîtier du
-> tefillin shel rosh, avec les lanières (retsouot).
+> **MitzvaNOW** — *mitzva* + *now* : la mitsva, à la demande. Logo : le **Shin (ש)** gravé
+> sur le boîtier du tefillin shel rosh, avec les lanières (retsouot).
 > Application mobile iOS + Android permettant de **faire des Mivtzaïm tefillin** et de
 > **collecter des récompenses**, avec un mode **« VTC des tefillin »** : un Juif qui veut
 > mettre les tefillin peut appeler le poseur disponible le plus proche.
