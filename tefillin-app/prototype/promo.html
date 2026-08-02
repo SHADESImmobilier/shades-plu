@@ -1,0 +1,446 @@
+<style>
+/* ============ MitzvaNOW · film promo ~60s — univers nocturne indigo + or ============ */
+:root{
+  --night-0:#070a16; --night-1:#0c1128; --night-2:#141a38;
+  --surface:#141a33; --surface-2:#1b2246; --border:rgba(255,255,255,.10);
+  --ink:#eef1fb; --muted:#9aa6cf; --faint:#69739f;
+  --gold:#f5b544; --gold-2:#ffd786; --gold-soft:rgba(245,181,68,.16);
+  --violet:#7b6bff; --violet-soft:rgba(123,107,255,.22);
+  --ok:#37d399; --ok-soft:rgba(55,211,153,.16);
+  --fs:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#05060d}
+.frame{
+  min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:18px;
+  font-family:var(--fs);color:var(--ink);
+  background:
+    radial-gradient(1200px 800px at 15% -10%,#20295f 0%,transparent 55%),
+    radial-gradient(1000px 700px at 100% 0%,#3a2a63 0%,transparent 50%),
+    linear-gradient(160deg,#080b1c 0%,#05060d 60%,#080b1e 100%);
+}
+/* ---- scène / stage 16:9 ---- */
+.stage{
+  position:relative;width:min(96vw,1000px);aspect-ratio:16/9;border-radius:22px;overflow:hidden;
+  background:
+    radial-gradient(700px 500px at 20% 0%,#1a2150 0%,transparent 60%),
+    radial-gradient(600px 500px at 100% 100%,#2a1f54 0%,transparent 55%),
+    linear-gradient(160deg,var(--night-1),var(--night-0));
+  border:1px solid var(--border);box-shadow:0 40px 120px -30px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.02);
+}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(120% 120% at 50% 50%,transparent 62%,rgba(0,0,0,.5) 100%)}
+
+/* ---- watermark logo ---- */
+.wm{position:absolute;top:16px;left:18px;display:flex;align-items:center;gap:9px;z-index:6;opacity:.92}
+.wm .badge{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#2b3576,#151a34);
+  display:grid;place-items:center;border:1px solid rgba(245,181,68,.35);box-shadow:0 0 16px -4px var(--gold-soft)}
+.wm .badge span{font-size:18px;color:var(--gold);line-height:1;transform:translateY(-1px)}
+.wm b{font-size:14px;letter-spacing:.3px}.wm b i{font-style:normal;color:var(--gold)}
+
+/* ---- scènes ---- */
+.scene{position:absolute;inset:0;display:none;place-items:center;padding:4% 5% 15%}
+.scene.on{display:grid;animation:sceneIn .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes sceneIn{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:none}}
+
+/* ---- caption bar ---- */
+.cap{position:absolute;left:0;right:0;bottom:44px;z-index:7;text-align:center;padding:0 8%}
+.cap p{display:inline-block;margin:0;font-size:clamp(15px,2.5vw,26px);font-weight:700;line-height:1.3;
+  letter-spacing:.2px;text-wrap:balance;text-shadow:0 2px 18px rgba(0,0,0,.6)}
+.cap .on{animation:capIn .6s ease both}
+@keyframes capIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---- progress ---- */
+.hud{position:absolute;left:18px;right:18px;bottom:16px;z-index:8;display:flex;align-items:center;gap:12px}
+.track{position:relative;flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:99px;background:linear-gradient(90deg,var(--gold),var(--gold-2))}
+.time{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:74px;text-align:right}
+.replay{position:absolute;top:14px;right:16px;z-index:9;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--border);background:rgba(10,14,30,.6);color:var(--gold);font-size:16px;cursor:pointer;
+  display:grid;place-items:center;transition:.2s;backdrop-filter:blur(4px)}
+.replay:hover{background:rgba(245,181,68,.15)}
+
+/* ================= SCÈNE 1 · logo ================= */
+.hero{display:grid;place-items:center;gap:18px;text-align:center}
+.logo{position:relative;width:128px;height:128px;border-radius:34px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#2d377e,#161c34);
+  border:1px solid rgba(245,181,68,.4);animation:logoPop 1s cubic-bezier(.2,.9,.2,1.2) both}
+.logo .halo{position:absolute;inset:-32%;border-radius:50%;
+  background:radial-gradient(circle,var(--gold-soft),transparent 60%);animation:breathe 3.2s ease-in-out infinite}
+.logo .shin{font-size:70px;color:var(--gold);line-height:1;text-shadow:0 0 26px rgba(245,181,68,.6);
+  transform:translateY(-3px);animation:shinIn .9s .25s both}
+.logo .strap{position:absolute;bottom:-14px;width:5px;height:34px;border-radius:3px;background:linear-gradient(var(--gold),transparent)}
+.logo .strap.l{left:40px;transform:rotate(16deg)}.logo .strap.r{right:40px;transform:rotate(-16deg)}
+.word{font-size:clamp(30px,6vw,58px);font-weight:900;letter-spacing:-1px;animation:capIn .7s .35s both}
+.word i{font-style:normal;color:var(--gold)}
+.tag{color:var(--muted);font-size:clamp(13px,2vw,18px);letter-spacing:.4px;animation:capIn .7s .6s both}
+@keyframes logoPop{from{opacity:0;transform:scale(.6) rotate(-8deg)}to{opacity:1;transform:none}}
+@keyframes shinIn{from{opacity:0;transform:translateY(10px) scale(.7)}to{opacity:1;transform:translateY(-3px) scale(1)}}
+@keyframes breathe{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.12);opacity:1}}
+
+/* ================= phone commun ================= */
+.phone{position:relative;width:236px;height:430px;border-radius:38px;padding:12px;
+  background:linear-gradient(160deg,#1a2044,#10142c);border:1px solid var(--border);
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.03);flex:0 0 auto}
+.phone .notch{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:92px;height:20px;
+  border-radius:0 0 14px 14px;background:#0b0f22;z-index:5}
+.screen{position:relative;width:100%;height:100%;border-radius:30px;overflow:hidden;background:var(--night-0);
+  padding:26px 14px 14px}
+.split{display:flex;align-items:center;justify-content:center;gap:min(6vw,64px)}
+.eyebrow{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.h{font-size:19px;font-weight:800;margin:3px 0 2px}.sub{color:var(--muted);font-size:11.5px}
+
+/* ---- side copy (grand texte à côté du phone) ---- */
+.side{max-width:300px;text-align:left}
+.side .kick{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;color:var(--gold);font-weight:800}
+.side h2{font-size:clamp(20px,3.4vw,34px);font-weight:900;letter-spacing:-.5px;margin:8px 0 10px;line-height:1.1;text-wrap:balance}
+.side p{color:var(--muted);font-size:14px;line-height:1.5;margin:0}
+.side .chip{display:inline-flex;align-items:center;gap:6px;margin-top:14px;background:var(--gold-soft);
+  color:var(--gold-2);font-weight:700;font-size:12.5px;padding:7px 12px;border-radius:99px}
+
+/* ================= SCÈNE 2 · carte VTC ================= */
+.map{position:relative;height:296px;border-radius:20px;overflow:hidden;
+  background:radial-gradient(120% 120% at 50% 40%,#1a2150,#0b1024);border:1px solid var(--border)}
+.map .grid{position:absolute;inset:0;opacity:.25;
+  background-image:linear-gradient(rgba(123,107,255,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(123,107,255,.25) 1px,transparent 1px);
+  background-size:34px 34px}
+.radar{position:absolute;left:50%;top:56%;width:14px;height:14px;transform:translate(-50%,-50%)}
+.radar .me{position:absolute;inset:0;border-radius:50%;background:var(--violet);box-shadow:0 0 0 4px rgba(123,107,255,.3)}
+.radar i{position:absolute;left:50%;top:50%;width:14px;height:14px;border-radius:50%;transform:translate(-50%,-50%);
+  border:2px solid rgba(123,107,255,.6);animation:ping 2.6s ease-out infinite}
+.radar i:nth-child(3){animation-delay:.9s}.radar i:nth-child(4){animation-delay:1.8s}
+@keyframes ping{0%{width:14px;height:14px;opacity:.9}100%{width:220px;height:220px;opacity:0}}
+.pin{position:absolute;width:26px;height:26px;border-radius:50% 50% 50% 2px;transform:rotate(45deg);
+  background:linear-gradient(135deg,var(--gold),var(--gold-2));box-shadow:0 6px 16px -4px rgba(245,181,68,.6)}
+.pin::after{content:"";position:absolute;inset:7px;border-radius:50%;background:#241a05}
+.pin.drive{left:16%;top:16%;animation:drive 4s 1.4s cubic-bezier(.5,0,.4,1) forwards}
+@keyframes drive{to{left:calc(50% - 13px);top:calc(56% - 26px)}}
+.route{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.route path{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(245,181,68,.6));
+  stroke-dasharray:340;stroke-dashoffset:340;animation:draw 3.6s 1.4s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.mapbar{position:absolute;left:10px;right:10px;bottom:10px;display:flex;align-items:center;justify-content:space-between;
+  gap:8px;background:rgba(8,12,26,.85);border:1px solid var(--border);border-radius:14px;padding:7px 9px 7px 13px;
+  backdrop-filter:blur(4px);animation:capIn .5s 2.2s both}
+.mapbar .t{font-size:12px;white-space:nowrap}.mapbar .t b{color:var(--gold)}
+.mapbar .go{background:linear-gradient(135deg,var(--gold),var(--gold-2));color:#241a05;font-weight:800;font-size:12px;
+  border-radius:10px;padding:8px 14px;animation:pulseBtn 1.8s .6s ease-in-out infinite}
+@keyframes pulseBtn{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* ================= SCÈNE 3 · selfie/vérif ================= */
+.cam{position:relative;height:296px;border-radius:20px;overflow:hidden;border:1px solid var(--border);
+  background:linear-gradient(160deg,#141a30,#0a0e1e)}
+.cam .hudline{position:absolute;top:10px;left:10px;right:10px;text-align:center;font-size:10.5px;color:#cdd6ff;
+  background:rgba(0,0,0,.4);border-radius:8px;padding:5px}
+.sil{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;gap:14px;padding-bottom:26px}
+.person{width:70px;display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.9}
+.person .head{width:44px;height:44px;border-radius:50%;background:linear-gradient(160deg,#33407e,#222a52);position:relative}
+.person .body{width:66px;height:96px;border-radius:26px 26px 8px 8px;background:linear-gradient(160deg,#2a3468,#1c2346)}
+.person .teph-h{position:absolute;top:2px;left:50%;transform:translateX(-50%);width:14px;height:12px;border-radius:3px;background:#0b0f22;border:1px solid #000;opacity:0}
+.person .teph-a{position:absolute;left:-4px;bottom:16px;width:10px;height:40px;border-radius:6px;
+  background:repeating-linear-gradient(45deg,#0b0f22 0 4px,#1a1a1a 4px 8px);opacity:0}
+.scan{position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  box-shadow:0 0 14px var(--gold);animation:scan 2.2s .2s ease-in-out infinite}
+@keyframes scan{0%{top:6%}50%{top:78%}100%{top:6%}}
+.dbox{position:absolute;border:2px solid var(--ok);border-radius:8px;opacity:0;transform:scale(.7)}
+.dbox .lbl{position:absolute;top:-9px;left:0;font-size:9px;font-weight:800;color:#04231a;padding:1px 6px;border-radius:6px;white-space:nowrap}
+.dbox.show{animation:boxPop .45s forwards}
+@keyframes boxPop{to{opacity:1;transform:scale(1)}}
+.checks{position:absolute;left:10px;right:10px;bottom:10px;display:grid;gap:5px}
+.ck{display:flex;align-items:center;gap:8px;font-size:11px;background:rgba(8,12,26,.78);border:1px solid var(--border);
+  border-radius:9px;padding:6px 9px;opacity:0;transform:translateY(6px)}
+.ck.show{animation:ckin .4s forwards}
+@keyframes ckin{to{opacity:1;transform:none}}
+.ck b{width:16px;height:16px;border-radius:50%;background:var(--ok);color:#04231a;display:grid;place-items:center;font-size:10px;flex:0 0 auto}
+.validflash{position:absolute;inset:0;display:grid;place-items:center;background:rgba(4,35,26,.0);opacity:0}
+.validflash.show{animation:vf 1.1s 2.6s forwards}
+.validflash span{font-size:15px;font-weight:900;color:var(--ok);background:rgba(4,35,26,.85);
+  border:1px solid var(--ok);border-radius:14px;padding:10px 18px}
+@keyframes vf{0%{opacity:0;transform:scale(.9)}25%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0}}
+
+/* ================= SCÈNE 4 · récompenses ================= */
+.balcard{text-align:center;border-radius:16px;padding:12px;background:linear-gradient(135deg,#20285a,#161c34);border:1px solid var(--border)}
+.balcard .lb{color:var(--muted);font-size:10.5px}
+.balcard .big{font-size:36px;font-weight:900;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.05}
+.balcard .eq{color:var(--muted);font-size:10.5px;margin-top:2px}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.vc{display:flex;flex-direction:column;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:9px;
+  opacity:0;transform:translateY(8px)}
+.vc.show{animation:ckin .5s forwards}
+.vc .ic{width:28px;height:28px;border-radius:8px;background:var(--gold-soft);display:grid;place-items:center;font-size:15px}
+.vc b{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vc span{font-size:9.5px;color:var(--muted);white-space:nowrap}
+.vc .cost{align-self:flex-start;font-size:9.5px;font-weight:800;color:var(--gold);background:var(--gold-soft);padding:3px 7px;border-radius:7px}
+
+/* ================= SCÈNE 5 · tsedaka ================= */
+.notif{position:absolute;top:14px;left:50%;transform:translate(-50%,-140%);z-index:10;width:min(88%,420px);
+  background:rgba(16,22,46,.94);border:1px solid var(--border);border-radius:16px;padding:12px 14px;display:flex;gap:11px;align-items:center;
+  box-shadow:0 20px 50px -14px rgba(0,0,0,.7);backdrop-filter:blur(6px)}
+.notif.show{animation:notifIn .7s cubic-bezier(.2,.9,.2,1.1) forwards}
+@keyframes notifIn{to{transform:translate(-50%,0)}}
+.notif .ic{width:34px;height:34px;border-radius:10px;background:var(--gold-soft);display:grid;place-items:center;font-size:18px;flex:0 0 auto}
+.notif b{font-size:13px}.notif span{font-size:11px;color:var(--muted);display:block}
+.ts .ring-wrap{display:grid;place-items:center;margin:4px 0 10px}
+.ring{transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:9}
+.ring .fg{fill:none;stroke:var(--gold);stroke-width:9;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:264;
+  filter:drop-shadow(0 0 6px rgba(245,181,68,.5))}
+.ring-wrap .lbl{position:absolute;text-align:center}.ring-wrap .lbl .pc{font-size:22px;font-weight:900;color:var(--gold)}
+.ring-wrap .lbl .t{font-size:9px;color:var(--muted)}
+.chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px}
+.chip2{font-size:12px;font-weight:800;padding:7px 12px;border-radius:11px;background:var(--surface-2);border:1px solid var(--border);color:var(--ink)}
+.chip2.sel{background:var(--gold-soft);border-color:var(--gold);color:var(--gold-2);animation:chipsel .4s .4s both}
+@keyframes chipsel{from{transform:scale(.9)}to{transform:scale(1)}}
+.apay{display:flex;align-items:center;justify-content:center;gap:8px;background:#fff;color:#000;font-weight:800;
+  border-radius:13px;padding:11px;font-size:14px}
+.apay.press{animation:press .35s 1.4s ease}
+@keyframes press{50%{transform:scale(.95);filter:brightness(.9)}}
+.tsdone{position:absolute;inset:0;display:grid;place-items:center;opacity:0}
+.tsdone.show{animation:vf 1.4s 2s forwards}
+.tsdone span{font-size:14px;font-weight:900;color:var(--ok);background:rgba(4,35,26,.85);border:1px solid var(--ok);border-radius:14px;padding:10px 18px}
+
+/* ================= SCÈNE 6 · clôture ================= */
+.end{display:grid;place-items:center;gap:14px;text-align:center}
+.end .logo{width:96px;height:96px;border-radius:26px}
+.end .logo .shin{font-size:52px}
+.end h2{font-size:clamp(26px,5vw,52px);font-weight:900;letter-spacing:-1px;margin:0}
+.end h2 i{font-style:normal;color:var(--gold)}
+.end .soon{color:var(--muted);font-size:14px;letter-spacing:.3px}
+.stores{display:flex;gap:10px;margin-top:4px}
+.store{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 13px;font-size:12px;font-weight:700}
+.store .g{font-size:16px}
+
+@media (max-width:640px){.split{flex-direction:column;gap:18px}.phone{width:190px;height:388px}.side{text-align:center}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+
+<div class="frame">
+  <div class="stage" id="stage">
+    <div class="wm"><div class="badge"><span>ש</span></div><b>Mitzva<i>NOW</i></b></div>
+    <button class="replay" id="replay" title="Rejouer">↻</button>
+
+    <!-- ===== SCÈNE 1 ===== -->
+    <section class="scene" data-scene="1">
+      <div class="hero">
+        <div class="logo"><div class="halo"></div><div class="shin">ש</div><i class="strap l"></i><i class="strap r"></i></div>
+        <div class="word">Mitzva<i>NOW</i></div>
+        <div class="tag">Deux mitzvot. Une app.</div>
+      </div>
+    </section>
+
+    <!-- ===== SCÈNE 2 · VTC ===== -->
+    <section class="scene" data-scene="2">
+      <div class="split">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="eyebrow">Pilier 1 · Tefillin</div><div class="h">Mettre les tefillin</div>
+          <div class="map" style="margin-top:8px">
+            <div class="grid"></div>
+            <svg class="route" viewBox="0 0 236 330" preserveAspectRatio="none"><path d="M40 55 C 90 90, 70 150, 118 178"/></svg>
+            <div class="radar"><div class="me"></div><i></i><i></i><i></i></div>
+            <div class="pin drive"></div>
+            <div class="mapbar"><span class="t">Poseur · <b>3 min</b></span><span class="go">Appeler</span></div>
+          </div>
+        </div></div>
+        <div class="side">
+          <div class="kick">Comme un VTC</div>
+          <h2>Un poseur près de vous, en quelques minutes.</h2>
+          <p>Vous voulez mettre les tefillin&nbsp;? Appelez le bénévole le plus proche. Il vient à vous, où que vous soyez.</p>
+          <div class="chip">📍 Géolocalisé · temps réel</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SCÈNE 3 · vérif ===== -->
+    <section class="scene" data-scene="3">
+      <div class="split">
+        <div class="phone"><div class="notch"></div><div class="screen" style="padding:22px 10px 10px">
+          <div class="cam">
+            <div class="hudline">Le posé porte les tefillin · le poseur apparaît aussi</div>
+            <div class="scan"></div>
+            <div class="sil">
+              <div class="person"><div class="head"></div><div class="body"></div></div>
+              <div class="person"><div class="head"><div class="teph-h" id="th"></div></div><div class="body"><div class="teph-a" id="ta"></div></div></div>
+            </div>
+            <div class="dbox" id="b1" style="left:20%;top:44%;width:24%;height:26%"><span class="lbl" style="background:#37d399">poseur ✓</span></div>
+            <div class="dbox" id="b2" style="left:56%;top:30%;width:22%;height:16%"><span class="lbl" style="background:#37d399">téph. tête ✓</span></div>
+            <div class="dbox" id="b3" style="left:50%;top:56%;width:16%;height:22%"><span class="lbl" style="background:#37d399">téph. bras ✓</span></div>
+            <div class="checks">
+              <div class="ck" id="k1"><b>✓</b>Poseur reconnu — c'est bien vous</div>
+              <div class="ck" id="k2"><b>✓</b>Tefillin sur le posé — tête &amp; bras</div>
+              <div class="ck" id="k3"><b>✓</b>1<sup>re</sup> mise du jour</div>
+            </div>
+            <div class="validflash"><span>Mise validée ✓</span></div>
+          </div>
+        </div></div>
+        <div class="side">
+          <div class="kick">Anti-fraude par l'IA</div>
+          <h2>Une photo en direct. L'IA fait le reste.</h2>
+          <p>Notre vision vérifie que les tefillin sont bien posés, et reconnaît le poseur. Une seule mise validée par personne et par jour.</p>
+          <div class="chip">🔒 Vérifié · sans QR code</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SCÈNE 4 · récompenses ===== -->
+    <section class="scene" data-scene="4">
+      <div class="split">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="eyebrow">Portefeuille</div><div class="h">Mes récompenses</div>
+          <div class="balcard" style="margin-top:8px"><div class="lb">Solde de points</div>
+            <div class="big" id="bal">0</div><div class="eq">≈ 124 € · bons ou tsedaka</div></div>
+          <div class="vgrid">
+            <div class="vc" id="v1"><div class="ic">🛒</div><b>Hyper Cacher</b><span>Supermarché</span><span class="cost">10 € · 500 pts</span></div>
+            <div class="vc" id="v2"><div class="ic">🍽️</div><b>Chez Yaacov</b><span>Restaurant</span><span class="cost">−20 %</span></div>
+            <div class="vc" id="v3"><div class="ic">🥩</div><b>Boucherie</b><span>Cachère</span><span class="cost">15 €</span></div>
+            <div class="vc" id="v4"><div class="ic">📚</div><b>Librairie</b><span>Judaïca</span><span class="cost">10 €</span></div>
+          </div>
+        </div></div>
+        <div class="side">
+          <div class="kick">Vos mitzvot récompensées</div>
+          <h2>Des points, des bons chez vos commerces cachers.</h2>
+          <p>Chaque mise validée vous rapporte des points — à échanger en bons de réduction : supermarchés, restaurants et librairies cachers.</p>
+          <div class="chip">🎁 Ou reversez tout à la tsedaka</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SCÈNE 5 · tsedaka ===== -->
+    <section class="scene" data-scene="5">
+      <div class="notif"><div class="ic">🕯️</div><div><b>MitzvaNOW</b><span>N'oublie pas ta tsedaka du jour 🙏</span></div></div>
+      <div class="split">
+        <div class="phone"><div class="notch"></div><div class="screen">
+          <div class="eyebrow">Pilier 2 · Tsedaka</div><div class="h">Don du jour</div>
+          <div class="ts">
+            <div class="ring-wrap">
+              <svg class="ring" width="120" height="120"><circle class="bg" cx="60" cy="60" r="42"/><circle class="fg" id="ring" cx="60" cy="60" r="42"/></svg>
+              <div class="lbl"><div class="pc" id="maas">0%</div><div class="t">de ton maasser</div></div>
+            </div>
+            <div class="chips"><div class="chip2">2 €</div><div class="chip2 sel">5 €</div><div class="chip2">18 €</div><div class="chip2">Autre</div></div>
+            <div class="apay press">Payer en 1 clic</div>
+          </div>
+          <div class="tsdone"><span>Don effectué ✓</span></div>
+        </div></div>
+        <div class="side">
+          <div class="kick">La mitzva du maasser</div>
+          <h2>Donnez la tsedaka en quelques secondes.</h2>
+          <p>Chaque jour, un rappel. Le montant que vous voulez, l'association de votre cœur, anonyme ou non — et votre maasser suivi automatiquement.</p>
+          <div class="chip"> Apple Pay · Google Pay · PayPal</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SCÈNE 6 · clôture ===== -->
+    <section class="scene" data-scene="6">
+      <div class="end">
+        <div class="logo"><div class="halo"></div><div class="shin">ש</div></div>
+        <h2>Deux mitzvot. <i>Une app.</i></h2>
+        <div class="soon">MitzvaNOW — la mise des tefillin &amp; la tsedaka, réunies.</div>
+        <div class="stores"><div class="store"><span class="g">◍</span>App Store</div><div class="store"><span class="g">▶</span>Google Play</div></div>
+        <div class="soon" style="font-size:12px;color:var(--faint)">Bientôt disponible</div>
+      </div>
+    </section>
+
+    <!-- caption + hud -->
+    <div class="cap"><p id="cap"></p></div>
+    <div class="hud"><div class="track"><div class="fill" id="fill"></div></div><div class="time" id="time">0:00 / 1:00</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var TOTAL = 60; // secondes
+  var SCENES = [
+    {n:1, at:0,  cap:"Chaque jour, un juif veut mettre les tefillin. Quelqu'un, tout près, peut l'aider."},
+    {n:2, at:7,  cap:"Appelez le poseur le plus proche — comme un VTC, pour la mise des tefillin."},
+    {n:3, at:18, cap:"Une photo en direct, et l'IA vérifie la mise. Anti-fraude : une seule fois par jour."},
+    {n:4, at:30, cap:"Chaque mise validée rapporte des points — en bons chez vos commerces cachers."},
+    {n:5, at:40, cap:"Et donnez la tsedaka en quelques secondes. Votre maasser, suivi automatiquement."},
+    {n:6, at:52, cap:"MitzvaNOW — deux mitzvot, une app."}
+  ];
+  var $ = function(s){return document.querySelector(s)};
+  var scenes = {}; SCENES.forEach(function(s){scenes[s.n]=document.querySelector('[data-scene="'+s.n+'"]')});
+  var capEl=$('#cap'), fill=$('#fill'), timeEl=$('#time');
+  var timers=[], raf=null, t0=0;
+
+  function clearAll(){
+    timers.forEach(clearTimeout); timers=[];
+    if(raf) cancelAnimationFrame(raf);
+    SCENES.forEach(function(s){scenes[s.n].classList.remove('on')});
+    // reset animated states
+    ['th','ta'].forEach(function(id){$('#'+id).style.opacity='0'});
+    ['b1','b2','b3'].forEach(function(id){$('#'+id).classList.remove('show')});
+    ['k1','k2','k3'].forEach(function(id){$('#'+id).classList.remove('show')});
+    ['v1','v2','v3','v4'].forEach(function(id){$('#'+id).classList.remove('show')});
+    document.querySelector('.validflash').classList.remove('show');
+    var nf=document.querySelector('.notif'); if(nf) nf.classList.remove('show');
+    var td=document.querySelector('.tsdone'); if(td) td.classList.remove('show');
+    $('#bal').textContent='0'; $('#maas').textContent='0%';
+    var ring=$('#ring'); if(ring) ring.style.strokeDashoffset='264';
+    fill.style.transition='none'; fill.style.width='0%';
+  }
+
+  function countUp(el, to, dur){
+    var start=performance.now();
+    (function step(now){
+      var p=Math.min(1,(now-start)/dur), v=Math.round(to*(1-Math.pow(1-p,3)));
+      el.textContent=v.toLocaleString('fr-FR'); if(p<1) requestAnimationFrame(step);
+    })(start);
+  }
+  function pct(el, to, dur){
+    var start=performance.now();
+    (function step(now){
+      var p=Math.min(1,(now-start)/dur), v=Math.round(to*(1-Math.pow(1-p,3)));
+      el.textContent=v+'%'; if(p<1) requestAnimationFrame(step);
+    })(start);
+  }
+
+  function activate(s){
+    Object.keys(scenes).forEach(function(k){scenes[k].classList.remove('on')});
+    scenes[s.n].classList.add('on');
+    capEl.textContent=s.cap; capEl.classList.remove('on'); void capEl.offsetWidth; capEl.classList.add('on');
+
+    if(s.n===3){
+      later(600,function(){$('#th').style.transition='opacity .4s';$('#th').style.opacity='1'});
+      later(900,function(){$('#ta').style.transition='opacity .4s';$('#ta').style.opacity='1'});
+      later(500,function(){$('#b1').classList.add('show')});
+      later(1000,function(){$('#b2').classList.add('show')});
+      later(1400,function(){$('#b3').classList.add('show')});
+      later(900,function(){$('#k1').classList.add('show')});
+      later(1300,function(){$('#k2').classList.add('show')});
+      later(1700,function(){$('#k3').classList.add('show')});
+      later(2600,function(){document.querySelector('.validflash').classList.add('show')});
+    }
+    if(s.n===4){
+      later(200,function(){countUp($('#bal'),1240,1400)});
+      [0,1,2,3].forEach(function(i){later(500+i*180,function(){$('#v'+(i+1)).classList.add('show')})});
+    }
+    if(s.n===5){
+      later(200,function(){document.querySelector('.notif').classList.add('show')});
+      later(700,function(){
+        var ring=$('#ring'); ring.style.transition='stroke-dashoffset 1.4s ease'; ring.style.strokeDashoffset=String(264*(1-0.42));
+        pct($('#maas'),42,1400);
+      });
+      later(2000,function(){document.querySelector('.tsdone').classList.add('show')});
+    }
+  }
+  function later(ms,fn){timers.push(setTimeout(fn,ms))}
+
+  function tick(){
+    var e=(performance.now()-t0)/1000; if(e>TOTAL)e=TOTAL;
+    var s=Math.floor(e), mm=Math.floor(s/60), ss=s%60;
+    timeEl.textContent=mm+':'+(ss<10?'0':'')+ss+' / 1:00';
+    if(e<TOTAL) raf=requestAnimationFrame(tick);
+  }
+
+  function play(){
+    clearAll();
+    t0=performance.now();
+    SCENES.forEach(function(s){timers.push(setTimeout(function(){activate(s)}, s.at*1000))});
+    requestAnimationFrame(function(){fill.style.transition='width '+TOTAL+'s linear'; fill.style.width='100%'});
+    raf=requestAnimationFrame(tick);
+  }
+
+  $('#replay').addEventListener('click', play);
+  play();
+})();
+</script>
