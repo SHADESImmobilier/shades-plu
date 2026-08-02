@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Text, Switch, Pressable, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@/lib/types";
 import { colors } from "@/lib/theme";
@@ -10,12 +11,15 @@ const REMINDER_HOUR = 18; // rappel par défaut à 18h (configurable plus tard)
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [reminder, setReminder] = useState(false);
+  const [faceEnrolled, setFaceEnrolled] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     supabase.from("profiles").select("*").single().then(({ data }) => {
       const p = data as any;
       setProfile(p);
       setReminder(!!p?.tsedaka_reminder_enabled);
+      setFaceEnrolled(!!p?.face_enrolled);
     });
   }, []);
 
@@ -59,6 +63,18 @@ export default function ProfileScreen() {
         </View>
         <Switch value={reminder} onValueChange={toggleReminder} />
       </View>
+
+      <Pressable style={styles.row} onPress={() => router.push({ pathname: "/capture", params: { mode: "enroll" } })}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.label}>Vérification du visage (poseur)</Text>
+          <Text style={styles.help}>
+            {faceEnrolled ? "✓ Enregistré — requis pour valider vos mises." : "À faire : selfie de référence pour valider vos mises."}
+          </Text>
+        </View>
+        <Text style={{ color: faceEnrolled ? colors.success : colors.primary, fontWeight: "700" }}>
+          {faceEnrolled ? "✓" : "›"}
+        </Text>
+      </Pressable>
 
       <Pressable style={styles.logout} onPress={() => supabase.auth.signOut()}>
         <Text style={styles.logoutT}>Se déconnecter</Text>

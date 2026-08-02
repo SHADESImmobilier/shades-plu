@@ -187,6 +187,17 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
 .chip{flex:1; padding:15px 0; text-align:center; border-radius:15px; background:var(--surface); border:1px solid var(--border);
   font-weight:800; font-size:16px; cursor:pointer; transition:transform .18s cubic-bezier(.22,1.4,.4,1), background .2s, color .2s, border-color .2s; font-variant-numeric:tabular-nums}
 .chip.on{background:linear-gradient(135deg,var(--gold),var(--gold-2)); color:#241a05; border-color:transparent; transform:translateY(-3px) scale(1.04); box-shadow:0 10px 24px -8px rgba(245,181,68,.5)}
+.custom-amt{display:none; align-items:center; gap:8px; margin-top:10px; background:var(--surface); border:1px solid var(--gold); border-radius:15px; padding:4px 16px}
+.custom-amt.show{display:flex; animation:pop .3s cubic-bezier(.22,1.4,.4,1)}
+.custom-amt.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.custom-amt input{flex:1; background:none; border:0; outline:none; color:var(--ink); font-size:22px; font-weight:800; padding:12px 0; font-family:var(--fs); font-variant-numeric:tabular-nums}
+.custom-amt input::placeholder{color:var(--faint); font-weight:600; font-size:16px}
+.custom-amt .cur{color:var(--gold); font-size:22px; font-weight:800}
+.checks{position:absolute; left:16px; right:16px; top:92px; display:flex; flex-direction:column; gap:6px; z-index:5}
+.checkln{display:flex; align-items:center; gap:8px; background:rgba(8,11,24,.72); border:1px solid var(--border); border-radius:11px; padding:9px 12px; font-size:12px; color:#fff; opacity:0; transform:translateY(8px)}
+.checkln.show{animation:up .4s forwards}
+.checkln .b{width:18px; height:18px; border-radius:50%; background:var(--ok); color:#04231a; display:grid; place-items:center; font-size:11px; font-weight:800; flex:0 0 auto}
 .assoc{display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:13px; margin-top:8px; cursor:pointer; transition:.2s}
 .assoc.on{border-color:var(--gold); background:linear-gradient(135deg,rgba(245,181,68,.14),var(--surface))}
 .assoc .mk{width:34px;height:34px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-size:16px}
@@ -311,6 +322,11 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
           <div class="chip on" data-a="5">5 €</div>
           <div class="chip" data-a="10">10 €</div>
           <div class="chip" data-a="18">18 €</div>
+          <div class="chip" data-a="free">Autre</div>
+        </div>
+        <div class="custom-amt" id="customWrap">
+          <input id="customInput" type="number" inputmode="decimal" min="1" placeholder="Montant libre"/>
+          <span class="cur">€</span>
         </div>
 
         <div class="label">Association</div>
@@ -357,16 +373,22 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
       <!-- ============ SELFIE overlay ============ -->
       <div class="overlay" data-ov="selfie">
         <div class="cam">
-          <div class="hud">Cadre les 2 visages + les tefillin (tête & bras)</div>
+          <div class="hud">Le posé porte les tefillin (tête & bras) · le poseur apparaît aussi</div>
           <div class="scanline"></div>
           <div class="silhouette">
-            <div class="body"><div class="hd"><div class="th"></div></div><div class="to"><div class="ta"></div></div></div>
+            <div class="body"><div class="hd"><div class="th" style="display:none"></div></div><div class="to"></div></div>
             <div class="body"><div class="hd"><div class="th"></div></div><div class="to"><div class="ta"></div></div></div>
           </div>
-          <div class="dbox" id="d1" style="left:31%; top:34%; width:16%; height:11%"><span class="dlbl" style="background:#f5b544">visage 1</span></div>
-          <div class="dbox" id="d2" style="left:53%; top:34%; width:16%; height:11%"><span class="dlbl" style="background:#f5b544">visage 2</span></div>
-          <div class="dbox" id="d3" style="left:33%; top:46%; width:9%; height:7%"><span class="dlbl" style="background:#37d399">teph. tête ✓</span></div>
-          <div class="dbox" id="d4" style="left:55%; top:58%; width:8%; height:11%"><span class="dlbl" style="background:#37d399">teph. bras ✓</span></div>
+          <!-- gauche = POSEUR (visage vérifié) ; droite = POSÉ (porte les tefillin) -->
+          <div class="dbox" id="d1" style="left:30%; top:50%; width:17%; height:12%"><span class="dlbl" style="background:#37d399">poseur ✓ profil</span></div>
+          <div class="dbox" id="d2" style="left:53%; top:50%; width:17%; height:12%"><span class="dlbl" style="background:#f5b544">posé</span></div>
+          <div class="dbox" id="d3" style="left:55%; top:43%; width:10%; height:8%"><span class="dlbl" style="background:#37d399">teph. tête ✓</span></div>
+          <div class="dbox" id="d4" style="left:58%; top:62%; width:9%; height:12%"><span class="dlbl" style="background:#37d399">teph. bras ✓</span></div>
+          <div class="checks" id="checks">
+            <div class="checkln" id="c1"><span class="b">✓</span>Poseur reconnu — c'est bien vous (profil)</div>
+            <div class="checkln" id="c2"><span class="b">✓</span>Tefillin sur le posé — tête &amp; bras</div>
+            <div class="checkln" id="c3"><span class="b">✓</span>Posé : 1<sup>re</sup> mise aujourd'hui</div>
+          </div>
           <div class="vignette"></div>
           <div class="cta-wrap"><button class="btn btn-gold" id="sendProof" disabled style="opacity:.5">Analyse en cours…</button></div>
         </div>
@@ -546,10 +568,13 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
   function openSelfie(){
     ov('selfie',true);
     const boxes=['#d1','#d2','#d3','#d4']; boxes.forEach(b=>{const el=$(b);el.classList.remove('show','ok');});
+    const checks=['#c1','#c2','#c3']; checks.forEach(c=>$(c).classList.remove('show'));
     const send=$('#sendProof'); send.disabled=true; send.style.opacity=.5; send.textContent='Analyse en cours…';
-    const seq=[[0,false],[1,false],[2,true],[3,true]];
-    seq.forEach(([i,ok],k)=> setTimeout(()=>{ const el=$(boxes[i]); el.classList.add('show'); if(ok)el.classList.add('ok'); }, reduce?0:500+k*550));
-    setTimeout(()=>{ send.disabled=false; send.style.opacity=1; send.textContent='Envoyer la preuve'; }, reduce?0:2600);
+    // d1 poseur (vérifié=vert), d2 posé (or), d3/d4 tefillin sur le posé (vert)
+    const seq=[[0,true],[1,false],[2,true],[3,true]];
+    seq.forEach(([i,ok],k)=> setTimeout(()=>{ const el=$(boxes[i]); el.classList.add('show'); if(ok)el.classList.add('ok'); }, reduce?0:400+k*500));
+    checks.forEach((c,k)=> setTimeout(()=>$(c).classList.add('show'), reduce?0:2300+k*300));
+    setTimeout(()=>{ send.disabled=false; send.style.opacity=1; send.textContent='Envoyer la preuve'; }, reduce?0:3300);
   }
   $('#sendProof').addEventListener('click',()=>{ ov('selfie',false); setTimeout(showReward, 300); });
 
@@ -580,13 +605,20 @@ h1.title{font-size:26px; font-weight:800; letter-spacing:-.6px; margin:2px 0 2px
   function animateRing(){ if(ringDone)return; ringDone=true;
     requestAnimationFrame(()=>{ fg.style.strokeDashoffset = C*(1-0.70); });
     countUp($('#ringpct'), 0, 70, reduce?0:1300, '%'); }
+  const cw=$('#customWrap'), ci=$('#customInput');
+  function setPay(){ $('#payamt').textContent = (amount>0? amount : '—') + ' €'; }
   $$('#chips .chip').forEach(c=>c.addEventListener('click',()=>{
     $$('#chips .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on');
-    amount=+c.dataset.a; const t=amount+' €'; $('#payamt').textContent=t;
+    if(c.dataset.a==='free'){ cw.classList.add('show'); ci.focus();
+      amount=parseFloat(ci.value)||0; setPay();
+    } else { cw.classList.remove('show'); amount=+c.dataset.a; setPay(); }
   }));
+  ci.addEventListener('input',()=>{ amount=parseFloat(ci.value)||0; setPay(); });
   $$('.assoc').forEach(a=>a.addEventListener('click',()=>{ $$('.assoc').forEach(x=>x.classList.remove('on')); a.classList.add('on'); }));
   $('#pay').addEventListener('click',()=>{
-    const b=$('#pay'); if(b.classList.contains('loading'))return; b.classList.add('loading');
+    const b=$('#pay'); if(b.classList.contains('loading'))return;
+    if(!(amount>0)){ ci.focus(); cw.classList.add('shake'); setTimeout(()=>cw.classList.remove('shake'),400); return; }
+    b.classList.add('loading');
     setTimeout(()=>{
       b.classList.remove('loading');
       $('#donAmt').textContent=amount+' €';

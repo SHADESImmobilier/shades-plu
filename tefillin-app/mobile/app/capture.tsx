@@ -20,7 +20,8 @@ export default function Capture() {
   const [result, setResult] = useState<string | null>(null);
   const cam = useRef<CameraView>(null);
   const router = useRouter();
-  const { request_id } = useLocalSearchParams<{ request_id?: string }>();
+  const { request_id, mode } = useLocalSearchParams<{ request_id?: string; mode?: string }>();
+  const isEnroll = mode === "enroll";
 
   async function startCamera() {
     if (!perm?.granted) {
@@ -39,6 +40,24 @@ export default function Capture() {
     if (!photoUri) return;
     setPhase("sending");
     try {
+      const b64all = await FileSystem.readAsStringAsync(photoUri, { encoding: "base64" });
+
+      // --- Mode ENRÔLEMENT : photo de référence du visage du poseur ----------
+      if (isEnroll) {
+        const { data: u } = await supabase.auth.getUser();
+        const path = `faces/${u.user?.id}.jpg`;
+        const { error: eu } = await supabase.storage.from("mivtza-proofs")
+          .upload(path, decode(b64all), { contentType: "image/jpeg", upsert: true });
+        if (eu) throw eu;
+        const { data, error } = await supabase.functions.invoke("enroll_face", { body: { photo_path: path } });
+        if (error) throw error;
+        setResult(data?.ok
+          ? "Visage enregistré ✓ Vous pouvez désormais valider vos mises."
+          : `Échec : ${data?.reason ?? "aucun visage détecté"}`);
+        setPhase("done");
+        return;
+      }
+
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") throw new Error("Localisation requise.");
       const loc = await Location.getCurrentPositionAsync({});
@@ -85,20 +104,41 @@ export default function Capture() {
   if (phase === "consent") {
     return (
       <View style={styles.c}>
-        <Text style={styles.h}>Photo de la mise</Text>
-        <Text style={styles.p}>
-          Prenez une photo <Text style={styles.b}>en direct</Text> de vous deux côte à côte,
-          avec les tefillin bien visibles (tête et bras).
-        </Text>
-        <View style={styles.notice}>
-          <Text style={styles.noticeT}>
-            🔒 La personne accepte d'être prise en photo. La reconnaissance faciale sert
-            uniquement à l'anti-fraude (consentement requis, conservation limitée).
-          </Text>
-        </View>
-        <Pressable style={styles.cta} onPress={startCamera}>
-          <Text style={styles.ctaT}>Le posé est d'accord · ouvrir l'appareil photo</Text>
-        </Pressable>
+        <Text style={styles.h}>{isEnroll ? "Vérifier mon visage" : "Photo de la mise"}</Text>
+        {isEnroll ? (
+          <>
+            <Text style={styles.p}>
+              Prenez un <Text style={styles.b}>selfie de référence</Text>. Il sert à confirmer
+              que c'est bien <Text style={styles.b}>vous</Text> sur chaque photo de mise.
+            </Text>
+            <View style={styles.notice}>
+              <Text style={styles.noticeT}>
+                🔒 Empreinte faciale conservée uniquement pour l'anti-fraude. Vous pouvez la
+                supprimer à tout moment.
+              </Text>
+            </View>
+            <Pressable style={styles.cta} onPress={startCamera}>
+              <Text style={styles.ctaT}>Prendre mon selfie de référence</Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={styles.p}>
+              Prenez une photo <Text style={styles.b}>en direct</Text> : les tefillin
+              (<Text style={styles.b}>tête et bras</Text>) sur le <Text style={styles.b}>posé</Text>,
+              et <Text style={styles.b}>vous</Text> (le poseur) visible sur la même photo.
+            </Text>
+            <View style={styles.notice}>
+              <Text style={styles.noticeT}>
+                🔒 Le posé accepte d'être pris en photo. Votre visage est comparé à votre profil,
+                et un posé ne peut être validé qu'une fois par jour. Anti-fraude uniquement.
+              </Text>
+            </View>
+            <Pressable style={styles.cta} onPress={startCamera}>
+              <Text style={styles.ctaT}>Le posé est d'accord · ouvrir l'appareil photo</Text>
+            </Pressable>
+          </>
+        )}
       </View>
     );
   }
@@ -106,8 +146,10 @@ export default function Capture() {
   if (phase === "camera") {
     return (
       <View style={{ flex: 1 }}>
-        <CameraView ref={cam} style={{ flex: 1 }} facing="back" />
-        <View style={styles.guide}><Text style={styles.guideT}>Cadrez les 2 visages + tefillin (tête & bras)</Text></View>
+        <CameraView ref={cam} style={{ flex: 1 }} facing={isEnroll ? "front" : "back"} />
+        <View style={styles.guide}><Text style={styles.guideT}>
+          {isEnroll ? "Cadrez bien votre visage" : "Posé avec tefillin (tête & bras) + vous, poseur"}
+        </Text></View>
         <Pressable style={styles.shutter} onPress={take} />
       </View>
     );

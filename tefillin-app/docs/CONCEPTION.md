@@ -109,8 +109,9 @@ indépendantes, et la récompense reste **« en attente » (pending)** jusqu'au 
 > On abandonne le QR/double-confirmation (trop complexe pour l'utilisateur). La preuve
 > d'une mise est désormais **une photo prise en direct dans l'app** (jamais importée de
 > la galerie) montrant **le poseur et le posé côte à côte, avec les tefillin (tête + bras)**.
-> La **vision par ordinateur** vérifie la scène et la **reconnaissance faciale** sert
-> surtout à l'**anti-farming** (un même posé ne peut pas être réutilisé en boucle).
+> La **vision** vérifie que les tefillin sont **sur le posé** (tête + bras) et que le
+> **poseur est visible** ; la **reconnaissance faciale** authentifie le **poseur** (vs sa
+> photo de profil) et garantit qu'un **posé n'est validé qu'une fois par jour**.
 
 ### 4.1 Les barrières
 
@@ -124,22 +125,23 @@ indépendantes, et la récompense reste **« en attente » (pending)** jusqu'au 
    métadonnées caméra pour détecter les photos d'écran ou réutilisées.
    → Casse « je renvoie une vieille photo ».
 
-3. **Vérification de la scène par vision (le posé + les tefillin).**
-   Un modèle de vision contrôle automatiquement sur la photo :
-   - **≥ 2 visages** distincts (poseur + posé) ;
-   - **tefillin détectés sur la tête** (chel rosh) **et sur le bras** (chel yad).
-   Si la scène n'est pas conforme → la session part en revue manuelle (pas de crédit auto).
-   → Casse « selfie sans tefillin / sans seconde personne ».
+3. **Vision — les tefillin sont portés par le POSÉ, et le poseur est visible.**
+   Le modèle de vision contrôle automatiquement que :
+   - le **posé (le bénéficiaire)** porte les tefillin **sur la tête** (chel rosh) **et sur le
+     bras** (chel yad) — les tefillin doivent être **attribués au posé**, pas au poseur ;
+   - le **poseur est présent** sur la même photo (≥ 2 visages).
+   Si la scène n'est pas conforme → revue manuelle (pas de crédit auto).
+   → Casse « selfie sans tefillin » et « tefillin portés par le poseur seul ».
 
-4. **Reconnaissance faciale = anti-farming du posé.**
-   Pour chaque posé, on calcule une **empreinte faciale (embedding)** stockée de façon
-   sécurisée (pas la photo brute pour le matching). On l'utilise pour :
-   - **dédupliquer** : récompense pleine pour un posé **nouveau** ; **cooldown** si le même
-     visage revient (ex. 1 fois / 30 jours, dégressif) ;
-   - détecter la **collusion** (mêmes 2 visages qui se répètent, ronde de visages, etc.).
-   → Casse « deux amis se prennent en photo en boucle ».
-   ⚠️ **Donnée biométrique** : consentement explicite du posé, finalité limitée
-   (anti-fraude), durée de conservation courte, droit à l'effacement (cf. §8).
+4. **Double reconnaissance faciale.**
+   - **(a) Poseur authentifié** : le visage du poseur sur la photo est comparé à sa
+     **photo de référence enrôlée sur son profil** (empreinte faciale). On confirme que
+     **c'est bien lui** qui réalise la mise → empêche prête-nom / partage de compte / farming.
+   - **(b) Posé unique, une fois par jour** : on met les tefillin **une seule fois par
+     jour**, donc un même **visage de posé ne peut être validé qu'une fois par jour**.
+     → Casse « refaire la même personne » et la collusion en boucle.
+   ⚠️ **Donnée biométrique** : consentement du posé, **enrôlement volontaire** du poseur,
+   finalité strictement anti-fraude, conservation limitée, droit à l'effacement (cf. §8).
 
 5. **Co-présence géographique & horodatage.**
    GPS + heure de capture : vélocité impossible (50 mises en 5 min à travers la ville),
