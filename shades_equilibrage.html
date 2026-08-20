@@ -3097,7 +3097,8 @@ function visInit(){
   VIS = {phase:"intro", stream:null, rec:null, chunks:[], videoURL:null,
          frames:[], transcript:"", interim:"", notes:"", reco:null, ecoute:false,
          timer:null, t0:0, duree:0, dernier:null,
-         transcriptBrut:null, corrections:[],
+         transcriptBrut:null, corrections:[], transcriptSource:"", audioSource:null,
+         arec:null, achunks:[], avertAudio:"",
          observations:[], synthese:null, questions:[], reponses:{}, qIdx:0,
          plan:null, busy:false, etape:"", progres:0, erreur:""};
 }
@@ -3176,6 +3177,16 @@ async function visDemarrer(){
     VIS.rec.ondataavailable=e=>{ if(e.data && e.data.size) VIS.chunks.push(e.data); };
     VIS.rec.start(1000);
   }catch(e){ VIS.rec=null; }
+  /* piste audio enregistrée à part, à bas débit : c'est elle qui part à la transcription */
+  try{
+    const pisteAudio=new MediaStream(VIS.stream.getAudioTracks());
+    const ma=["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus"]
+             .find(t=>window.MediaRecorder && MediaRecorder.isTypeSupported(t));
+    VIS.arec=new MediaRecorder(pisteAudio, ma?{mimeType:ma, audioBitsPerSecond:32000}:{audioBitsPerSecond:32000});
+    VIS.achunks=[];
+    VIS.arec.ondataavailable=e=>{ if(e.data && e.data.size) VIS.achunks.push(e.data); };
+    VIS.arec.start(2000);
+  }catch(e){ VIS.arec=null; }
   visEcouteDemarrer();
   VIS.t0=Date.now();
   VIS.timer=setInterval(()=>{
@@ -3197,14 +3208,22 @@ function visCapture(manuelle){
 }
 function visArreter(){
   if(VIS.timer){ clearInterval(VIS.timer); VIS.timer=null; }
+  let attente=0;
+  const fini=()=>{ if(--attente<=0) visPipeline(); };
   if(VIS.rec && VIS.rec.state!=="inactive"){
-    VIS.rec.onstop=()=>{ try{ VIS.videoURL=URL.createObjectURL(new Blob(VIS.chunks,{type:VIS.chunks[0]?VIS.chunks[0].type:"video/webm"})); }catch(e){} vVisite(); };
+    attente++;
+    VIS.rec.onstop=()=>{ try{ VIS.videoURL=URL.createObjectURL(new Blob(VIS.chunks,{type:VIS.chunks[0]?VIS.chunks[0].type:"video/webm"})); }catch(e){} fini(); };
     VIS.rec.stop();
+  }
+  if(VIS.arec && VIS.arec.state!=="inactive"){
+    attente++;
+    VIS.arec.onstop=()=>{ try{ if(VIS.achunks.length) VIS.audioSource=new Blob(VIS.achunks,{type:VIS.achunks[0].type||"audio/webm"}); }catch(e){} fini(); };
+    VIS.arec.stop();
   }
   visEcouteArreter();
   if(VIS.stream){ VIS.stream.getTracks().forEach(t=>t.stop()); VIS.stream=null; }
-  VIS.phase="review";
-  vVisite();
+  VIS.phase="analyse"; VIS.etape="Finalisation de l'enregistrement…"; VIS.progres=0; vVisite();
+  if(!attente) visPipeline();
 }
 
 /* ---------------- reconnaissance vocale ---------------- */
@@ -3252,6 +3271,7 @@ function visImportVideo(file){
         VIS.etape="Extraction des images "+(i+1)+" / "+n; VIS.progres=(i+1)/n; vVisite();
       }
       VIS.videoURL=v.src;
+      VIS.audioSource=file;      /* le son du fichier importé est transcrit lui aussi */
       resolve(pris);
     };
     v.onerror=()=>resolve(0);
@@ -3429,11 +3449,11 @@ const OUTIL_TRANSCRIPT = {
     }, required:["avant","apres"]}, description:"Les remplacements notables effectués."}
   }, required:["texte"]}
 };
-async function visCorriger(){
+async function visCorriger(silencieux){
   const t=(VIS.transcript||"").trim();
-  if(t.length<15){ flash("Transcription trop courte pour être corrigée", true); return; }
+  if(t.length<15){ if(!silencieux) flash("Transcription trop courte pour être corrigée", true); return; }
   const v=visVocabulaire();
-  VIS.busy=true; vVisite();
+  VIS.busy=true; if(!silencieux) vVisite();
   try{
     const data=await aiRequete({model:"claude-sonnet-4-5", max_tokens:2000,
       system:`Tu corriges la transcription automatique d'un technicien qui filme une installation de
@@ -3458,16 +3478,155 @@ RÈGLES
     VIS.transcriptBrut=t;
     VIS.transcript=r.texte;
     VIS.corrections=r.corrections||[];
-    VIS.busy=false; vVisite();
-    flash((VIS.corrections.length||0)+" correction(s) appliquée(s)");
-  }catch(e){ VIS.busy=false; VIS.erreur=e.message; vVisite(); }
+    if(!silencieux){ VIS.busy=false; vVisite(); flash((VIS.corrections.length||0)+" correction(s) appliquée(s)"); }
+  }catch(e){ if(!silencieux){ VIS.busy=false; VIS.erreur=e.message; vVisite(); } else throw e; }
+}
+
+
+/* -------------------------------------------------------------------------
+   TRANSCRIPTION AUDIO — l'audio de la visite est transcrit automatiquement
+   -------------------------------------------------------------------------
+   Le navigateur ne sait pas transcrire le son d'un fichier importé, et sa
+   reconnaissance vocale écorche le vocabulaire technique. L'audio est donc
+   envoyé à un service de transcription, avec le vocabulaire du métier en
+   amorce. Contrainte : une fonction Netlify accepte un corps limité, donc
+   l'audio est décodé, ramené en mono 16 kHz et découpé en tranches.
+   ------------------------------------------------------------------------- */
+const AUDIO_ENDPOINT_DEFAUT = "/.netlify/functions/transcribe";
+function audioEndpoint(){ return localStorage.getItem("equilibrage_audio_endpoint") || AUDIO_ENDPOINT_DEFAUT; }
+const AUDIO_TAUX   = 16000;   /* 16 kHz : le format attendu par les moteurs de transcription */
+const AUDIO_TRANCHE= 60;      /* secondes par tranche envoyée                                */
+const AUDIO_MAX_B64= 3.6e6;   /* garde-fou : au-delà, la fonction refuserait le corps         */
+
+function wavBlob(f32, taux){
+  const n=f32.length, buf=new ArrayBuffer(44+n*2), v=new DataView(buf);
+  const w=(o,s)=>{ for(let i=0;i<s.length;i++) v.setUint8(o+i, s.charCodeAt(i)); };
+  w(0,"RIFF"); v.setUint32(4,36+n*2,true); w(8,"WAVE"); w(12,"fmt ");
+  v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+  v.setUint32(24,taux,true); v.setUint32(28,taux*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+  w(36,"data"); v.setUint32(40,n*2,true);
+  let o=44;
+  for(let i=0;i<n;i++){ const s=Math.max(-1,Math.min(1,f32[i])); v.setInt16(o, s<0? s*0x8000 : s*0x7fff, true); o+=2; }
+  return new Blob([buf],{type:"audio/wav"});
+}
+function blobB64(blob){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(String(r.result).split(",")[1]);
+    r.onerror=()=>rej(new Error("Lecture du fichier audio impossible"));
+    r.readAsDataURL(blob);
+  });
+}
+/* Décode n'importe quelle source (blob enregistré ou fichier vidéo importé),
+   la ramène en mono 16 kHz, et la découpe en tranches de 60 s.               */
+async function audioTranches(source){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC) throw new Error("Ce navigateur ne sait pas décoder l'audio.");
+  const brut=await source.arrayBuffer();
+  const ctx=new AC();
+  let dec;
+  try{ dec=await ctx.decodeAudioData(brut.slice(0)); }
+  catch(e){ try{ ctx.close(); }catch(_){}
+    throw new Error("Le son de ce fichier n'a pas pu être décodé par le navigateur."); }
+  try{ ctx.close(); }catch(_){}
+  if(!dec || !dec.duration) throw new Error("Aucun son exploitable dans ce fichier.");
+  /* rééchantillonnage hors temps réel */
+  let data, taux=AUDIO_TAUX;
+  try{
+    const off=new OfflineAudioContext(1, Math.ceil(dec.duration*AUDIO_TAUX), AUDIO_TAUX);
+    const src=off.createBufferSource(); src.buffer=dec; src.connect(off.destination); src.start();
+    data=(await off.startRendering()).getChannelData(0);
+  }catch(e){
+    /* certains navigateurs refusent un taux arbitraire : on garde le taux d'origine */
+    data=dec.getChannelData(0); taux=dec.sampleRate;
+  }
+  const parTranche=Math.floor(taux*AUDIO_TRANCHE), out=[];
+  for(let i=0;i<data.length;i+=parTranche) out.push(wavBlob(data.subarray(i,Math.min(i+parTranche,data.length)), taux));
+  return out;
+}
+/* Amorce de vocabulaire envoyée au moteur de transcription : c'est elle qui
+   évite « vanne stade » au lieu de STAD, ou « oven trop » au lieu d'Oventrop. */
+function audioAmorce(){
+  const v=visVocabulaire();
+  return "Visite technique d'une installation de chauffage. Vocabulaire attendu : "
+    + v.marques.join(", ") + ". Modèles : " + v.modeles.slice(0,40).join(", ")
+    + ". Termes : " + v.termes.join(", ") + ".";
+}
+async function audioTranscrire(source, onProgres){
+  const tranches=await audioTranches(source);
+  const amorce=audioAmorce();
+  const morceaux=[];
+  for(let i=0;i<tranches.length;i++){
+    if(onProgres) onProgres(i, tranches.length);
+    const b64=await blobB64(tranches[i]);
+    if(b64.length>AUDIO_MAX_B64) throw new Error("Tranche audio trop lourde, réduisez la durée de la visite.");
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(), 60000);
+    let resp;
+    try{
+      resp=await fetch(audioEndpoint(),{method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({audio:b64, mime:"audio/wav", nom:"visite_"+(i+1), prompt:amorce}),
+        signal:ctrl.signal});
+    }catch(e){ clearTimeout(to);
+      throw new Error(e.name==="AbortError"? "La transcription a mis trop de temps." : "Service de transcription injoignable."); }
+    clearTimeout(to);
+    const txt=await resp.text();
+    let data=null; try{ data=JSON.parse(txt); }catch(e){}
+    if(!resp.ok){
+      const msg=(data&&data.error)||txt.slice(0,200);
+      if(resp.status===404 || resp.status===405) throw new Error("__NON_DEPLOYE__");
+      if(String(msg).includes("OPENAI_API_KEY")) throw new Error("__NON_CONFIGURE__");
+      throw new Error(String(msg));
+    }
+    if(data && data.texte) morceaux.push(data.texte);
+  }
+  return morceaux.join(" ").trim();
+}
+
+/* ---------------- chaîne complète, automatique ----------------
+   Après l'arrêt du film, plus rien n'est demandé à l'utilisateur jusqu'aux
+   questions : son, transcription, correction du vocabulaire, lecture des
+   images et synthèse s'enchaînent seuls. Chaque étape a un repli : si la
+   transcription échoue, on garde ce que le navigateur a entendu ; s'il n'a
+   rien entendu, on continue avec les seules images.                        */
+async function visPipeline(){
+  VIS.busy=true; VIS.erreur=""; VIS.avertAudio=""; VIS.phase="analyse"; vVisite();
+  if(VIS.audioSource){
+    try{
+      VIS.etape="Transcription de ce que vous avez dit…"; VIS.progres=0.05; vVisite();
+      const t=await audioTranscrire(VIS.audioSource,(i,n)=>{
+        VIS.etape="Transcription "+(i+1)+" / "+n+"…"; VIS.progres=0.05+0.25*(i/n); vVisite();
+      });
+      if(t && t.length>3){ VIS.transcript=t; VIS.transcriptSource="service"; }
+    }catch(e){
+      VIS.transcriptSource = VIS.transcript? "navigateur" : "";
+      VIS.avertAudio = (e.message==="__NON_CONFIGURE__")
+        ? "La transcription automatique n'est pas activée : la variable OPENAI_API_KEY manque dans les réglages Netlify."
+        : (e.message==="__NON_DEPLOYE__")
+        ? "Le service de transcription n'est pas disponible sur ce site (fonction transcribe absente ou page ouverte hors du site déployé)."
+        : "La transcription automatique a échoué : "+e.message;
+    }
+  } else if(VIS.transcript){ VIS.transcriptSource="navigateur"; }
+
+  if(VIS.transcript && VIS.transcript.length>15 && VIS.transcriptSource!=="service"){
+    try{
+      VIS.etape="Correction du vocabulaire technique…"; VIS.progres=0.32; vVisite();
+      await visCorriger(true);
+    }catch(e){}
+  }
+  await visAnalyser(true);
 }
 
 /* ---------------- analyse ---------------- */
-async function visAnalyser(){
+async function visAnalyser(enchaine){
   const sel=visSelection();
-  if(!sel.length && !VIS.transcript && !VIS.notes){ flash("Ajoutez au moins une image ou une note", true); return; }
-  VIS.busy=true; VIS.erreur=""; VIS.phase="analyse"; VIS.observations=[]; VIS.progres=0;
+  if(!sel.length && !VIS.transcript && !VIS.notes){
+    VIS.busy=false; VIS.phase="review";
+    VIS.erreur="Il n'y a ni image ni commentaire à analyser. Filmez à nouveau, importez des photos, ou écrivez vos remarques.";
+    vVisite(); return;
+  }
+  const base=enchaine?0.35:0, amp=enchaine?0.65:1;
+  VIS.busy=true; if(!enchaine) VIS.erreur=""; VIS.phase="analyse"; VIS.observations=[]; VIS.progres=base;
   VIS.etape="Préparation des images…"; vVisite();
   try{
     /* --- lots d'images --- */
@@ -3475,7 +3634,7 @@ async function visAnalyser(){
     for(let i=0;i<sel.length;i+=VIS_LOT) lots.push(sel.slice(i,i+VIS_LOT));
     for(let i=0;i<lots.length;i++){
       VIS.etape="Lecture des images "+(i*VIS_LOT+1)+" à "+Math.min((i+1)*VIS_LOT, sel.length)+" sur "+sel.length+"…";
-      VIS.progres=(i)/(lots.length+1); vVisite();
+      VIS.progres=base+amp*(i/(lots.length+1)); vVisite();
       const contenu=[];
       lots[i].forEach((f,j)=>{
         contenu.push({type:"text", text:"Image "+(i*VIS_LOT+j+1)+(f.manuelle?" (photo prise volontairement par l'intervenant, donc importante)":"")+" :"});
@@ -3489,7 +3648,7 @@ async function visAnalyser(){
       if(obs) VIS.observations.push(obs);
     }
     /* --- synthèse + questions --- */
-    VIS.etape="Analyse d'ensemble et préparation des questions…"; VIS.progres=lots.length/(lots.length+1); vVisite();
+    VIS.etape="Analyse d'ensemble et préparation des questions…"; VIS.progres=base+amp*(lots.length/(lots.length+1)); vVisite();
     const dit=(VIS.transcript||"").trim(), notes=(VIS.notes||"").trim();
     const resume=VIS.observations.map((o,i)=>
       "LOT "+(i+1)+"\n"+
@@ -3667,7 +3826,7 @@ function vVisite(){
     <div class="card">
       <h2>📹 Filmez votre installation</h2>
       <p class="sub">Vous filmez, vous expliquez à voix haute ce que vous voyez. L'IA regarde le film, écoute ce que vous dites, puis vous pose les questions qui manquent. Elle construit ensuite le chantier toute seule.</p>
-      <div class="note g"><b>Vous n'avez rien à savoir à l'avance.</b> Filmez, parlez normalement, et répondez aux questions. Si vous ne savez pas répondre, dites-le : l'IA vous expliquera où trouver l'information.</div>
+      <div class="note g"><b>Vous n'avez rien à savoir à l'avance, et rien à faire après.</b> Vous appuyez sur stop, et tout s'enchaîne tout seul : le son est transcrit, les images sont lues, le chantier est construit. Il ne vous reste qu'à répondre aux questions de l'IA et à valider. Si vous ne savez pas répondre à une question, dites-le : elle vous expliquera où trouver l'information.</div>
     </div>
 
     <div class="card">
@@ -3705,8 +3864,8 @@ function vVisite(){
     $("#visVid").onclick=()=>visFichier("video/*", async f=>{
       VIS.phase="analyse"; VIS.etape="Lecture de la vidéo…"; VIS.progres=0; vVisite();
       const n=await visImportVideo(f);
-      VIS.phase="review"; vVisite();
-      flash(n? n+" images extraites":"Aucune image extraite", !n);
+      if(!n && !VIS.transcript){ VIS.phase="review"; VIS.erreur="Aucune image n'a pu être extraite de cette vidéo."; vVisite(); return; }
+      visPipeline();          /* le son et les images enchaînent tout seuls */
     });
     $("#visPh").onclick=()=>visFichier("image/*", async fs=>{
       await visImportPhotos(fs); VIS.phase="review"; vVisite(); flash(VIS.frames.length+" photo(s)");
@@ -3775,32 +3934,34 @@ function vVisite(){
     <div class="card">
       <h3>🎙️ Ce que vous avez dit</h3>
       ${VIS.transcript? `
-        <p class="sub">Relisez et corrigez : la reconnaissance vocale écorche souvent les noms de marques. Ce texte pèse autant que les images dans l'analyse.</p>
+        <p class="sub">Relisez et corrigez si nécessaire. Ce texte pèse autant que les images dans l'analyse.
+          ${VIS.transcriptSource==="service"? '<span class="tag ok">transcription automatique</span>' : VIS.transcriptSource? '<span class="tag warn">reconnaissance du navigateur</span>':""}</p>
         <textarea id="visTr" style="min-height:130px;font-size:13px">${esc(VIS.transcript)}</textarea>
         <div class="row" style="margin-top:8px">
           <button class="btn sm" id="visCor" ${VIS.busy?"disabled":""}>✨ Corriger le vocabulaire technique</button>
           ${VIS.transcriptBrut? '<button class="btn sm gho" id="visBrut">Revenir au texte brut</button>':""}
         </div>
         ${VIS.corrections&&VIS.corrections.length? '<div class="note g" style="margin-top:8px"><b>Corrections appliquées :</b><br>'+VIS.corrections.map(c=>esc(c.avant)+" → <b>"+esc(c.apres)+"</b>").join(" · ")+'<br><small>Si l\'une est fausse, corrigez-la directement dans le texte ci-dessus.</small></div>':""}`
-        : '<div class="note">Rien n\'a été transcrit — soit votre navigateur ne sait pas le faire, soit la vidéo a été importée (le son d\'un fichier importé n\'est pas transcrit). Écrivez ci-dessous ce que vous savez : <b>c\'est au moins aussi important que les images</b>.</div>'}
+        : '<div class="note">Aucun commentaire n\'a été capté. Écrivez ci-dessous ce que vous savez : <b>c\'est au moins aussi important que les images</b>.</div>'}
       <label class="f" style="margin-top:12px"><span>Ce que vous savez en plus (dictez avec le micro de votre clavier)</span>
         <textarea id="visNotes" style="min-height:110px" placeholder="Exemple : immeuble de 5 étages, 4 cages d'escalier. Les 2 derniers étages de la cage C sont froids depuis 2 ans. La chaudière est neuve. Il y a de l'eau chaude sanitaire bouclée. Personne n'a jamais équilibré.">${esc(VIS.notes)}</textarea></label>
       <div class="hint">Dites tout ce que vous savez, même en désordre : ce qui chauffe mal, le nombre d'étages et de colonnes, ce que le client vous a raconté, ce que vous avez déjà essayé.</div>
     </div>
 
+    ${VIS.avertAudio? '<div class="note d">'+esc(VIS.avertAudio)+'</div>':""}
     ${VIS.erreur? '<div class="note d"><b>L\'analyse a échoué.</b><br>'+esc(VIS.erreur)+'</div>':""}
 
     <div class="card">
-      <button class="btn pri wide" id="visAn" style="padding:16px;font-size:15px">🧠 Analyser avec l'IA</button>
+      <button class="btn pri wide" id="visAn" style="padding:16px;font-size:15px">🧠 ${VIS.synthese?"Relancer l'analyse":"Analyser avec l'IA"}</button>
       <div class="hint" style="margin-top:8px">L'analyse prend en général 30 secondes à 2 minutes selon le nombre d'images.</div>
       <button class="btn gho wide" id="visReset" style="margin-top:10px">Tout recommencer</button>
     </div>`;
     visBindStrip();
     $("#visNotes").oninput=e=>{ VIS.notes=e.target.value; };
     if($("#visTr")) $("#visTr").oninput=e=>{ VIS.transcript=e.target.value; };
-    if($("#visCor")) $("#visCor").onclick=visCorriger;
+    if($("#visCor")) $("#visCor").onclick=()=>visCorriger(false);
     if($("#visBrut")) $("#visBrut").onclick=()=>{ VIS.transcript=VIS.transcriptBrut; VIS.corrections=[]; delete VIS.transcriptBrut; vVisite(); };
-    $("#visAn").onclick=visAnalyser;
+    $("#visAn").onclick=()=>visPipeline();
     $("#visRefilm").onclick=visDemarrer;
     $("#visPlus").onclick=()=>visFichier("image/*", async fs=>{ await visImportPhotos(fs); vVisite(); }, true);
     $("#visReset").onclick=()=>{ if(confirm("Effacer la visite en cours ?")){ visInit(); vVisite(); } };
@@ -3815,7 +3976,13 @@ function vVisite(){
       <h2 style="justify-content:center">${P_==="analyse"?"L'IA analyse votre visite":"L'IA construit votre chantier"}</h2>
       <p class="sub" style="margin-top:8px">${esc(VIS.etape||"…")}</p>
       <div class="bar" style="margin-top:16px"><i style="width:${Math.round((VIS.progres||0)*100)}%;background:var(--amber)"></i></div>
-      <div class="hint" style="margin-top:14px">Ne fermez pas cette page. Les images partent par petits lots pour éviter les coupures.</div>
+      <div style="margin-top:20px;text-align:left;max-width:330px;margin-left:auto;margin-right:auto">
+        ${[["Transcription de votre commentaire",0.30],["Correction du vocabulaire technique",0.35],
+           ["Lecture des images",0.95],["Synthèse et questions",1]].map(([t,seuil])=>
+          `<div style="display:flex;gap:9px;align-items:center;padding:5px 0;font-size:12.5px;color:${(VIS.progres||0)>=seuil?"var(--muted)":"var(--txt)"}">
+             <span style="width:16px">${(VIS.progres||0)>=seuil?"✓":"·"}</span><span>${t}</span></div>`).join("")}
+      </div>
+      <div class="hint" style="margin-top:14px">Ne fermez pas cette page. Le son et les images partent par petits lots pour éviter les coupures.</div>
     </div>`;
     return;
   }
@@ -3830,6 +3997,14 @@ function vVisite(){
       <div class="note i">${esc(s.resume||"—")}</div>
       ${s.type_installation? '<div class="row" style="margin-top:10px"><span class="tag amber">'+esc(s.type_installation)+'</span></div>':""}
     </div>
+    ${VIS.avertAudio? '<div class="note d">'+esc(VIS.avertAudio)+(VIS.transcript?" L'analyse s'est appuyée sur ce que le navigateur avait entendu.":" L'analyse s'est appuyée uniquement sur les images.")+'</div>':""}
+    ${VIS.transcript? `<div class="card">
+      <div class="spread"><h3 style="margin:0">🎙️ Ce que l'IA a entendu</h3>
+        <span class="tag ${VIS.transcriptSource==="service"?"ok":"warn"}">${VIS.transcriptSource==="service"?"transcription automatique":"reconnaissance du navigateur"}</span></div>
+      <div class="live" style="max-height:160px;margin-top:10px">${esc(VIS.transcript)}</div>
+      <button class="btn sm" style="margin-top:10px" id="visFix">✎ Corriger ce que j'ai dit et relancer l'analyse</button>
+      <div class="hint" style="margin-top:6px">Une erreur dans ce texte se propage à tout le chantier : si un nom de vanne ou un nombre est faux, corrigez-le maintenant.</div>
+    </div>`:""}
     ${(s.alertes&&s.alertes.length)? '<div class="card"><h3>⚠️ Points à traiter en priorité</h3><ul class="bul">'+s.alertes.map(a=>"<li>"+esc(a)+"</li>").join("")+'</ul></div>':""}
     ${(s.materiel_identifie&&s.materiel_identifie.length)? `<div class="card">
       <h3>Matériel identifié</h3>
@@ -3845,6 +4020,7 @@ function vVisite(){
     </div>`;
     $("#visQ").onclick=()=>{ VIS.phase="questions"; VIS.qIdx=0; vVisite(); };
     $("#visBack").onclick=()=>{ VIS.phase="review"; vVisite(); };
+    if($("#visFix")) $("#visFix").onclick=()=>{ VIS.phase="review"; vVisite(); };
     return;
   }
 

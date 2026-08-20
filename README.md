@@ -77,9 +77,13 @@ notice du fabricant avant usage contractuel.
 L'onglet **Assistant IA** appelle l'API Claude via la fonction Netlify déjà présente
 dans le dépôt : `netlify/functions/claude-proxy.js`. La clé reste côté serveur.
 
-**Prérequis** : définir la variable d'environnement `ANTHROPIC_API_KEY` dans Netlify
-(Site settings → Environment variables), puis redéployer. Sans elle, l'assistant
-affiche un message explicite et l'application reste entièrement utilisable sans lui.
+**Prérequis** : définir les variables d'environnement dans Netlify
+(Site settings → Environment variables), puis redéployer :
+
+| Variable | Sert à | Sans elle |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | analyse des images, questions, construction du chantier, assistant | l'application reste utilisable, sans IA |
+| `OPENAI_API_KEY` | transcription du commentaire parlé | repli sur la reconnaissance vocale du navigateur |
 
 À chaque question, l'assistant reçoit automatiquement :
 - la base de connaissances de l'application (formules, méthodes, organes, appareils) ;
@@ -117,12 +121,22 @@ L'application procède donc ainsi, entièrement côté navigateur :
 
 **Le film ne quitte jamais l'appareil** : seules les images clés et le texte sont transmis.
 
-**Relecture de la transcription** — le texte reconnu est éditable avant l'analyse, et un
-bouton « corriger le vocabulaire technique » fait relire la transcription par Claude avec
-le vocabulaire réel de l'application (toutes les marques et tous les modèles de la
-bibliothèque, plus les termes du métier). Les remplacements sont listés pour pouvoir en
-refuser un. Limite connue : le son d'une **vidéo importée** n'est pas transcrit, seule la
-capture en direct l'est — il faut alors écrire ou dicter ses remarques.
+**Tout est automatique après l'appui sur stop** : transcription du son, correction du
+vocabulaire, lecture des images, synthèse et questions s'enchaînent sans intervention.
+L'utilisateur n'a plus qu'à répondre aux questions et à valider le chantier proposé.
+
+**Transcription du son** — l'audio est enregistré séparément à 32 kbit/s pendant le film
+(et extrait du fichier pour une vidéo importée), décodé dans le navigateur, ramené en
+mono 16 kHz, découpé en tranches de 60 s puis envoyé à `netlify/functions/transcribe.js`.
+Le vocabulaire de l'application (toutes les marques, tous les modèles, les unités et les
+termes du métier) est passé en amorce au moteur de transcription : c'est ce qui évite
+« vanne stade » au lieu de STAD. Modèle par défaut `gpt-4o-mini-transcribe`
+(~0,003 $/minute), repli possible sur `gpt-4o-transcribe` ou `whisper-1`.
+
+**Prérequis** : variable d'environnement `OPENAI_API_KEY` dans Netlify. Sans elle,
+l'application le signale et se rabat sur la reconnaissance vocale du navigateur, puis
+fait relire ce texte par Claude avec le même vocabulaire. Le texte reste éditable avant
+analyse, et les corrections effectuées sont listées pour pouvoir en refuser une.
 
 **Garde-fous côté application** : identifiants de vanne inconnus ignorés, DN invalides
 écartés, boucles de parenté impossibles, éléments orphelins rattachés à la chaufferie,
