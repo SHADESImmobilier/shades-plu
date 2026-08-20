@@ -3097,6 +3097,7 @@ function visInit(){
   VIS = {phase:"intro", stream:null, rec:null, chunks:[], videoURL:null,
          frames:[], transcript:"", interim:"", notes:"", reco:null, ecoute:false,
          timer:null, t0:0, duree:0, dernier:null,
+         transcriptBrut:null, corrections:[],
          observations:[], synthese:null, questions:[], reponses:{}, qIdx:0,
          plan:null, busy:false, etape:"", progres:0, erreur:""};
 }
@@ -3280,6 +3281,24 @@ function visPoids(list){
   return ko<100? "&lt; 0,1" : String(Math.round(ko/1024*10)/10).replace(".",",");
 }
 
+/* Vocabulaire technique du métier : sert à corriger la reconnaissance vocale,
+   qui écorche systématiquement les noms de marques et les unités.               */
+function visVocabulaire(){
+  const marques=[...new Set(VALVES.map(v=>v.marque).concat(INSTRUMENTS.map(i=>i.marque)))];
+  const modeles=VALVES.map(v=>v.modele).concat(INSTRUMENTS.map(i=>i.modele));
+  const termes=["équilibrage","équilibrer","perte de charge","pression différentielle","dp",
+    "kPa","mCE","bar","Kv","Kvs","débit","l/h","m³/h","DN15","DN20","DN25","DN32","DN40","DN50",
+    "vanne d'équilibrage","vanne de réglage","double réglage","préréglage","prise de pression",
+    "volant","tours","venturi","limiteur de débit","PICV","DPCV","régulateur de pression différentielle",
+    "colonne","antenne","émetteur","radiateur","ventilo-convecteur","plancher chauffant","CTA","batterie",
+    "chaufferie","sous-station","échangeur","bouteille de découplage","circulateur","pompe",
+    "vase d'expansion","désembouage","purge","filtre","pot à boue","by-pass","soupape différentielle",
+    "robinet thermostatique","tête thermostatique","loi d'eau","régulation","courbe de chauffe",
+    "ECS","eau chaude sanitaire","boucle","bouclage","légionelle","calorifuge","ballon",
+    "départ","retour","delta T","régime 70/50","monotube","bitube","glycol","MPG","MEG"];
+  return {marques, modeles, termes};
+}
+
 /* ---------------- appels API ---------------- */
 async function aiRequete(payload, timeoutMs){
   const ctrl=new AbortController();
@@ -3395,6 +3414,54 @@ RÈGLES ABSOLUES
 - Tes questions ne portent que sur ce qui est réellement nécessaire pour équilibrer, et
   jamais sur une information déjà visible sur les images ou déjà dite.
 - Une question = une seule information. Tu proposes des réponses toutes faites dès que possible.`;
+
+/* La reconnaissance vocale du navigateur écorche les noms techniques : « vanne stade »
+   pour STAD, « oven trop » pour Oventrop, « dénévingt » pour DN20. Cette passe corrige
+   la transcription à partir du vocabulaire réel de l'application, et montre ce qui a
+   été changé pour que l'utilisateur puisse refuser une correction abusive.           */
+const OUTIL_TRANSCRIPT = {
+  name:"corriger_transcription",
+  description:"Corrige les erreurs de reconnaissance vocale dans une transcription de visite technique.",
+  input_schema:{type:"object", properties:{
+    texte:{type:"string", description:"La transcription corrigée, ponctuée, sans rien ajouter ni retirer sur le fond."},
+    corrections:{type:"array", items:{type:"object", properties:{
+      avant:{type:"string"}, apres:{type:"string"}
+    }, required:["avant","apres"]}, description:"Les remplacements notables effectués."}
+  }, required:["texte"]}
+};
+async function visCorriger(){
+  const t=(VIS.transcript||"").trim();
+  if(t.length<15){ flash("Transcription trop courte pour être corrigée", true); return; }
+  const v=visVocabulaire();
+  VIS.busy=true; vVisite();
+  try{
+    const data=await aiRequete({model:"claude-sonnet-4-5", max_tokens:2000,
+      system:`Tu corriges la transcription automatique d'un technicien qui filme une installation de
+chauffage en la commentant. La reconnaissance vocale écorche systématiquement les noms de
+marques, les références et les unités.
+
+MARQUES POSSIBLES : ${v.marques.join(", ")}
+MODÈLES POSSIBLES : ${v.modeles.join(", ")}
+VOCABULAIRE DU MÉTIER : ${v.termes.join(", ")}
+
+RÈGLES
+- Tu corriges uniquement l'orthographe, la ponctuation et les termes techniques mal reconnus.
+- Tu ne reformules pas, tu n'ajoutes rien, tu ne supprimes rien sur le fond.
+- Tu ne remplaces un mot par un nom de marque que si la ressemblance phonétique est nette.
+  Dans le doute, tu laisses le mot tel quel : une fausse correction est pire qu'une faute.
+- Les nombres et les unités sont écrits proprement : « dénévingt » devient DN20,
+  « vingt kilopascals » devient 20 kPa.`,
+      messages:[{role:"user", content:"Transcription brute à corriger :\n\n"+t}],
+      tools:[OUTIL_TRANSCRIPT], tool_choice:{type:"tool", name:"corriger_transcription"}}, 45000);
+    const r=aiOutilResultat(data,"corriger_transcription");
+    if(!r||!r.texte) throw new Error("Correction impossible.");
+    VIS.transcriptBrut=t;
+    VIS.transcript=r.texte;
+    VIS.corrections=r.corrections||[];
+    VIS.busy=false; vVisite();
+    flash((VIS.corrections.length||0)+" correction(s) appliquée(s)");
+  }catch(e){ VIS.busy=false; VIS.erreur=e.message; vVisite(); }
+}
 
 /* ---------------- analyse ---------------- */
 async function visAnalyser(){
@@ -3707,8 +3774,15 @@ function vVisite(){
 
     <div class="card">
       <h3>🎙️ Ce que vous avez dit</h3>
-      ${VIS.transcript? '<div class="live" style="max-height:200px">'+esc(VIS.transcript)+'</div>'
-        : '<div class="note">Rien n\'a été transcrit. Écrivez ci-dessous ce que vous savez : c\'est au moins aussi important que les images.</div>'}
+      ${VIS.transcript? `
+        <p class="sub">Relisez et corrigez : la reconnaissance vocale écorche souvent les noms de marques. Ce texte pèse autant que les images dans l'analyse.</p>
+        <textarea id="visTr" style="min-height:130px;font-size:13px">${esc(VIS.transcript)}</textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn sm" id="visCor" ${VIS.busy?"disabled":""}>✨ Corriger le vocabulaire technique</button>
+          ${VIS.transcriptBrut? '<button class="btn sm gho" id="visBrut">Revenir au texte brut</button>':""}
+        </div>
+        ${VIS.corrections&&VIS.corrections.length? '<div class="note g" style="margin-top:8px"><b>Corrections appliquées :</b><br>'+VIS.corrections.map(c=>esc(c.avant)+" → <b>"+esc(c.apres)+"</b>").join(" · ")+'<br><small>Si l\'une est fausse, corrigez-la directement dans le texte ci-dessus.</small></div>':""}`
+        : '<div class="note">Rien n\'a été transcrit — soit votre navigateur ne sait pas le faire, soit la vidéo a été importée (le son d\'un fichier importé n\'est pas transcrit). Écrivez ci-dessous ce que vous savez : <b>c\'est au moins aussi important que les images</b>.</div>'}
       <label class="f" style="margin-top:12px"><span>Ce que vous savez en plus (dictez avec le micro de votre clavier)</span>
         <textarea id="visNotes" style="min-height:110px" placeholder="Exemple : immeuble de 5 étages, 4 cages d'escalier. Les 2 derniers étages de la cage C sont froids depuis 2 ans. La chaudière est neuve. Il y a de l'eau chaude sanitaire bouclée. Personne n'a jamais équilibré.">${esc(VIS.notes)}</textarea></label>
       <div class="hint">Dites tout ce que vous savez, même en désordre : ce qui chauffe mal, le nombre d'étages et de colonnes, ce que le client vous a raconté, ce que vous avez déjà essayé.</div>
@@ -3723,6 +3797,9 @@ function vVisite(){
     </div>`;
     visBindStrip();
     $("#visNotes").oninput=e=>{ VIS.notes=e.target.value; };
+    if($("#visTr")) $("#visTr").oninput=e=>{ VIS.transcript=e.target.value; };
+    if($("#visCor")) $("#visCor").onclick=visCorriger;
+    if($("#visBrut")) $("#visBrut").onclick=()=>{ VIS.transcript=VIS.transcriptBrut; VIS.corrections=[]; delete VIS.transcriptBrut; vVisite(); };
     $("#visAn").onclick=visAnalyser;
     $("#visRefilm").onclick=visDemarrer;
     $("#visPlus").onclick=()=>visFichier("image/*", async fs=>{ await visImportPhotos(fs); vVisite(); }, true);

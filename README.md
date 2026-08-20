@@ -117,6 +117,13 @@ L'application procède donc ainsi, entièrement côté navigateur :
 
 **Le film ne quitte jamais l'appareil** : seules les images clés et le texte sont transmis.
 
+**Relecture de la transcription** — le texte reconnu est éditable avant l'analyse, et un
+bouton « corriger le vocabulaire technique » fait relire la transcription par Claude avec
+le vocabulaire réel de l'application (toutes les marques et tous les modèles de la
+bibliothèque, plus les termes du métier). Les remplacements sont listés pour pouvoir en
+refuser un. Limite connue : le son d'une **vidéo importée** n'est pas transcrit, seule la
+capture en direct l'est — il faut alors écrire ou dicter ses remarques.
+
 **Garde-fous côté application** : identifiants de vanne inconnus ignorés, DN invalides
 écartés, boucles de parenté impossibles, éléments orphelins rattachés à la chaufferie,
 débit fourni par l'IA prioritaire sur une liste d'émetteurs forcément incomplète.
