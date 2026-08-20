@@ -195,6 +195,46 @@ details>summary:hover{background:rgba(255,255,255,.03)}
 .mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 .warn-inline{color:#e8877f;font-size:11.5px}
 
+/* ---------- VISITE FILMÉE / MODE GUIDÉ ---------- */
+.camwrap{position:relative;border-radius:var(--r);overflow:hidden;background:#000;border:1px solid var(--line2)}
+.camwrap video{width:100%;display:block;max-height:58dvh;object-fit:cover;background:#000}
+.camhud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:linear-gradient(rgba(0,0,0,.6),transparent);font-size:12px}
+.recdot{width:9px;height:9px;border-radius:50%;background:#d4574e;animation:pulse 1.1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.camfoot{position:absolute;left:0;right:0;bottom:0;padding:12px;display:flex;gap:10px;align-items:center;justify-content:center;background:linear-gradient(transparent,rgba(0,0,0,.72))}
+.bigrec{width:66px;height:66px;border-radius:50%;border:4px solid rgba(255,255,255,.85);background:#d4574e;cursor:pointer;flex-shrink:0;transition:.15s}
+.bigrec.stop{background:#fff;border-radius:16px;width:56px;height:56px}
+.bigrec:active{transform:scale(.93)}
+.shot{width:50px;height:50px;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14);color:#fff;font-size:19px;cursor:pointer;flex-shrink:0}
+.strip{display:flex;gap:6px;overflow-x:auto;padding:4px 0;scrollbar-width:thin}
+.strip figure{position:relative;flex:0 0 74px}
+.strip img{width:74px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--line2);display:block}
+.strip .kill{position:absolute;top:-5px;right:-5px;width:19px;height:19px;border-radius:50%;background:var(--bad);color:#fff;border:none;font-size:11px;line-height:1;cursor:pointer}
+.strip .star{position:absolute;bottom:2px;left:3px;font-size:10px;text-shadow:0 1px 3px #000}
+.live{background:var(--bg2);border:1px solid var(--line);border-radius:var(--rs);padding:10px 12px;font-size:12.5px;line-height:1.6;max-height:130px;overflow-y:auto;color:rgba(240,238,230,.8)}
+.live i{color:var(--faint);font-style:normal}
+
+.parc{display:grid;gap:10px}
+.pcard{display:flex;gap:13px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);cursor:pointer;transition:.15s;text-align:left;width:100%;font-family:inherit;color:inherit}
+.pcard:hover{border-color:var(--line2);background:var(--panel2)}
+.pcard.done{border-color:rgba(78,168,106,.4)}
+.pcard.now{border-color:var(--amber);box-shadow:0 0 0 1px rgba(224,165,61,.25)}
+.pcard.lock{opacity:.42;cursor:not-allowed}
+.pnum{width:36px;height:36px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;background:var(--panel2);border:1px solid var(--line2);color:var(--muted)}
+.pcard.done .pnum{background:var(--okdim);border-color:rgba(78,168,106,.5);color:#7fd398}
+.pcard.now .pnum{background:var(--amber);border-color:var(--amber);color:#171712}
+.pbody b{display:block;font-size:14.5px;font-weight:600;margin-bottom:2px}
+.pbody span{font-size:12.5px;color:var(--muted);line-height:1.5;display:block}
+.pbody em{font-style:normal;font-size:11.5px;color:var(--amber2);display:block;margin-top:5px}
+
+.qbox{border:1px solid var(--line2);border-radius:var(--r);padding:18px;background:var(--panel);margin-bottom:12px}
+.qbox h3{font-size:17px;line-height:1.35;color:var(--txt);text-transform:none;letter-spacing:0;margin:0 0 8px}
+.qwhy{font-size:12.5px;color:var(--muted);border-left:2px solid var(--line2);padding-left:10px;margin-bottom:14px;line-height:1.55}
+.qopt{display:block;width:100%;text-align:left;padding:13px 15px;border-radius:var(--rs);border:1px solid var(--line2);background:var(--bg2);margin-bottom:8px;cursor:pointer;font-size:14px;transition:.15s;font-family:inherit;color:inherit}
+.qopt:hover{border-color:var(--amber);background:var(--panel2)}
+.qopt.on{border-color:var(--amber);background:var(--amberdim);color:var(--amber2)}
+.qprog{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+
 /* ---------- IMPRESSION ---------- */
 @media print{
   body{background:#fff;color:#111;font-size:11px}
@@ -233,6 +273,8 @@ details>summary:hover{background:rgba(255,255,255,.03)}
   </header>
 
   <main>
+    <section class="view" id="v-parcours"></section>
+    <section class="view" id="v-visite"></section>
     <section class="view" id="v-projet"></section>
     <section class="view" id="v-reseau"></section>
     <section class="view" id="v-debits"></section>
@@ -1097,15 +1139,17 @@ function chartOf(n){
    7. NAVIGATION
    ------------------------------------------------------------------------- */
 const ONGLETS = [
-  {id:"projet",     lab:"Chantier"},
-  {id:"reseau",     lab:"Réseau"},
+  {id:"parcours",   lab:"🚦 Parcours",  simple:true},
+  {id:"visite",     lab:"📹 Visite",    simple:true},
+  {id:"projet",     lab:"Chantier",     simple:true},
+  {id:"reseau",     lab:"Réseau",       simple:true},
   {id:"debits",     lab:"Débits"},
   {id:"vannes",     lab:"Vannes"},
-  {id:"equilibrage",lab:"Équilibrage"},
-  {id:"ecs",        lab:"ECS"},
-  {id:"ia",         lab:"✨ Assistant IA"},
+  {id:"equilibrage",lab:"Équilibrage",  simple:true},
+  {id:"ecs",        lab:"ECS",          simple:true},
+  {id:"ia",         lab:"✨ Assistant IA", simple:true},
   {id:"outils",     lab:"Outils"},
-  {id:"rapport",    lab:"Rapport"},
+  {id:"rapport",    lab:"Rapport",      simple:true},
   {id:"aide",       lab:"Guide"}
 ];
 function go(v){
@@ -1115,18 +1159,27 @@ function go(v){
   window.scrollTo({top:0,behavior:"instant"});
   render();
 }
+function modeSimple(){ return localStorage.getItem("equilibrage_mode")!=="expert"; }
 function renderTabs(){
-  $("#tabs").innerHTML = ONGLETS.map(o=>'<button data-v="'+o.id+'"'+(o.id===VIEW?' class="on"':'')+'>'+o.lab+'</button>').join("");
-  $$("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+  const list = modeSimple()? ONGLETS.filter(o=>o.simple) : ONGLETS;
+  $("#tabs").innerHTML = list.map(o=>'<button data-v="'+o.id+'"'+(o.id===VIEW?' class="on"':'')+'>'+o.lab+'</button>').join("")
+    + '<button data-v="__mode" style="color:var(--faint)">'+(modeSimple()?"Mode expert →":"← Mode simple")+'</button>';
+  $$("nav.tabs button").forEach(b=>b.onclick=()=>{
+    if(b.dataset.v==="__mode"){
+      localStorage.setItem("equilibrage_mode", modeSimple()?"expert":"simple");
+      renderTabs(); render(); flash(modeSimple()?"Mode simple":"Mode expert"); return;
+    }
+    go(b.dataset.v);
+  });
 }
 function render(){
-  if(!P){ VIEW = (VIEW==="aide"||VIEW==="vannes"||VIEW==="outils"||VIEW==="ia") ? VIEW : "projet"; }
+  if(!P){ VIEW = ["aide","vannes","outils","ia","visite","parcours","projet"].includes(VIEW) ? VIEW : "parcours"; }
   $$(".view").forEach(s=>s.classList.toggle("on", s.id==="v-"+VIEW));
   $$("nav.tabs button").forEach(b=>b.classList.toggle("on", b.dataset.v===VIEW));
   $("#brandSub").textContent = P ? P.nom : "Assistant d'équilibrage hydraulique";
   const f = {projet:vProjet, reseau:vReseau, debits:vDebits, vannes:vVannes,
              equilibrage:vEquilibrage, ecs:vEcs, outils:vOutils, rapport:vRapport,
-             aide:vAide, ia:vIA}[VIEW];
+             aide:vAide, ia:vIA, parcours:vParcours, visite:vVisite}[VIEW];
   if(f) f();
   if(VIEW!=="equilibrage") $("#wizbar").style.display="none";
 }
@@ -2590,6 +2643,15 @@ function vRapport(){
     ${Object.entries(P.ecs.releves).filter(([k,v])=>v!=null).map(([k,v])=>{const n=noeud(k);return `<tr><td>${n?esc(n.nom):k}</td><td class="num mono">${fx(v,1)}</td><td>${v>=P.ecs.tRetour?'<span class="tag ok">conforme</span>':'<span class="tag bad">non conforme</span>'}</td></tr>`;}).join("")}
     </tbody></table></div></div>`:""}
 
+  ${P.visite? `<div class="card">
+    <h3>Visite préalable analysée</h3>
+    <p class="sub">Analyse assistée par IA du ${esc((P.visite.date||"").slice(0,10))}. À valeur indicative : les constats sont à confirmer sur site.</p>
+    ${P.visite.resume? '<div class="note i">'+esc(P.visite.resume)+'</div>':""}
+    ${P.visite.questions&&P.visite.questions.length? '<div class="tbl-wrap"><table><tbody>'+P.visite.questions.map(q=>`<tr><td style="width:55%;color:var(--faint)">${esc(q.q)}</td><td>${esc(q.r||"non renseignée")}</td></tr>`).join("")+'</tbody></table></div>':""}
+    ${P.visite.hypotheses&&P.visite.hypotheses.length? '<h3>Hypothèses retenues</h3><ul class="bul">'+P.visite.hypotheses.map(h=>"<li>"+esc(h)+"</li>").join("")+'</ul>':""}
+    ${P.visite.reserves&&P.visite.reserves.length? '<h3>Réserves</h3><ul class="bul">'+P.visite.reserves.map(h=>"<li>"+esc(h)+"</li>").join("")+'</ul>':""}
+  </div>`:""}
+
   <div class="card">
     <h3>Contrôles préalables</h3>
     <div class="tbl-wrap"><table><tbody>${CHECKLIST_AVANT.map((c,i)=>`<tr><td>${esc(c.t)}</td><td style="width:110px">${P.checklist[i]?'<span class="tag ok">vérifié</span>':'<span class="tag bad">non vérifié</span>'}</td></tr>`).join("")}</tbody></table></div>
@@ -3009,8 +3071,881 @@ function aiDemander(question, phase){
 }
 window.aiDemander=aiDemander;
 
+
 /* -------------------------------------------------------------------------
-   18. MENU ET DÉMARRAGE
+   19. VISITE FILMÉE — analyse par l'IA et construction automatique du chantier
+   -------------------------------------------------------------------------
+   L'API Claude n'accepte pas de fichier vidéo. Le module procède donc ainsi :
+     1. il filme (ou importe une vidéo / des photos) ;
+     2. il extrait des IMAGES CLÉS du film, redimensionnées et dédoublonnées ;
+     3. il transcrit le commentaire parlé (reconnaissance vocale du navigateur)
+        ou récupère les notes écrites ;
+     4. il envoie images + texte à Claude par petits lots (contrainte de durée
+        des fonctions Netlify), puis fait une synthèse ;
+     5. Claude pose les questions manquantes, une par une, en langage simple ;
+     6. Claude construit l'arborescence du chantier, que l'utilisateur valide.
+   ------------------------------------------------------------------------- */
+
+const VIS_MAX_IMG   = 12;      /* images envoyées à l'analyse au maximum      */
+const VIS_LOT       = 3;       /* images par appel (durée de fonction Netlify)*/
+const VIS_LARGEUR   = 1024;    /* redimensionnement du côté le plus long      */
+const VIS_QUALITE   = 0.62;    /* qualité JPEG                                */
+const VIS_INTERVALLE= 3000;    /* capture automatique toutes les 3 s          */
+
+let VIS = null;
+function visInit(){
+  VIS = {phase:"intro", stream:null, rec:null, chunks:[], videoURL:null,
+         frames:[], transcript:"", interim:"", notes:"", reco:null, ecoute:false,
+         timer:null, t0:0, duree:0, dernier:null,
+         observations:[], synthese:null, questions:[], reponses:{}, qIdx:0,
+         plan:null, busy:false, etape:"", progres:0, erreur:""};
+}
+visInit();
+
+const VIS_APRENDRE = [
+  {ic:"🔥", t:"La chaufferie dans son ensemble",
+   d:"Filmez lentement toute la chaufferie en tournant sur vous-même. On doit voir les chaudières ou la sous-station, les pompes, et les départs de tuyauterie."},
+  {ic:"🏷️", t:"Les plaques signalétiques",
+   d:"Approchez la caméra sur la plaque de la chaudière et sur celle de la pompe, jusqu'à ce que le texte soit NET. C'est là que se trouvent les puissances."},
+  {ic:"🔧", t:"Chaque vanne de réglage, de près",
+   d:"Filmez le corps de la vanne (le marquage gravé) ET le volant. C'est ce qui permet d'identifier la marque et le modèle. Une vanne = un plan rapproché."},
+  {ic:"↕️", t:"Les départs et les colonnes",
+   d:"Filmez le collecteur et chaque départ. Dites à voix haute où va chaque départ : « celui-là monte au bâtiment A », « celui-là c'est l'eau chaude sanitaire »."},
+  {ic:"🌡️", t:"Les thermomètres et manomètres",
+   d:"Approchez sur chaque cadran pour qu'on lise la valeur. Départ, retour, pression du réseau."},
+  {ic:"🚿", t:"L'eau chaude sanitaire, s'il y en a",
+   d:"Le ballon, la pompe de bouclage, et les vannes sur les retours de boucle."},
+  {ic:"🔘", t:"Un émetteur type",
+   d:"Un radiateur, un ventilo-convecteur ou une batterie, avec son robinet. Filmez aussi l'étiquette s'il y en a une."},
+  {ic:"🎙️", t:"Et surtout : parlez !",
+   d:"Décrivez ce que vous voyez et ce que vous savez : le nombre d'étages, ce qui chauffe mal, ce que le client vous a dit. Tout ce que vous dites est transcrit et analysé."}
+];
+
+/* ---------------- utilitaires image ---------------- */
+function visRedim(source, l, h){
+  const max=VIS_LARGEUR, r=Math.min(1, max/Math.max(l,h));
+  const c=document.createElement("canvas");
+  c.width=Math.round(l*r); c.height=Math.round(h*r);
+  c.getContext("2d").drawImage(source,0,0,c.width,c.height);
+  return c;
+}
+/* empreinte 16x16 en niveaux de gris, pour écarter les images quasi identiques */
+function visEmpreinte(canvas){
+  const c=document.createElement("canvas"); c.width=16; c.height=16;
+  const x=c.getContext("2d"); x.drawImage(canvas,0,0,16,16);
+  const d=x.getImageData(0,0,16,16).data, out=[];
+  for(let i=0;i<d.length;i+=4) out.push((d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)|0);
+  return out;
+}
+function visDistance(a,b){
+  if(!a||!b) return 999;
+  let s=0; for(let i=0;i<a.length;i++) s+=Math.abs(a[i]-b[i]);
+  return s/a.length;
+}
+function visAjouter(canvas, manuelle, tag){
+  const emp=visEmpreinte(canvas);
+  if(!manuelle && visDistance(emp, VIS.dernier) < 9) return false;  /* image quasi identique */
+  VIS.dernier=emp;
+  const data=canvas.toDataURL("image/jpeg", VIS_QUALITE);
+  VIS.frames.push({data:data, manuelle:!!manuelle, t:Math.round(VIS.duree/1000), tag:tag||"",
+                   poids:Math.round(data.length*0.75/1024)});
+  return true;
+}
+
+/* ---------------- caméra ---------------- */
+async function visDemarrer(){
+  try{
+    VIS.stream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}},
+      audio:true});
+  }catch(e){
+    VIS.erreur = "Impossible d'accéder à la caméra : "+e.message+
+      ". Vérifiez que vous avez autorisé la caméra et le micro, et que la page est bien en HTTPS. Vous pouvez sinon importer une vidéo ou des photos.";
+    vVisite(); return;
+  }
+  VIS.phase="record"; VIS.erreur=""; VIS.frames=[]; VIS.transcript=""; VIS.dernier=null;
+  vVisite();
+  const v=$("#visVideo"); v.srcObject=VIS.stream; v.muted=true; await v.play().catch(()=>{});
+  /* enregistrement du film (conservé en local, jamais envoyé) */
+  try{
+    const mt=["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm","video/mp4"]
+             .find(t=>window.MediaRecorder && MediaRecorder.isTypeSupported(t));
+    VIS.rec=new MediaRecorder(VIS.stream, mt?{mimeType:mt}:undefined);
+    VIS.chunks=[];
+    VIS.rec.ondataavailable=e=>{ if(e.data && e.data.size) VIS.chunks.push(e.data); };
+    VIS.rec.start(1000);
+  }catch(e){ VIS.rec=null; }
+  visEcouteDemarrer();
+  VIS.t0=Date.now();
+  VIS.timer=setInterval(()=>{
+    VIS.duree=Date.now()-VIS.t0;
+    const c=$("#visChrono"); if(c) c.textContent=visMMSS(VIS.duree);
+    if(VIS.frames.length<40 && VIS.duree % VIS_INTERVALLE < 1100) visCapture(false);
+  },1000);
+}
+function visMMSS(ms){ const s=Math.floor(ms/1000); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
+function visCapture(manuelle){
+  const v=$("#visVideo");
+  if(!v || !v.videoWidth) return;
+  const c=visRedim(v, v.videoWidth, v.videoHeight);
+  const ajoute=visAjouter(c, manuelle);
+  if(manuelle){ flash(ajoute?"Photo ajoutée":"Photo ajoutée"); }
+  const st=$("#visStrip"); if(st) st.innerHTML=visStripHTML();
+  const n=$("#visNb"); if(n) n.textContent=VIS.frames.length;
+  visBindStrip();
+}
+function visArreter(){
+  if(VIS.timer){ clearInterval(VIS.timer); VIS.timer=null; }
+  if(VIS.rec && VIS.rec.state!=="inactive"){
+    VIS.rec.onstop=()=>{ try{ VIS.videoURL=URL.createObjectURL(new Blob(VIS.chunks,{type:VIS.chunks[0]?VIS.chunks[0].type:"video/webm"})); }catch(e){} vVisite(); };
+    VIS.rec.stop();
+  }
+  visEcouteArreter();
+  if(VIS.stream){ VIS.stream.getTracks().forEach(t=>t.stop()); VIS.stream=null; }
+  VIS.phase="review";
+  vVisite();
+}
+
+/* ---------------- reconnaissance vocale ---------------- */
+function visRecoDispo(){ return !!(window.SpeechRecognition || window.webkitSpeechRecognition); }
+function visEcouteDemarrer(){
+  if(!visRecoDispo()) return;
+  try{
+    const R=window.SpeechRecognition||window.webkitSpeechRecognition;
+    const r=new R(); r.lang="fr-FR"; r.continuous=true; r.interimResults=true;
+    r.onresult=e=>{
+      let inter="";
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const t=e.results[i][0].transcript;
+        if(e.results[i].isFinal) VIS.transcript += (VIS.transcript?" ":"")+t.trim();
+        else inter += t;
+      }
+      VIS.interim=inter;
+      const l=$("#visLive");
+      if(l){ l.innerHTML=esc(VIS.transcript)+(inter?' <i>'+esc(inter)+'</i>':""); l.scrollTop=l.scrollHeight; }
+    };
+    r.onerror=()=>{};
+    r.onend=()=>{ if(VIS.ecoute){ try{ r.start(); }catch(e){} } };
+    VIS.reco=r; VIS.ecoute=true; r.start();
+  }catch(e){ VIS.reco=null; }
+}
+function visEcouteArreter(){ VIS.ecoute=false; if(VIS.reco){ try{ VIS.reco.stop(); }catch(e){} VIS.reco=null; } }
+
+/* ---------------- import de fichiers ---------------- */
+function visImportVideo(file){
+  return new Promise(resolve=>{
+    const v=document.createElement("video");
+    v.preload="metadata"; v.muted=true; v.playsInline=true;
+    v.src=URL.createObjectURL(file);
+    v.onloadedmetadata=async ()=>{
+      const dur=v.duration;
+      if(!isFinite(dur)||dur<=0){ resolve(0); return; }
+      const n=Math.min(VIS_MAX_IMG+4, Math.max(4, Math.round(dur/3)));
+      let pris=0;
+      for(let i=0;i<n;i++){
+        const t=dur*(i+0.5)/n;
+        await new Promise(r=>{ v.onseeked=r; v.currentTime=t; setTimeout(r,1500); });
+        if(!v.videoWidth) continue;
+        VIS.duree=t*1000;
+        if(visAjouter(visRedim(v, v.videoWidth, v.videoHeight), false)) pris++;
+        VIS.etape="Extraction des images "+(i+1)+" / "+n; VIS.progres=(i+1)/n; vVisite();
+      }
+      VIS.videoURL=v.src;
+      resolve(pris);
+    };
+    v.onerror=()=>resolve(0);
+  });
+}
+function visImportPhotos(files){
+  return Promise.all(Array.from(files).slice(0,VIS_MAX_IMG).map(f=>new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{ visAjouter(visRedim(img, img.naturalWidth, img.naturalHeight), true); res(); };
+    img.onerror=()=>res();
+    img.src=URL.createObjectURL(f);
+  })));
+}
+
+/* ---------------- sélection des images envoyées ---------------- */
+function visSelection(){
+  const man=VIS.frames.filter(f=>f.manuelle);
+  const auto=VIS.frames.filter(f=>!f.manuelle);
+  const place=Math.max(0, VIS_MAX_IMG-man.length);
+  const pas=auto.length>place? auto.length/place : 1;
+  const pris=[];
+  for(let i=0;i<auto.length && pris.length<place;i+=pas) pris.push(auto[Math.floor(i)]);
+  return man.concat(pris).slice(0,VIS_MAX_IMG);
+}
+function visPoids(list){
+  const ko=list.reduce((s,f)=>s+f.poids,0);
+  return ko<100? "&lt; 0,1" : String(Math.round(ko/1024*10)/10).replace(".",",");
+}
+
+/* ---------------- appels API ---------------- */
+async function aiRequete(payload, timeoutMs){
+  const ctrl=new AbortController();
+  const to=setTimeout(()=>ctrl.abort(), timeoutMs||45000);
+  let resp;
+  try{
+    resp = await fetch(aiEndpoint(),{method:"POST", headers:{"Content-Type":"application/json"},
+                                    body:JSON.stringify(payload), signal:ctrl.signal});
+  }catch(e){
+    clearTimeout(to);
+    if(e.name==="AbortError") throw new Error("Le serveur a mis trop de temps à répondre. Réessayez avec moins d'images, ou en meilleure connexion.");
+    throw new Error("Connexion impossible au serveur : "+e.message);
+  }
+  clearTimeout(to);
+  const txt=await resp.text();
+  let data=null; try{ data=JSON.parse(txt); }catch(e){}
+  if(!resp.ok){
+    const msg=(data&&data.error&&(data.error.message||data.error))||txt.slice(0,300);
+    if(String(msg).includes("ANTHROPIC_API_KEY"))
+      throw new Error("La clé API n'est pas configurée sur le serveur. Dans Netlify : Site settings > Environment variables > ajouter ANTHROPIC_API_KEY, puis redéployer.");
+    throw new Error("Erreur "+resp.status+" : "+msg);
+  }
+  if(!data) throw new Error("Réponse illisible du serveur.");
+  return data;
+}
+function aiOutilResultat(data, nom){
+  const bloc=(data.content||[]).find(c=>c.type==="tool_use" && (!nom||c.name===nom));
+  if(bloc) return bloc.input;
+  const t=(data.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("\n");
+  const m=t.match(/\{[\s\S]*\}/);
+  if(m){ try{ return JSON.parse(m[0]); }catch(e){} }
+  return null;
+}
+function imgBloc(f){
+  return {type:"image", source:{type:"base64", media_type:"image/jpeg", data:f.data.split(",")[1]}};
+}
+
+/* ---------------- outils (sortie structurée) ---------------- */
+const OUTIL_OBS = {
+  name:"noter_observations",
+  description:"Consigne ce qui est visible sur les images d'une installation de chauffage.",
+  input_schema:{type:"object", properties:{
+    elements:{type:"array", description:"Équipements identifiés sur les images.",
+      items:{type:"object", properties:{
+        quoi:{type:"string", description:"Ex. : vanne d'équilibrage, chaudière, pompe, manomètre, radiateur, ballon ECS, collecteur, filtre."},
+        detail:{type:"string", description:"Marquages lus, marque et modèle probables, DN, position du volant, valeur lue sur un cadran."},
+        confiance:{type:"string", enum:["sure","probable","incertaine"]},
+        image:{type:"integer", description:"Numéro de l'image (1, 2, 3...) où l'élément apparaît."}
+      }, required:["quoi","detail","confiance"]}},
+    texte_lu:{type:"array", items:{type:"string"}, description:"Textes lisibles sur les plaques, étiquettes et cadrans, recopiés tels quels."},
+    remarques:{type:"array", items:{type:"string"}, description:"Anomalies visibles : fuite, corrosion, calorifuge absent, vanne fermée, filtre encrassé, absence de prise de pression."}
+  }, required:["elements"]}
+};
+const OUTIL_SYNTH = {
+  name:"preparer_le_chantier",
+  description:"Synthétise l'installation et liste les questions à poser à l'utilisateur pour pouvoir équilibrer.",
+  input_schema:{type:"object", properties:{
+    resume:{type:"string", description:"3 à 6 phrases en français simple décrivant l'installation telle qu'elle a été comprise."},
+    type_installation:{type:"string", description:"Ex. : chauffage collectif radiateurs, ECS bouclée, tertiaire ventilo-convecteurs, sous-station de réseau de chaleur, process industriel."},
+    materiel_identifie:{type:"array", items:{type:"object", properties:{
+      quoi:{type:"string"}, detail:{type:"string"}, confiance:{type:"string", enum:["sure","probable","incertaine"]}
+    }, required:["quoi","detail"]}},
+    alertes:{type:"array", items:{type:"string"}, description:"Points bloquants ou dangereux à signaler avant d'aller plus loin."},
+    questions:{type:"array", description:"Entre 4 et 12 questions, de la plus importante à la moins importante. Une seule information par question.",
+      items:{type:"object", properties:{
+        id:{type:"string", description:"Identifiant court sans espace, ex. nb_colonnes."},
+        question:{type:"string", description:"La question, en français simple, sans jargon, telle qu'on la poserait à quelqu'un qui débute."},
+        pourquoi:{type:"string", description:"Une phrase expliquant à quoi sert la réponse pour l'équilibrage."},
+        aide:{type:"string", description:"Où et comment trouver la réponse sur place, très concrètement."},
+        type:{type:"string", enum:["choix","nombre","texte"]},
+        options:{type:"array", items:{type:"string"}, description:"Réponses proposées si le type est choix."},
+        unite:{type:"string", description:"Unité attendue si le type est nombre, ex. kW, l/h, °C, m."},
+        defaut:{type:"string", description:"Valeur la plus probable, proposée par défaut."}
+      }, required:["id","question","pourquoi","type"]}}
+  }, required:["resume","questions"]}
+};
+const OUTIL_PLAN = {
+  name:"construire_le_chantier",
+  description:"Construit l'arborescence complète du chantier à partir de tout ce qui est connu.",
+  input_schema:{type:"object", properties:{
+    nom:{type:"string"}, fluide:{type:"string", enum:["eau","mpg20","mpg30","mpg40","meg20","meg30","meg40"]},
+    noeuds:{type:"array", description:"Liste à plat. Le parent est désigné par sa référence. Les chaufferies n'ont pas de parent.",
+      items:{type:"object", properties:{
+        ref:{type:"string", description:"Référence unique courte, ex. C1, R1, B1, COL1, EM1."},
+        parent:{type:"string", description:"Référence du parent. Vide pour une chaufferie."},
+        type:{type:"string", enum:["chaufferie","reseau","batiment","colonne","terminal"]},
+        nom:{type:"string", description:"Nom lisible, ex. Colonne 3 - cage B."},
+        mode_reseau:{type:"string", enum:["radiateurs","plancher","ventilo","cta","ecs","process","froid","rdc"], description:"Uniquement pour un type reseau."},
+        t_depart:{type:"number"}, dt:{type:"number"},
+        puissance_kw:{type:"number", description:"Pour un terminal dimensionné par la puissance."},
+        debit_lh:{type:"number", description:"Si le débit est connu directement."},
+        longueur_m:{type:"number", description:"Pour une colonne ECS : longueur aller + retour."},
+        w_par_m:{type:"number", description:"Pour une colonne ECS : déperdition linéaire."},
+        vanne:{type:"string", description:"Identifiant de vanne de la bibliothèque de l'application, ou vide si inconnue."},
+        dn:{type:"integer"}
+      }, required:["ref","type","nom"]}},
+    hypotheses:{type:"array", items:{type:"string"}, description:"Ce qui a été supposé faute d'information, à faire vérifier."},
+    reserves:{type:"array", items:{type:"string"}, description:"Ce qui reste à vérifier ou mesurer sur place."},
+    premiere_action:{type:"string", description:"La toute première chose à faire sur le chantier."}
+  }, required:["noeuds"]}
+};
+
+const VIS_ROLE = `Tu es un ingénieur expert en équilibrage hydraulique qui accompagne un intervenant
+pouvant être DÉBUTANT. Tu analyses les images d'une installation de chauffage ou d'eau chaude
+sanitaire, et le commentaire parlé de la personne qui filme.
+
+RÈGLES ABSOLUES
+- Tu ne DEVINES JAMAIS une marque, un modèle, un DN, un Kv ou une puissance qui ne sont pas
+  visibles ou dits. Si tu n'es pas sûr, tu le dis et tu poses la question.
+- Tu distingues toujours ce que tu VOIS de ce que tu SUPPOSES.
+- Tu parles en français simple, sans jargon. Quand un mot technique est indispensable,
+  tu l'expliques entre parenthèses en cinq mots.
+- Tes questions ne portent que sur ce qui est réellement nécessaire pour équilibrer, et
+  jamais sur une information déjà visible sur les images ou déjà dite.
+- Une question = une seule information. Tu proposes des réponses toutes faites dès que possible.`;
+
+/* ---------------- analyse ---------------- */
+async function visAnalyser(){
+  const sel=visSelection();
+  if(!sel.length && !VIS.transcript && !VIS.notes){ flash("Ajoutez au moins une image ou une note", true); return; }
+  VIS.busy=true; VIS.erreur=""; VIS.phase="analyse"; VIS.observations=[]; VIS.progres=0;
+  VIS.etape="Préparation des images…"; vVisite();
+  try{
+    /* --- lots d'images --- */
+    const lots=[];
+    for(let i=0;i<sel.length;i+=VIS_LOT) lots.push(sel.slice(i,i+VIS_LOT));
+    for(let i=0;i<lots.length;i++){
+      VIS.etape="Lecture des images "+(i*VIS_LOT+1)+" à "+Math.min((i+1)*VIS_LOT, sel.length)+" sur "+sel.length+"…";
+      VIS.progres=(i)/(lots.length+1); vVisite();
+      const contenu=[];
+      lots[i].forEach((f,j)=>{
+        contenu.push({type:"text", text:"Image "+(i*VIS_LOT+j+1)+(f.manuelle?" (photo prise volontairement par l'intervenant, donc importante)":"")+" :"});
+        contenu.push(imgBloc(f));
+      });
+      contenu.push({type:"text", text:"Décris précisément ce que tu vois sur ces images. Recopie tous les textes lisibles (plaques, marquages gravés sur les corps de vanne, étiquettes, valeurs des cadrans). N'invente rien."});
+      const data=await aiRequete({model:"claude-sonnet-4-5", max_tokens:2000, system:VIS_ROLE,
+        messages:[{role:"user", content:contenu}],
+        tools:[OUTIL_OBS], tool_choice:{type:"tool", name:"noter_observations"}}, 60000);
+      const obs=aiOutilResultat(data,"noter_observations");
+      if(obs) VIS.observations.push(obs);
+    }
+    /* --- synthèse + questions --- */
+    VIS.etape="Analyse d'ensemble et préparation des questions…"; VIS.progres=lots.length/(lots.length+1); vVisite();
+    const dit=(VIS.transcript||"").trim(), notes=(VIS.notes||"").trim();
+    const resume=VIS.observations.map((o,i)=>
+      "LOT "+(i+1)+"\n"+
+      (o.elements||[]).map(e=>`- ${e.quoi} : ${e.detail} [${e.confiance||"?"}]`).join("\n")+
+      ((o.texte_lu&&o.texte_lu.length)? "\nTextes lus : "+o.texte_lu.join(" | "):"")+
+      ((o.remarques&&o.remarques.length)? "\nRemarques : "+o.remarques.join(" | "):"")
+    ).join("\n\n");
+    const msg=
+`OBSERVATIONS TIRÉES DES IMAGES :
+${resume||"(aucune image exploitable)"}
+
+CE QUE L'INTERVENANT A DIT EN FILMANT :
+${dit||"(rien enregistré)"}
+
+NOTES ÉCRITES PAR L'INTERVENANT :
+${notes||"(aucune)"}
+
+BIBLIOTHÈQUE DE VANNES DE L'APPLICATION (identifiants utilisables) :
+${VALVES.map(v=>`${v.id} = ${v.marque} ${v.modele} (${v.cat})`).join("\n")}
+
+Fais la synthèse de l'installation, puis liste les questions indispensables pour pouvoir
+construire le chantier et l'équilibrer. Ne pose pas de question dont la réponse figure
+déjà ci-dessus.`;
+    const data=await aiRequete({model:"claude-sonnet-4-5", max_tokens:4000, system:VIS_ROLE,
+      messages:[{role:"user", content:msg}],
+      tools:[OUTIL_SYNTH], tool_choice:{type:"tool", name:"preparer_le_chantier"}}, 60000);
+    const syn=aiOutilResultat(data,"preparer_le_chantier");
+    if(!syn) throw new Error("L'analyse n'a pas renvoyé de résultat exploitable. Réessayez.");
+    VIS.synthese=syn;
+    VIS.questions=(syn.questions||[]).slice(0,12);
+    VIS.qIdx=0; VIS.reponses={};
+    VIS.phase="synthese"; VIS.busy=false; VIS.progres=1; vVisite();
+  }catch(e){
+    VIS.busy=false; VIS.erreur=e.message; VIS.phase="review"; vVisite();
+  }
+}
+
+/* ---------------- génération du chantier ---------------- */
+async function visGenerer(){
+  VIS.busy=true; VIS.erreur=""; VIS.etape="Construction du chantier…"; VIS.phase="generation"; vVisite();
+  try{
+    const qr=VIS.questions.map(q=>`- ${q.question}\n  Réponse : ${VIS.reponses[q.id]!=null&&VIS.reponses[q.id]!==""? VIS.reponses[q.id] : "non renseignée"}`).join("\n");
+    const msg=
+`SYNTHÈSE DE L'INSTALLATION :
+${VIS.synthese.resume||""}
+Type : ${VIS.synthese.type_installation||"non précisé"}
+
+MATÉRIEL IDENTIFIÉ :
+${(VIS.synthese.materiel_identifie||[]).map(m=>`- ${m.quoi} : ${m.detail} [${m.confiance||"?"}]`).join("\n")||"(aucun)"}
+
+RÉPONSES DE L'INTERVENANT :
+${qr||"(aucune)"}
+
+CE QU'IL A DIT EN FILMANT :
+${(VIS.transcript||"(rien)").slice(0,3000)}
+
+NOTES ÉCRITES :
+${(VIS.notes||"(aucune)").slice(0,2000)}
+
+IDENTIFIANTS DE VANNES UTILISABLES :
+${VALVES.map(v=>v.id).join(", ")}
+
+Construis maintenant l'arborescence complète du chantier.
+Règles :
+- Une chaufferie à la racine, puis un ou plusieurs réseaux, puis les bâtiments ou colonnes,
+  puis les émetteurs. Ne crée un niveau que s'il existe réellement.
+- Si le nombre exact d'émetteurs n'est pas connu, crée les colonnes et laisse leurs émetteurs
+  de côté plutôt que d'inventer : mets l'information en hypothèse.
+- Renseigne les puissances et les DT seulement si tu les connais ou si l'intervenant les a données.
+- Pour une vanne dont le modèle n'est pas certain, utilise gen-statique (vanne statique inconnue)
+  ou gen-te (organe sans prise de pression), jamais une marque devinée.
+- Liste explicitement tes hypothèses et les réserves à vérifier sur place.`;
+    const data=await aiRequete({model:"claude-sonnet-4-5", max_tokens:4000, system:VIS_ROLE,
+      messages:[{role:"user", content:msg}],
+      tools:[OUTIL_PLAN], tool_choice:{type:"tool", name:"construire_le_chantier"}}, 60000);
+    const plan=aiOutilResultat(data,"construire_le_chantier");
+    if(!plan || !plan.noeuds || !plan.noeuds.length) throw new Error("Le chantier n'a pas pu être construit. Réessayez, ou construisez-le à la main dans l'onglet Réseau.");
+    VIS.plan=plan; VIS.busy=false; VIS.phase="resultat"; vVisite();
+  }catch(e){
+    VIS.busy=false; VIS.erreur=e.message; VIS.phase="questions"; vVisite();
+  }
+}
+
+/* ---------------- application du plan au projet ---------------- */
+function visAppliquer(){
+  const plan=VIS.plan; if(!plan) return;
+  if(!P) nouveauProjet(plan.nom||"Chantier filmé");
+  else if(P.nodes.length>1 && !confirm("Le chantier actuel contient déjà des éléments. Ils seront remplacés par ce que l'IA a construit. Continuer ?")) return;
+  if(plan.nom) P.nom=plan.nom;
+  if(plan.fluide && FLUIDES[plan.fluide]) P.fluide=plan.fluide;
+  P.nodes=[];
+  const TYPES_OK=["chaufferie","reseau","batiment","colonne","terminal"];
+  const map={};
+  /* 1er passage : création (les parents peuvent arriver après les enfants) */
+  (plan.noeuds||[]).forEach(n=>{
+    const type=TYPES_OK.includes(n.type)? n.type : "colonne";
+    const node={id:uid(), parent:null, type:type, nom:String(n.nom||"Élément"), open:true};
+    if(type==="reseau"){
+      node.mode = MODES_RESEAU[n.mode_reseau]? n.mode_reseau : "radiateurs";
+      node.dtNom = +n.dt>0? +n.dt : 20;
+      node.tDep  = +n.t_depart>0? +n.t_depart : 70;
+    }
+    if(type!=="chaufferie"){
+      if(+n.debit_lh>0) node.calc={mode:"debit", lh:+n.debit_lh};
+      else if(+n.longueur_m>0) node.calc={mode:"deperdition", longueur:+n.longueur_m, wparm:+n.w_par_m>0?+n.w_par_m:10, dtBoucle:5};
+      else if(+n.puissance_kw>0) node.calc={mode:"puissance", kW:+n.puissance_kw, dt:+n.dt>0?+n.dt:20};
+      const v=VALVES.find(x=>x.id===n.vanne);
+      if(v){
+        const dn = v.dn.includes(+n.dn)? +n.dn : v.dn[Math.min(1,v.dn.length-1)];
+        node.valve={id:v.id, dn:dn, pos:null};
+      }
+    }
+    map[n.ref]=node; P.nodes.push(node);
+  });
+  /* 2e passage : liens de parenté, avec garde-fou anti-boucle */
+  (plan.noeuds||[]).forEach(n=>{
+    const node=map[n.ref];
+    if(!node) return;
+    if(!n.parent){ if(node.type!=="chaufferie") node.orphelin=true; return; }
+    const par=map[n.parent];
+    if(!par || par===node){ node.orphelin=true; return; }
+    let a=par, garde=0;
+    while(a && garde++<50){ if(a===node){ node.orphelin=true; return; } a = a.parent? P.nodes.find(x=>x.id===a.parent) : null; }
+    node.parent=par.id;
+  });
+  /* aucune racine : on en fabrique une */
+  if(!P.nodes.some(n=>!n.parent && n.type==="chaufferie")){
+    const ch={id:uid(), parent:null, type:"chaufferie", nom:"Chaufferie", open:true};
+    P.nodes.unshift(ch);
+  }
+  /* les éléments dont le parent était inconnu sont rattachés à la première chaufferie
+     plutôt que laissés en vrac à la racine : l'arbre reste lisible et équilibrable */
+  const racine=P.nodes.find(n=>!n.parent && n.type==="chaufferie");
+  P.nodes.forEach(n=>{ if(n!==racine && (n.orphelin || (!n.parent && n.type!=="chaufferie"))) n.parent=racine.id; delete n.orphelin; });
+  /* un débit donné explicitement par l'IA prime sur la somme des enfants : la liste
+     des émetteurs est presque toujours incomplète après une simple visite filmée */
+  P.nodes.forEach(n=>{ if(n.calc && enfants(n.id).length) n.forceDebit=true; });
+  P.notes=[(P.notes||""),
+    plan.hypotheses&&plan.hypotheses.length? "HYPOTHÈSES DE L'IA :\n- "+plan.hypotheses.join("\n- "):"",
+    plan.reserves&&plan.reserves.length? "RÉSERVES À VÉRIFIER :\n- "+plan.reserves.join("\n- "):"",
+    VIS.transcript? "COMMENTAIRE DE LA VISITE :\n"+VIS.transcript:""
+  ].filter(Boolean).join("\n\n");
+  P.visite={date:new Date().toISOString(), resume:VIS.synthese?VIS.synthese.resume:"",
+            questions:VIS.questions.map(q=>({q:q.question, r:VIS.reponses[q.id]||""})),
+            hypotheses:plan.hypotheses||[], reserves:plan.reserves||[]};
+  autosave();
+  flash("Chantier créé : "+P.nodes.length+" éléments");
+  visInit();
+  go("parcours");
+}
+
+
+/* ---------------- interface de la visite ---------------- */
+function visStripHTML(){
+  if(!VIS.frames.length) return '<div style="color:var(--faint);font-size:12px;padding:8px 0">Aucune image pour l\'instant.</div>';
+  return VIS.frames.map((f,i)=>`<figure><img src="${f.data}" alt="image ${i+1}">
+    ${f.manuelle?'<span class="star">⭐</span>':""}
+    <button class="kill" data-kill="${i}" title="Supprimer">✕</button></figure>`).join("");
+}
+function visBindStrip(){
+  $$("[data-kill]").forEach(b=>b.onclick=()=>{ VIS.frames.splice(+b.dataset.kill,1);
+    const st=$("#visStrip"); if(st){ st.innerHTML=visStripHTML(); visBindStrip(); }
+    const n=$("#visNb"); if(n) n.textContent=VIS.frames.length;
+    const p=$("#visPoids"); if(p) p.textContent=visPoids(visSelection());
+  });
+}
+
+function vVisite(){
+  const el=$("#v-visite");
+  const P_=VIS.phase;
+
+  /* ---------- INTRO ---------- */
+  if(P_==="intro"){
+    el.innerHTML=`
+    <div class="card">
+      <h2>📹 Filmez votre installation</h2>
+      <p class="sub">Vous filmez, vous expliquez à voix haute ce que vous voyez. L'IA regarde le film, écoute ce que vous dites, puis vous pose les questions qui manquent. Elle construit ensuite le chantier toute seule.</p>
+      <div class="note g"><b>Vous n'avez rien à savoir à l'avance.</b> Filmez, parlez normalement, et répondez aux questions. Si vous ne savez pas répondre, dites-le : l'IA vous expliquera où trouver l'information.</div>
+    </div>
+
+    <div class="card">
+      <h3>Ce qu'il faut filmer</h3>
+      <p class="sub">Dans l'ordre, sans se presser. Comptez 2 à 5 minutes.</p>
+      ${VIS_APRENDRE.map((x,i)=>`<div class="act"><b>${x.ic} ${i+1}. ${esc(x.t)}</b><p>${esc(x.d)}</p></div>`).join("")}
+      <div class="note d"><b>Sécurité.</b> Ne filmez jamais en montant sur une installation, en ouvrant un coffret électrique sous tension ou en manipulant un organe chaud. Si un accès est dangereux, ne le filmez pas : dites-le simplement à voix haute.</div>
+    </div>
+
+    ${VIS.erreur? '<div class="note d">'+esc(VIS.erreur)+'</div>':""}
+
+    <div class="card">
+      <button class="btn pri wide" id="visGo" style="padding:16px;font-size:15px">🎬 Commencer à filmer</button>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="visVid" style="flex:1">📁 Importer une vidéo</button>
+        <button class="btn" id="visPh" style="flex:1">🖼️ Importer des photos</button>
+      </div>
+      <div class="hint" style="margin-top:10px">
+        ${visRecoDispo()? "Votre navigateur sait transcrire la parole : ce que vous direz sera écrit automatiquement." : "Votre navigateur ne sait pas transcrire la parole. Ce n'est pas grave : après le film, vous pourrez écrire vos remarques (ou les dicter avec le micro de votre clavier)."}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Comment ça fonctionne, précisément</h3>
+      <ol class="num">
+        <li>Votre film reste <b>sur votre téléphone</b>. Il n'est jamais envoyé.</li>
+        <li>L'application en extrait <b>quelques images nettes</b> (${VIS_MAX_IMG} au maximum) et supprime les images en double.</li>
+        <li>Ces images et le texte de votre commentaire partent à l'IA, qui lit les plaques, reconnaît le matériel et repère les anomalies.</li>
+        <li>Elle vous pose ensuite les questions manquantes, une par une.</li>
+        <li>Elle construit le chantier : chaufferie, réseaux, colonnes, émetteurs, vannes. Vous validez avant que ce soit appliqué.</li>
+      </ol>
+      ${visRecoDispo()? '<div class="note i">La transcription de la parole est assurée par votre navigateur, qui peut pour cela envoyer le son à son propre service de reconnaissance vocale. Si vous préférez l\'éviter, coupez la transcription et écrivez vos remarques à la place.</div>':""}
+    </div>`;
+    $("#visGo").onclick=visDemarrer;
+    $("#visVid").onclick=()=>visFichier("video/*", async f=>{
+      VIS.phase="analyse"; VIS.etape="Lecture de la vidéo…"; VIS.progres=0; vVisite();
+      const n=await visImportVideo(f);
+      VIS.phase="review"; vVisite();
+      flash(n? n+" images extraites":"Aucune image extraite", !n);
+    });
+    $("#visPh").onclick=()=>visFichier("image/*", async fs=>{
+      await visImportPhotos(fs); VIS.phase="review"; vVisite(); flash(VIS.frames.length+" photo(s)");
+    }, true);
+    return;
+  }
+
+  /* ---------- ENREGISTREMENT ---------- */
+  if(P_==="record"){
+    el.innerHTML=`
+    <div class="camwrap">
+      <video id="visVideo" playsinline muted></video>
+      <div class="camhud">
+        <span class="row" style="gap:7px"><span class="recdot"></span><b id="visChrono">00:00</b></span>
+        <span class="tag amber"><span id="visNb">0</span> images</span>
+      </div>
+      <div class="camfoot">
+        <button class="shot" id="visShot" title="Prendre une photo importante">📸</button>
+        <button class="bigrec stop" id="visStop" title="Arrêter"></button>
+        <div style="width:50px"></div>
+      </div>
+    </div>
+    <div class="card tight" style="margin-top:12px">
+      <div class="spread"><b style="font-size:12.5px">🎙️ Ce que vous dites</b>
+        ${visRecoDispo()? '<span class="tag ok">transcription active</span>':'<span class="tag warn">non disponible</span>'}</div>
+      <div class="live" id="visLive" style="margin-top:8px">${visRecoDispo()? '<i>Parlez : décrivez ce que vous voyez…</i>':'<i>Vous écrirez vos remarques après le film.</i>'}</div>
+    </div>
+    <div class="card tight">
+      <div class="spread"><b style="font-size:12.5px">Images retenues</b><span class="tag">auto toutes les 3 s</span></div>
+      <div class="strip" id="visStrip" style="margin-top:8px">${visStripHTML()}</div>
+      <div class="hint" style="margin-top:6px">Appuyez sur 📸 devant chaque <b>plaque signalétique</b> et chaque <b>vanne</b> : ces photos-là sont toujours envoyées en priorité.</div>
+    </div>
+    <div class="card tight">
+      <details><summary>Rappel de ce qu'il faut filmer</summary><div class="dbody">
+        <ul class="bul">${VIS_APRENDRE.map(x=>`<li><b>${x.ic} ${esc(x.t)}</b> — ${esc(x.d)}</li>`).join("")}</ul>
+      </div></details>
+    </div>`;
+    $("#visStop").onclick=visArreter;
+    $("#visShot").onclick=()=>visCapture(true);
+    visBindStrip();
+    const v=$("#visVideo");
+    if(VIS.stream && v && !v.srcObject){ v.srcObject=VIS.stream; v.play().catch(()=>{}); }
+    return;
+  }
+
+  /* ---------- RELECTURE ---------- */
+  if(P_==="review"){
+    const sel=visSelection();
+    el.innerHTML=`
+    <div class="card">
+      <h2>✅ Prêt à analyser</h2>
+      <p class="sub">Vérifiez avant d'envoyer. Supprimez les images floues ou inutiles : moins d'images mais nettes vaut toujours mieux.</p>
+      <div class="grid g3">
+        <div class="kpi"><div class="k">Images gardées</div><div class="v">${VIS.frames.length}</div></div>
+        <div class="kpi hi"><div class="k">Envoyées à l'IA</div><div class="v">${sel.length}<span class="u"> / ${VIS_MAX_IMG}</span></div></div>
+        <div class="kpi"><div class="k">Poids de l'envoi</div><div class="v" id="visPoids">${visPoids(sel)}<span class="u"> Mo</span></div></div>
+      </div>
+      <div class="strip" id="visStrip" style="margin-top:12px">${visStripHTML()}</div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn sm" id="visPlus">🖼️ Ajouter des photos</button>
+        <button class="btn sm" id="visRefilm">🎬 Filmer encore</button>
+        ${VIS.videoURL? '<a class="btn sm" href="'+VIS.videoURL+'" download="visite.webm">⬇ Garder le film</a>':""}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🎙️ Ce que vous avez dit</h3>
+      ${VIS.transcript? '<div class="live" style="max-height:200px">'+esc(VIS.transcript)+'</div>'
+        : '<div class="note">Rien n\'a été transcrit. Écrivez ci-dessous ce que vous savez : c\'est au moins aussi important que les images.</div>'}
+      <label class="f" style="margin-top:12px"><span>Ce que vous savez en plus (dictez avec le micro de votre clavier)</span>
+        <textarea id="visNotes" style="min-height:110px" placeholder="Exemple : immeuble de 5 étages, 4 cages d'escalier. Les 2 derniers étages de la cage C sont froids depuis 2 ans. La chaudière est neuve. Il y a de l'eau chaude sanitaire bouclée. Personne n'a jamais équilibré.">${esc(VIS.notes)}</textarea></label>
+      <div class="hint">Dites tout ce que vous savez, même en désordre : ce qui chauffe mal, le nombre d'étages et de colonnes, ce que le client vous a raconté, ce que vous avez déjà essayé.</div>
+    </div>
+
+    ${VIS.erreur? '<div class="note d"><b>L\'analyse a échoué.</b><br>'+esc(VIS.erreur)+'</div>':""}
+
+    <div class="card">
+      <button class="btn pri wide" id="visAn" style="padding:16px;font-size:15px">🧠 Analyser avec l'IA</button>
+      <div class="hint" style="margin-top:8px">L'analyse prend en général 30 secondes à 2 minutes selon le nombre d'images.</div>
+      <button class="btn gho wide" id="visReset" style="margin-top:10px">Tout recommencer</button>
+    </div>`;
+    visBindStrip();
+    $("#visNotes").oninput=e=>{ VIS.notes=e.target.value; };
+    $("#visAn").onclick=visAnalyser;
+    $("#visRefilm").onclick=visDemarrer;
+    $("#visPlus").onclick=()=>visFichier("image/*", async fs=>{ await visImportPhotos(fs); vVisite(); }, true);
+    $("#visReset").onclick=()=>{ if(confirm("Effacer la visite en cours ?")){ visInit(); vVisite(); } };
+    return;
+  }
+
+  /* ---------- EN COURS ---------- */
+  if(P_==="analyse" || P_==="generation"){
+    el.innerHTML=`
+    <div class="card" style="text-align:center;padding:40px 18px">
+      <div style="font-size:42px;margin-bottom:14px">🧠</div>
+      <h2 style="justify-content:center">${P_==="analyse"?"L'IA analyse votre visite":"L'IA construit votre chantier"}</h2>
+      <p class="sub" style="margin-top:8px">${esc(VIS.etape||"…")}</p>
+      <div class="bar" style="margin-top:16px"><i style="width:${Math.round((VIS.progres||0)*100)}%;background:var(--amber)"></i></div>
+      <div class="hint" style="margin-top:14px">Ne fermez pas cette page. Les images partent par petits lots pour éviter les coupures.</div>
+    </div>`;
+    return;
+  }
+
+  /* ---------- SYNTHÈSE ---------- */
+  if(P_==="synthese"){
+    const s=VIS.synthese||{};
+    el.innerHTML=`
+    <div class="card">
+      <h2>👁️ Ce que l'IA a compris</h2>
+      <p class="sub">Lisez et corrigez si c'est faux : tout le reste en dépend.</p>
+      <div class="note i">${esc(s.resume||"—")}</div>
+      ${s.type_installation? '<div class="row" style="margin-top:10px"><span class="tag amber">'+esc(s.type_installation)+'</span></div>':""}
+    </div>
+    ${(s.alertes&&s.alertes.length)? '<div class="card"><h3>⚠️ Points à traiter en priorité</h3><ul class="bul">'+s.alertes.map(a=>"<li>"+esc(a)+"</li>").join("")+'</ul></div>':""}
+    ${(s.materiel_identifie&&s.materiel_identifie.length)? `<div class="card">
+      <h3>Matériel identifié</h3>
+      <div class="tbl-wrap"><table><thead><tr><th>Quoi</th><th>Détail</th><th>Fiabilité</th></tr></thead><tbody>
+      ${s.materiel_identifie.map(m=>`<tr><td>${esc(m.quoi)}</td><td style="font-size:11.5px;color:var(--muted)">${esc(m.detail||"")}</td>
+        <td>${m.confiance==="sure"?'<span class="tag ok">vu</span>':m.confiance==="probable"?'<span class="tag warn">probable</span>':'<span class="tag bad">à vérifier</span>'}</td></tr>`).join("")}
+      </tbody></table></div>
+      <div class="hint" style="margin-top:8px">« probable » ou « à vérifier » = <b>allez lire le marquage sur place</b> avant de vous en servir.</div>
+    </div>`:""}
+    <div class="card">
+      <button class="btn pri wide" id="visQ" style="padding:15px">Répondre aux ${VIS.questions.length} questions →</button>
+      <button class="btn gho wide" id="visBack" style="margin-top:10px">← Revenir aux images</button>
+    </div>`;
+    $("#visQ").onclick=()=>{ VIS.phase="questions"; VIS.qIdx=0; vVisite(); };
+    $("#visBack").onclick=()=>{ VIS.phase="review"; vVisite(); };
+    return;
+  }
+
+  /* ---------- QUESTIONS ---------- */
+  if(P_==="questions"){
+    const q=VIS.questions[VIS.qIdx];
+    if(!q){ VIS.phase="synthese"; vVisite(); return; }
+    const rep=VIS.reponses[q.id];
+    el.innerHTML=`
+    <div class="steps" style="margin-bottom:14px">${VIS.questions.map((x,i)=>
+      `<div class="stepdot ${i<VIS.qIdx?"done":i===VIS.qIdx?"cur":""}"></div>`).join("")}</div>
+    <div class="qbox">
+      <div class="qprog">Question ${VIS.qIdx+1} sur ${VIS.questions.length}</div>
+      <h3>${esc(q.question)}</h3>
+      <div class="qwhy">${esc(q.pourquoi||"")}</div>
+      ${q.type==="choix"&&q.options&&q.options.length?
+        q.options.map((o,i)=>`<button class="qopt${rep===o?" on":""}" data-opt="${i}">${esc(o)}</button>`).join("")
+      : q.type==="nombre"?
+        `<label class="f"><span>Votre réponse${q.unite?" ("+esc(q.unite)+")":""}</span>
+         <input type="number" step="any" id="qrep" value="${rep!=null?esc(rep):(q.defaut||"")}" style="font-size:19px;padding:14px"></label>`
+      : `<label class="f"><span>Votre réponse</span>
+         <textarea id="qrep" style="min-height:90px;font-size:15px">${rep!=null?esc(rep):esc(q.defaut||"")}</textarea></label>`}
+      <button class="qopt" id="qsais" style="border-style:dashed;color:var(--muted)">🤷 Je ne sais pas</button>
+    </div>
+    ${q.aide? '<details><summary>💡 Où trouver la réponse ?</summary><div class="dbody">'+esc(q.aide)+'</div></details>':""}
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="qprev" style="flex:0 0 90px" ${VIS.qIdx===0?"disabled":""}>← Retour</button>
+      <button class="btn pri" id="qnext" style="flex:1">${VIS.qIdx===VIS.questions.length-1?"Terminer et construire le chantier":"Suivant →"}</button>
+    </div>
+    ${VIS.erreur? '<div class="note d" style="margin-top:12px">'+esc(VIS.erreur)+'</div>':""}
+    <div class="card tight" style="margin-top:14px">
+      <button class="btn sm gho wide" id="qtout">Voir toutes les questions</button>
+    </div>`;
+    $$("[data-opt]",el).forEach(b=>b.onclick=()=>{
+      VIS.reponses[q.id]=q.options[+b.dataset.opt];
+      if(VIS.qIdx<VIS.questions.length-1){ VIS.qIdx++; vVisite(); } else vVisite();
+    });
+    $("#qsais").onclick=()=>{ VIS.reponses[q.id]="je ne sais pas";
+      if(VIS.qIdx<VIS.questions.length-1){ VIS.qIdx++; vVisite(); } else vVisite(); };
+    $("#qprev").onclick=()=>{ visSaisir(q); if(VIS.qIdx>0){ VIS.qIdx--; vVisite(); } };
+    $("#qnext").onclick=()=>{ visSaisir(q);
+      if(VIS.qIdx<VIS.questions.length-1){ VIS.qIdx++; vVisite(); } else visGenerer(); };
+    $("#qtout").onclick=()=>{
+      openModal(`<div class="modal-h"><h3>Toutes les questions</h3><button class="iconbtn" onclick="closeModal()">✕</button></div>
+      ${VIS.questions.map((x,i)=>`<button class="qopt" data-jump="${i}">
+        <b>${i+1}. ${esc(x.question)}</b><br><small style="color:${VIS.reponses[x.id]?"#7fd398":"var(--faint)"}">${VIS.reponses[x.id]? "→ "+esc(VIS.reponses[x.id]) : "sans réponse"}</small></button>`).join("")}`);
+      $$("[data-jump]").forEach(b=>b.onclick=()=>{ VIS.qIdx=+b.dataset.jump; closeModal(); vVisite(); });
+    };
+    return;
+  }
+
+  /* ---------- RÉSULTAT ---------- */
+  if(P_==="resultat"){
+    const pl=VIS.plan||{};
+    const parType={};
+    (pl.noeuds||[]).forEach(n=>{ parType[n.type]=(parType[n.type]||0)+1; });
+    el.innerHTML=`
+    <div class="card">
+      <h2>🏗️ Votre chantier est prêt</h2>
+      <p class="sub">Vérifiez que cela ressemble à ce que vous avez sur place, puis validez.</p>
+      <div class="grid g3">
+        ${Object.entries(parType).map(([t,n])=>`<div class="kpi"><div class="k">${esc(TYPES[t]?TYPES[t].nom:t)}</div><div class="v">${n}</div></div>`).join("")}
+      </div>
+    </div>
+    <div class="card">
+      <h3>Ce qui va être créé</h3>
+      <div class="tbl-wrap"><table><thead><tr><th>Élément</th><th>Type</th><th>Vanne</th><th class="num">Débit / puissance</th></tr></thead><tbody>
+      ${(pl.noeuds||[]).map(n=>{
+        const v=VALVES.find(x=>x.id===n.vanne);
+        return `<tr><td>${esc(n.nom)}</td>
+        <td style="font-size:11px;color:var(--muted)">${esc(TYPES[n.type]?TYPES[n.type].nom:n.type)}</td>
+        <td style="font-size:11px">${v? esc(v.marque+" "+v.modele)+(n.dn?" DN"+n.dn:""):'<span style="color:var(--faint)">—</span>'}</td>
+        <td class="num mono">${n.debit_lh? Math.round(n.debit_lh)+" l/h" : n.puissance_kw? n.puissance_kw+" kW" : n.longueur_m? n.longueur_m+" m":"—"}</td></tr>`;}).join("")}
+      </tbody></table></div>
+    </div>
+    ${(pl.hypotheses&&pl.hypotheses.length)? '<div class="card"><h3>⚠️ Ce que l\'IA a supposé</h3><p class="sub">À vérifier sur place : ces points ne viennent pas de vos images.</p><ul class="bul">'+pl.hypotheses.map(h=>"<li>"+esc(h)+"</li>").join("")+'</ul></div>':""}
+    ${(pl.reserves&&pl.reserves.length)? '<div class="card"><h3>📋 À vérifier ou à mesurer</h3><ul class="bul">'+pl.reserves.map(h=>"<li>"+esc(h)+"</li>").join("")+'</ul></div>':""}
+    ${pl.premiere_action? '<div class="note g"><b>Première action sur le chantier :</b><br>'+esc(pl.premiere_action)+'</div>':""}
+    <div class="card">
+      <button class="btn pri wide" id="visOk" style="padding:16px;font-size:15px">✓ Créer ce chantier</button>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="visRetourQ" style="flex:1">← Corriger mes réponses</button>
+        <button class="btn" id="visRegen" style="flex:1">🔄 Refaire</button>
+      </div>
+      <div class="hint" style="margin-top:10px">Rien n'est définitif : tout reste modifiable ensuite dans l'onglet Réseau.</div>
+    </div>`;
+    $("#visOk").onclick=visAppliquer;
+    $("#visRetourQ").onclick=()=>{ VIS.phase="questions"; VIS.qIdx=0; vVisite(); };
+    $("#visRegen").onclick=visGenerer;
+    return;
+  }
+}
+function visSaisir(q){
+  const e=$("#qrep");
+  if(e && e.value!=="") VIS.reponses[q.id]=e.value;
+}
+function visFichier(accept, cb, multiple){
+  const i=document.createElement("input");
+  i.type="file"; i.accept=accept; if(multiple) i.multiple=true;
+  i.onchange=()=>{ if(!i.files.length) return; cb(multiple? i.files : i.files[0]); };
+  i.click();
+}
+
+/* -------------------------------------------------------------------------
+   PARCOURS GUIDÉ — l'écran d'accueil du mode simple
+   ------------------------------------------------------------------------- */
+function vParcours(){
+  const el=$("#v-parcours");
+  const aP = !!P;
+  const nNoeuds = aP? P.nodes.filter(n=>n.type!=="chaufferie").length : 0;
+  const nDebits = aP? P.nodes.filter(n=>n.type!=="chaufferie" && debitNominal(n)>0).length : 0;
+  const nVannes = aP? P.nodes.filter(n=>n.valve).length : 0;
+  const nMes    = aP? P.nodes.filter(n=>derniereMesure(n)).length : 0;
+  const chkOK   = aP? Object.values(P.checklist).filter(Boolean).length===CHECKLIST_AVANT.length : false;
+  const gs      = aP? groupes() : [];
+  const finis   = gs.filter(g=>etatGroupe(g).k==="done").length;
+
+  const etapes=[
+    {n:1, t:"Filmer l'installation", d:"Vous filmez, l'IA analyse et construit le chantier toute seule.",
+     ok:aP && P.visite, dispo:true, go:()=>go("visite"),
+     etat: aP&&P.visite? "Visite analysée" : "Pas encore fait",
+     alt:"Ou créez le chantier à la main dans l'onglet Chantier."},
+    {n:2, t:"Vérifier le chantier", d:"Le nom, le client, le fluide, votre appareil de mesure.",
+     ok:aP && P.nom && P.operateur, dispo:aP, go:()=>go("projet"),
+     etat: aP? (P.operateur? "Renseigné":"Opérateur manquant") : "Aucun chantier"},
+    {n:3, t:"Vérifier les débits et les vannes", d:"Chaque point doit avoir un débit de consigne et un organe de réglage.",
+     ok:aP && nNoeuds>0 && nDebits===nNoeuds && nVannes>0, dispo:aP && nNoeuds>0, go:()=>go("reseau"),
+     etat: aP? nDebits+" / "+nNoeuds+" débits · "+nVannes+" vannes" : "—"},
+    {n:4, t:"Faire les contrôles avant de commencer", d:"Purge, filtres, pompe figée, robinets thermostatiques. Sans cela, rien n'est fiable.",
+     ok:chkOK, dispo:aP, go:()=>{ go("projet"); setTimeout(()=>{ const c=$("#chkList"); if(c) c.scrollIntoView({behavior:"smooth"}); },200); },
+     etat: aP? Object.values(P.checklist).filter(Boolean).length+" / "+CHECKLIST_AVANT.length+" contrôles":"—"},
+    {n:5, t:"Équilibrer, guidé pas à pas", d:"L'application vous dit quelle vanne régler, dans quel ordre, et jusqu'où.",
+     ok:gs.length>0 && finis===gs.length, dispo:aP && nVannes>0, go:()=>go("equilibrage"),
+     etat: gs.length? finis+" / "+gs.length+" groupes équilibrés" : "Aucun groupe"},
+    {n:6, t:"Éditer le rapport", d:"Le procès-verbal d'équilibrage, à imprimer ou à envoyer au client.",
+     ok:nMes>0, dispo:aP && nMes>0, go:()=>go("rapport"),
+     etat: nMes? nMes+" points relevés" : "Aucune mesure"}
+  ];
+  const courante = etapes.find(e=>!e.ok && e.dispo) || etapes.find(e=>!e.ok) || etapes[etapes.length-1];
+
+  el.innerHTML=`
+  <div class="card">
+    <h2>🚦 Votre parcours</h2>
+    <p class="sub">${aP? "Chantier en cours : <b>"+esc(P.nom)+"</b>. Suivez les étapes dans l'ordre, l'application vous guide." : "Commencez par filmer votre installation : c'est le plus rapide et le plus sûr."}</p>
+  </div>
+
+  <div class="parc">
+    ${etapes.map(e=>`<button class="pcard ${e.ok?"done":""} ${e===courante&&!e.ok?"now":""} ${!e.dispo&&!e.ok?"lock":""}" data-e="${e.n}" ${!e.dispo&&!e.ok?"disabled":""}>
+      <div class="pnum">${e.ok?"✓":e.n}</div>
+      <div class="pbody"><b>${esc(e.t)}</b><span>${esc(e.d)}</span><em>${esc(e.etat)}</em></div>
+    </button>`).join("")}
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <h3>Besoin d'aide ?</h3>
+    <div class="row">
+      <button class="btn sm" id="pcIA">✨ Demander à l'IA quoi faire maintenant</button>
+      <button class="btn sm" id="pcAide">📚 Comprendre l'équilibrage</button>
+    </div>
+    ${!aP? '<button class="btn gho wide" style="margin-top:10px" id="pcNew">Créer un chantier vide (sans filmer)</button>':""}
+  </div>
+
+  ${aP? `<div class="card">
+    <div class="spread"><div><b style="font-size:13px">${esc(P.nom)}</b>
+      <div style="font-size:11.5px;color:var(--faint)">${esc(P.client||"")} ${P.client?"·":""} ${esc(P.date)} · ${P.nodes.length} éléments</div></div>
+      <button class="btn xs" id="pcMenu">⋯</button></div>
+  </div>`:""}`;
+
+  $$("[data-e]",el).forEach(b=>b.onclick=()=>{ const e=etapes.find(x=>x.n===+b.dataset.e); if(e&&e.dispo!==false) e.go(); });
+  $("#pcIA").onclick=()=>aiDemander(aP? "Regarde où j'en suis sur ce chantier et dis-moi exactement quoi faire maintenant, étape par étape."
+                                      : "Je démarre un chantier d'équilibrage et je débute. Explique-moi par quoi commencer.", "execution");
+  $("#pcAide").onclick=()=>go("aide");
+  if($("#pcNew")) $("#pcNew").onclick=()=>{ nouveauProjet(); go("projet"); };
+  if($("#pcMenu")) $("#pcMenu").onclick=()=>$("#btnMenu").click();
+}
+
+/* -------------------------------------------------------------------------
+   20. MENU ET DÉMARRAGE
    ------------------------------------------------------------------------- */
 $("#btnSave").onclick=()=>save();
 $("#btnIA").onclick=()=>{
@@ -3035,6 +3970,7 @@ $("#btnMenu").onclick=()=>{
      <button class="btn wide" id="mExp">⬇ Exporter le chantier courant</button>
      <button class="btn wide" id="mImp">⬆ Importer un chantier</button>
      <button class="btn wide" id="mPrint">🖨 Imprimer le PV</button>
+     <button class="btn wide" id="mHelp">❓ Revoir l'explication de départ</button>
      <button class="btn wide dgr" id="mReset">🗑 Effacer toutes les données locales</button>
    </div>
    <div class="hint" style="margin-top:12px">Les données sont stockées <b>uniquement dans ce navigateur</b> (localStorage). Aucune donnée n'est envoyée sur un serveur. Exportez régulièrement pour ne rien perdre, notamment avant de changer de téléphone ou de vider le cache.</div>`);
@@ -3043,6 +3979,7 @@ $("#btnMenu").onclick=()=>{
   $("#mExp").onclick=()=>{ if(P){exportJSON();closeModal();} else flash("Aucun chantier ouvert",true); };
   $("#mImp").onclick=()=>{ closeModal(); importJSON(); };
   $("#mPrint").onclick=()=>{ closeModal(); if(P){go("rapport"); setTimeout(()=>window.print(),300);} };
+  $("#mHelp").onclick=()=>{ closeModal(); setTimeout(bienvenue,150); };
   $("#mReset").onclick=()=>{ if(confirm("Effacer TOUS les chantiers et tous les abaques enregistrés ? Cette action est irréversible.")){ localStorage.removeItem(LS_KEY); localStorage.removeItem(LS_CHART); DB={projets:[],courant:null}; CHARTS={}; P=null; closeModal(); go("projet"); } };
 };
 
@@ -3079,12 +4016,26 @@ function modele(t){
 /* démarrage */
 load();
 renderTabs();
-if(!P && DB.projets.length===0){ VIEW="projet"; }
-else if(P){ VIEW="reseau"; }
+VIEW = modeSimple()? "parcours" : (P? "reseau" : "projet");
 go(VIEW);
+if(!localStorage.getItem("equilibrage_vu")){ localStorage.setItem("equilibrage_vu","1"); setTimeout(bienvenue, 400); }
 window.addEventListener("beforeunload",autosave);
 setInterval(autosave, 20000);
 window.closeModal=closeModal;
+
+/* Écran de bienvenue, affiché une seule fois */
+function bienvenue(){
+  openModal(`<div class="modal-h"><h3>Bienvenue</h3><button class="iconbtn" onclick="closeModal()">✕</button></div>
+   <p style="font-size:14px;line-height:1.65">Cette application vous fait <b>équilibrer un réseau de chauffage ou d'eau chaude sanitaire</b>, même si vous n'en avez jamais fait.</p>
+   <div class="act" style="margin-top:14px"><b>1 · Vous filmez</b><p>Vous parcourez l'installation avec votre téléphone en expliquant à voix haute ce que vous voyez.</p></div>
+   <div class="act"><b>2 · L'IA analyse et vous questionne</b><p>Elle lit les plaques, reconnaît les vannes, puis vous pose les questions manquantes une par une.</p></div>
+   <div class="act"><b>3 · Elle construit le chantier</b><p>Chaufferie, réseaux, colonnes, émetteurs, vannes : tout est créé, vous n'avez qu'à valider.</p></div>
+   <div class="act"><b>4 · Vous êtes guidé vanne par vanne</b><p>L'application vous dit quoi régler, dans quel ordre, et jusqu'où. Vous ne pouvez pas vous tromper d'ordre.</p></div>
+   <div class="act"><b>5 · Vous éditez le rapport</b><p>Le procès-verbal d'équilibrage est prêt à imprimer ou à envoyer.</p></div>
+   <div class="note i" style="margin-top:12px">Vous restez maître de tout : chaque proposition de l'IA est affichée avant d'être appliquée, et <b>c'est toujours la mesure sur site qui fait foi</b>.</div>
+   <button class="btn pri wide" style="margin-top:14px" onclick="closeModal()">C'est parti</button>`);
+}
+window.bienvenue=bienvenue;
 </script>
 </body>
 </html>

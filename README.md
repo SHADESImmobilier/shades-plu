@@ -58,6 +58,8 @@ d'ECS bouclée, en chauffage collectif comme en industriel.
 - Assistants guidés : méthode proportionnelle, méthode compensée, vérification des organes dynamiques, préréglage calculé, équilibrage ECS par température.
 - Saisie et mémorisation des abaques Kv constructeur (réutilisés d'un chantier à l'autre).
 - Diagnostic symptôme → cause → action, guide et glossaire.
+- **Visite filmée** : on filme l'installation, l'IA l'analyse, pose les questions manquantes et construit le chantier.
+- **Parcours guidé** en 6 étapes (mode simple par défaut, mode expert au choix).
 - **Assistant IA** (API Claude) qui accompagne les trois phases : étude, exécution, contrôle.
 - PV d'équilibrage imprimable, exports CSV et JSON.
 
@@ -91,3 +93,37 @@ l'assistant d'équilibrage, depuis le diagnostic et depuis le PV.
 
 L'assistant a pour consigne explicite de **ne jamais inventer une donnée constructeur**
 (Kv, Kvs, nombre de tours, dp mini) et de renvoyer à la notice ou au Kv déduit de la mesure.
+
+### Visite filmée analysée par l'IA
+
+L'onglet **📹 Visite** permet de partir de zéro sans rien connaître de l'installation.
+
+**Comment ça marche techniquement** — l'API Claude n'accepte pas de fichier vidéo.
+L'application procède donc ainsi, entièrement côté navigateur :
+
+1. capture caméra (`getUserMedia` + `MediaRecorder`) ou import d'une vidéo / de photos ;
+2. extraction d'images clés (une toutes les 3 s + photos manuelles), redimensionnées à
+   1024 px, compressées en JPEG, et **dédoublonnées** par empreinte 16×16 en niveaux de gris ;
+3. transcription du commentaire parlé via la reconnaissance vocale du navigateur
+   (`SpeechRecognition`), avec repli sur une saisie texte si elle est indisponible ;
+4. envoi à Claude **par lots de 3 images** (pour tenir dans la durée d'exécution d'une
+   fonction Netlify), 12 images au maximum, puis un appel de synthèse ;
+5. Claude renvoie une sortie structurée (`tool_use`) : synthèse, matériel identifié avec
+   niveau de confiance, alertes, et 4 à 12 questions en langage simple ;
+6. les questions sont posées **une par une**, avec « pourquoi c'est utile », « où trouver
+   la réponse » et un bouton « je ne sais pas » ;
+7. un dernier appel construit l'arborescence complète du chantier, affichée pour validation
+   avant application, avec les hypothèses et les réserves.
+
+**Le film ne quitte jamais l'appareil** : seules les images clés et le texte sont transmis.
+
+**Garde-fous côté application** : identifiants de vanne inconnus ignorés, DN invalides
+écartés, boucles de parenté impossibles, éléments orphelins rattachés à la chaufferie,
+débit fourni par l'IA prioritaire sur une liste d'émetteurs forcément incomplète.
+Les hypothèses et réserves sont recopiées dans les notes du chantier et dans le PV.
+
+### Mode simple / mode expert
+
+Par défaut l'application démarre en **mode simple** : écran d'accueil « Parcours » en
+6 étapes, onglets techniques masqués, écran de bienvenue au premier lancement.
+Le basculement en **mode expert** (dernier onglet) réaffiche Débits, Vannes et Outils.
