@@ -11,3 +11,9 @@
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type"
+
+# URL courte pour l'assistant d'equilibrage hydraulique
+[[redirects]]
+  from = "/equilibrage"
+  to = "/shades_equilibrage.html"
+  status = 200
