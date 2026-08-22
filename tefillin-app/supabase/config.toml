@@ -1,0 +1,52 @@
+# Configuration Supabase CLI — MitzvaNOW
+# Renseignez project_id avec la référence de votre projet (Dashboard > Settings).
+project_id = "mitzvanow"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+# En prod, remplacez par l'URL/scheme de l'app (deep link) :
+site_url = "mitzvanow://"
+additional_redirect_urls = ["mitzvanow://"]
+jwt_expiry = 3600
+enable_signup = true
+
+# Connexion par OTP SMS (le fournisseur SMS se configure dans le Dashboard).
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+
+[storage]
+enabled = true
+# Preuves de mise : bucket privé (voir migration 0005).
+file_size_limit = "10MiB"
+
+# ---- Edge Functions : contrôle du JWT ----
+# submit_session / enroll_face / create_donation : appelées par l'app authentifiée.
+[functions.submit_session]
+verify_jwt = true
+
+[functions.enroll_face]
+verify_jwt = true
+
+[functions.create_donation]
+verify_jwt = true
+
+# clear_rewards : déclenchée par un cron/scheduler avec la clé service — pas de JWT utilisateur.
+[functions.clear_rewards]
+verify_jwt = false
