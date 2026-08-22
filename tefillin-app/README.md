@@ -69,15 +69,22 @@ les accepte (RPC `accept_request`), puis prend la photo de la mise (`capture`).
 Stripe PaymentSheet), annuaire d'associations (dont MitzvaNOW), anonymat, suivi du maasser
 (`money_donations`, `create_donation`, `maaser_summary`), **rappel quotidien** (notification).
 
-🔜 À implémenter : brancher un **service de reconnaissance faciale** (`FACE_API`)
-pour l'embedding du posé (règle 1×/jour) ; consentement RGPD du posé tracé +
-politique de conservation ; notifications push (FCM/APNs) ; back-office d'audit
-fraude (web) ; cron de `clear_rewards`.
-_(Partenaires cachers seedés : Hyper Cacher, Chez Yaacov, Boucherie Cachère du Roi,
-Librairie Sinaï — migration `0010`.)_
+✅ **Récompense du poseur ET du posé** : pour une mise validée, le posé (s'il a un
+compte) reçoit aussi des points, plafonné à 1×/jour par la reconnaissance faciale
+(modèle de récompenses généralisé : `rewards.recipient_id` + `role`).
+✅ **Durcissement production** : migrations `0001→0012` qui s'appliquent de bout en
+bout, RLS renforcée (biométrie/anti-fraude en service-role only), `submit_session`
+qui autorise l'appelant, **webhook Stripe** (dons → `succeeded`), cron de clearing
+(pg_cron), seed de démo isolé (`supabase/seed.sql`), build mobile débloqué
+(`babel.config.js`, `app.config.ts`, icônes/splash), **CI** (typecheck + deno check).
 
-**Secrets Edge Functions** : `ANTHROPIC_API_KEY` (vision, requis), `FACE_API_URL` /
-`FACE_API_KEY` (reconnaissance faciale, optionnel), `STRIPE_SECRET_KEY` (dons).
+🔜 Dépend de toi (voir [`docs/PRODUCTION.md`](docs/PRODUCTION.md)) : comptes & clés,
+validation rabbinique, RGPD (conservation biométrie), soumission stores. Optionnel :
+brancher un `FACE_API` externe ; notifications push (FCM/APNs) ; back-office d'audit web.
+
+**Secrets** : voir [`.env.example`](.env.example) et le runbook
+[`docs/PRODUCTION.md`](docs/PRODUCTION.md) (Supabase, Stripe + webhook, Anthropic,
+SMS, Google Maps, `CRON_SECRET`).
 
 Voir [`docs/CONCEPTION.md`](docs/CONCEPTION.md) pour le détail — **dont les points
 à trancher** : nature halachique de la récompense, et le fournisseur SMS.

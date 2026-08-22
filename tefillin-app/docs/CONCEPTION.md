@@ -193,6 +193,12 @@ created                     (le poseur ouvre la caméra)
 
 ## 5. Récompenses
 
+- **Qui est récompensé** : le **poseur** ET le **posé**. Pour une mise validée, le posé
+  reçoit aussi des points (montant configurable, `BENEFICIARY_REWARD_POINTS`), s'il a un
+  compte (flux « VTC » : son `beneficiary_id` est recopié sur la session). Le posé reste
+  **plafonné à une récompense par jour** par la reconnaissance faciale (on ne met les
+  tefillin qu'une fois par jour). Les deux récompenses naissent `pending` et suivent le
+  même clearing anti-fraude.
 - **Unité interne** : *points* (ex. 1 mise validée = N points), pour découpler de l'argent.
 - **Conversion** :
   - **Cashback** (cagnotte → virement / carte cadeau via PSP en V2),
