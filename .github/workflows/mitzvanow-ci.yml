@@ -1,0 +1,42 @@
+name: MitzvaNOW CI
+
+on:
+  push:
+    paths:
+      - "tefillin-app/**"
+      - ".github/workflows/mitzvanow-ci.yml"
+  pull_request:
+    paths:
+      - "tefillin-app/**"
+
+jobs:
+  mobile-typecheck:
+    name: Mobile · typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tefillin-app/mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: tefillin-app/mobile/package-lock.json
+      - run: npm ci
+      - run: npx tsc -p tsconfig.json --noEmit
+
+  functions-check:
+    name: Edge Functions · deno check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - name: Type-check Edge Functions
+        run: |
+          for f in tefillin-app/supabase/functions/*/index.ts; do
+            echo "== deno check $f =="
+            deno check "$f"
+          done
