@@ -16,7 +16,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     supabase.from("profiles").select("*").single().then(({ data }) => {
-      const p = data as any;
+      const p = data as Profile | null;
       setProfile(p);
       setReminder(!!p?.tsedaka_reminder_enabled);
       setFaceEnrolled(!!p?.face_enrolled);

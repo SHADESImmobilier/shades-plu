@@ -26,6 +26,10 @@ export interface Profile {
   is_poseur: boolean;
   trust: TrustLevel;
   points_balance: number;
+  face_enrolled: boolean;
+  face_ref_path: string | null;
+  tsedaka_reminder_enabled: boolean;
+  tsedaka_reminder_hour: number | null;
 }
 
 export interface NearbyPoseur {
@@ -37,9 +41,13 @@ export interface NearbyPoseur {
   lng_p: number;
 }
 
+export type RewardRole = "poseur" | "beneficiary";
+
 export interface Reward {
   id: string;
   session_id: string;
+  recipient_id: string;
+  role: RewardRole;
   points: number;
   status: RewardStatus;
   created_at: string;

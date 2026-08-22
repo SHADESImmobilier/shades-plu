@@ -40,14 +40,18 @@ export default function Capture() {
     if (!photoUri) return;
     setPhase("sending");
     try {
-      const b64all = await FileSystem.readAsStringAsync(photoUri, { encoding: "base64" });
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Session expirée.");
+      const uid = u.user.id;
 
       // --- Mode ENRÔLEMENT : photo de référence du visage du poseur ----------
       if (isEnroll) {
-        const { data: u } = await supabase.auth.getUser();
-        const path = `faces/${u.user?.id}.jpg`;
+        // Le chemin DOIT commencer par l'uid (policy Storage), et submit/enroll
+        // le lisent côté serveur.
+        const b64 = await FileSystem.readAsStringAsync(photoUri, { encoding: "base64" });
+        const path = `${uid}/faces/reference.jpg`;
         const { error: eu } = await supabase.storage.from("mivtza-proofs")
-          .upload(path, decode(b64all), { contentType: "image/jpeg", upsert: true });
+          .upload(path, decode(b64), { contentType: "image/jpeg", upsert: true });
         if (eu) throw eu;
         const { data, error } = await supabase.functions.invoke("enroll_face", { body: { photo_path: path } });
         if (error) throw error;
@@ -70,9 +74,9 @@ export default function Capture() {
       if (e1) throw e1;
       const sessionId = (Array.isArray(s) ? s[0] : s).session_id;
 
-      // 2) uploader la photo (capture live) dans Storage
+      // 2) uploader la photo (capture live) dans Storage — dossier = uid.
       const b64 = await FileSystem.readAsStringAsync(photoUri, { encoding: "base64" });
-      const path = `sessions/${sessionId}.jpg`;
+      const path = `${uid}/sessions/${sessionId}.jpg`;
       const { error: e2 } = await supabase.storage.from("mivtza-proofs")
         .upload(path, decode(b64), { contentType: "image/jpeg", upsert: true });
       if (e2) throw e2;

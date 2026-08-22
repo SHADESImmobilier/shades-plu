@@ -6,6 +6,12 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.shades.mitzvanow",
@@ -16,6 +22,10 @@
     },
     "android": {
       "package": "com.shades.mitzvanow",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1e3a8a"
+      },
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA"]
     },
     "plugins": [
@@ -33,9 +43,9 @@
       ]
     ],
     "extra": {
-      "supabaseUrl": "https://YOUR-PROJECT.supabase.co",
-      "supabaseAnonKey": "YOUR-ANON-KEY",
-      "stripePublishableKey": "pk_test_YOUR-KEY"
+      "supabaseUrl": "",
+      "supabaseAnonKey": "",
+      "stripePublishableKey": ""
     }
   }
 }

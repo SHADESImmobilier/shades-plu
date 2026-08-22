@@ -27,9 +27,14 @@ export default function RequestScreen() {
       const { latitude, longitude } = loc.coords;
       setRegion({ latitude, longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 });
 
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) { Alert.alert("Session expirée"); router.back(); return; }
       const { data, error } = await supabase
         .from("tefillin_requests")
-        .insert({ location: `SRID=4326;POINT(${longitude} ${latitude})` })
+        .insert({
+          beneficiary_id: u.user.id,
+          location: `SRID=4326;POINT(${longitude} ${latitude})`,
+        })
         .select("id").single();
       if (error || !data) { Alert.alert("Erreur", error?.message ?? ""); router.back(); return; }
       requestId.current = data.id;
@@ -57,17 +62,25 @@ export default function RequestScreen() {
   }
 
   function trackPoseur(poseurId: string) {
-    supabase.from("poseur_availability").select("location").eq("poseur_id", poseurId).single()
-      .then(() => {/* position initiale via REST si besoin */});
-    // 2) suit la position du poseur en temps réel
+    // position initiale (colonnes lat/lng dénormalisées)
+    supabase.from("poseur_availability")
+      .select("location_lat, location_lng").eq("poseur_id", poseurId).single()
+      .then(({ data }) => {
+        const p = data as { location_lat: number | null; location_lng: number | null } | null;
+        if (p?.location_lat != null && p?.location_lng != null) {
+          setPoseurLoc({ latitude: p.location_lat, longitude: p.location_lng });
+        }
+      });
+    // 2) suit la position du poseur en temps réel (lat/lng dénormalisés)
     const ch = supabase
       .channel(`poseur:${poseurId}`)
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "poseur_availability", filter: `poseur_id=eq.${poseurId}` },
         (payload) => {
-          // location renvoyée en WKB/GeoJSON selon config ; ici on attend lat/lng dénormalisés
-          const loc = (payload.new as any).location;
-          if (loc?.coordinates) setPoseurLoc({ latitude: loc.coordinates[1], longitude: loc.coordinates[0] });
+          const n = payload.new as { location_lat: number | null; location_lng: number | null };
+          if (n.location_lat != null && n.location_lng != null) {
+            setPoseurLoc({ latitude: n.location_lat, longitude: n.location_lng });
+          }
         })
       .subscribe();
     channels.current.push(ch);

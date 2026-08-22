@@ -29,7 +29,8 @@ export default function Partners() {
     // garantir l'anti-rejeu et le débit atomique des points.
     const { data, error } = await supabase.rpc("issue_voucher", { offer_id: offer.id });
     if (error) return Alert.alert("Indisponible", error.message);
-    Alert.alert("Bon généré", `Votre code : ${data?.code ?? "—"}`);
+    const row = Array.isArray(data) ? data[0] : data;
+    Alert.alert("Bon généré", `Votre code : ${row?.code ?? "—"}`);
   }
 
   return (

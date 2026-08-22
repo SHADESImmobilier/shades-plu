@@ -55,7 +55,7 @@ export default function Tsedaka() {
         paymentIntentClientSecret: data.client_secret,
         merchantDisplayName: "MitzvaNOW",
         applePay: { merchantCountryCode: "FR" },
-        googlePay: { merchantCountryCode: "FR", currencyCode: "EUR", testEnv: true },
+        googlePay: { merchantCountryCode: "FR", currencyCode: "EUR", testEnv: __DEV__ },
         allowsDelayedPaymentMethods: false,
       });
       if (init.error) throw new Error(init.error.message);
