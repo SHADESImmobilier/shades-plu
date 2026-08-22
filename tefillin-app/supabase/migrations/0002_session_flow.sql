@@ -12,7 +12,11 @@ alter table mivtza_sessions
 
 -- ---------------------------------------------------------------------------
 -- Redéfinition de nearby_poseurs avec coordonnées (pour afficher les markers).
+-- Le nombre de colonnes de retour change (4 -> 6) : Postgres exige un DROP
+-- explicite avant de recréer (CREATE OR REPLACE ne peut pas changer le type
+-- de retour).
 -- ---------------------------------------------------------------------------
+drop function if exists nearby_poseurs(double precision, double precision, integer);
 create or replace function nearby_poseurs(lat double precision, lng double precision, radius_m integer default 3000)
 returns table (poseur_id uuid, display_name text, trust trust_level, distance_m double precision, lat_p double precision, lng_p double precision)
 language sql stable as $$

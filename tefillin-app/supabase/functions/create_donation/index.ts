@@ -56,19 +56,20 @@ Deno.serve(async (req) => {
     if (!asso?.accepts_donations) return json({ ok: false, reason: "asso_unavailable" }, 400);
 
     // 1) enregistrer le don en 'created'
-    const { data: donation } = await admin.from("money_donations").insert({
+    const { data: donation, error: dErr } = await admin.from("money_donations").insert({
       user_id: u.user.id, tsedaka_id: body.tsedaka_id,
       amount_cents: body.amount_cents, is_anonymous: !!body.is_anonymous,
       is_maaser: body.is_maaser ?? true, recurring: body.recurring ?? null,
       provider: "stripe", status: "created",
     }).select("id").single();
+    if (dErr || !donation) return json({ ok: false, reason: "donation_insert_failed" }, 500);
 
     // 2) créer le PaymentIntent Stripe (Apple Pay/Google Pay/carte via PaymentSheet)
     const params = new URLSearchParams();
     params.set("amount", String(body.amount_cents));
     params.set("currency", "eur");
     params.set("automatic_payment_methods[enabled]", "true");
-    params.set("metadata[donation_id]", donation!.id);
+    params.set("metadata[donation_id]", donation.id);
     params.set("metadata[user_id]", u.user.id);
     // Stripe Connect : router les fonds vers l'association si elle a un compte
     if (asso.stripe_account_id) {
@@ -84,6 +85,8 @@ Deno.serve(async (req) => {
       headers: {
         Authorization: `Bearer ${Deno.env.get("STRIPE_SECRET_KEY")}`,
         "Content-Type": "application/x-www-form-urlencoded",
+        // Anti double-charge : un retry réseau réutilise le même PaymentIntent.
+        "Idempotency-Key": `donation_${donation.id}`,
       },
       body: params,
     });
@@ -91,11 +94,12 @@ Deno.serve(async (req) => {
     if (!resp.ok) return json({ ok: false, reason: pi.error?.message ?? "stripe_error" }, 502);
 
     await admin.from("money_donations")
-      .update({ provider_ref: pi.id }).eq("id", donation!.id);
+      .update({ provider_ref: pi.id }).eq("id", donation.id);
 
-    return json({ ok: true, client_secret: pi.client_secret, donation_id: donation!.id });
+    return json({ ok: true, client_secret: pi.client_secret, donation_id: donation.id });
   } catch (e) {
-    return json({ ok: false, reason: String(e) }, 500);
+    console.error("create_donation error:", e);
+    return json({ ok: false, reason: "internal_error" }, 500);
   }
 });
 

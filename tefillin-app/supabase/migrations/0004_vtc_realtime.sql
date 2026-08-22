@@ -4,6 +4,7 @@
 
 -- Les poseurs (disponibles) peuvent voir les demandes encore "pending" pour
 -- pouvoir les accepter (politique permissive, OR'ée avec "requests involved read").
+drop policy if exists "poseurs read pending requests" on tefillin_requests;
 create policy "poseurs read pending requests" on tefillin_requests
   for select using (
     status = 'pending'
@@ -11,6 +12,7 @@ create policy "poseurs read pending requests" on tefillin_requests
   );
 
 -- Le demandeur peut annuler sa demande.
+drop policy if exists "beneficiary cancels request" on tefillin_requests;
 create policy "beneficiary cancels request" on tefillin_requests
   for update using (auth.uid() = beneficiary_id) with check (auth.uid() = beneficiary_id);
 
@@ -59,5 +61,14 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Realtime : diffuser les changements de demandes et la position des poseurs.
 -- ---------------------------------------------------------------------------
-alter publication supabase_realtime add table tefillin_requests;
-alter publication supabase_realtime add table poseur_availability;
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables
+                 where pubname = 'supabase_realtime' and tablename = 'tefillin_requests') then
+    alter publication supabase_realtime add table tefillin_requests;
+  end if;
+  if not exists (select 1 from pg_publication_tables
+                 where pubname = 'supabase_realtime' and tablename = 'poseur_availability') then
+    alter publication supabase_realtime add table poseur_availability;
+  end if;
+end $$;

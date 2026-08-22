@@ -51,7 +51,8 @@ Deno.serve(async (req) => {
     // Optionnel : empreinte faciale via un service dédié (n'échoue pas la mise).
     const embedding = await faceEmbedding(file);
     if (embedding) {
-      await asUser.rpc("set_face_reference", { embedding }); // lit auth.uid()
+      // pgvector attend la forme texte "[...]" via PostgREST (pas un tableau JSON).
+      await asUser.rpc("set_face_reference", { embedding: "[" + embedding.join(",") + "]" });
     }
 
     return json({ ok: true, embedding_stored: !!embedding });

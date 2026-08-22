@@ -17,7 +17,9 @@ alter table beneficiary_faces
   add column if not exists last_reward_date date;
 
 -- Redéfinition : le matching renvoie aussi la date de dernière récompense
--- (pour appliquer la règle "une fois par jour").
+-- (pour appliquer la règle "une fois par jour"). Le retour passe de 4 à 5
+-- colonnes -> DROP explicite requis avant de recréer.
+drop function if exists match_beneficiary_face(vector, double precision);
 create or replace function match_beneficiary_face(query vector(128), threshold double precision)
 returns table (id uuid, last_rewarded_at timestamptz, last_reward_date date, reward_count integer, similarity double precision)
 language sql stable as $$

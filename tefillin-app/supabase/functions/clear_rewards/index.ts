@@ -5,11 +5,19 @@
 // À planifier via pg_cron / Supabase Scheduled Functions (ex. toutes les heures).
 // La logique métier vit dans le RPC clear_due_rewards (SQL, SECURITY DEFINER).
 //
-// Déploiement : supabase functions deploy clear_rewards
+// Protégée par un secret partagé (en-tête x-cron-secret == CRON_SECRET) car
+// l'endpoint est public (verify_jwt=false).
+//
+// Secrets requis : CRON_SECRET.
+// Déploiement : supabase functions deploy clear_rewards --no-verify-jwt
 // ============================================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-Deno.serve(async () => {
+Deno.serve(async (req) => {
+  const secret = Deno.env.get("CRON_SECRET");
+  if (!secret || req.headers.get("x-cron-secret") !== secret) {
+    return new Response(JSON.stringify({ ok: false, error: "forbidden" }), { status: 403 });
+  }
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,

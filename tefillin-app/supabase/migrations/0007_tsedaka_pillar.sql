@@ -55,11 +55,7 @@ create policy "tsedakot public read" on tsedakot
 create or replace function maaser_summary()
 returns table (period text, amount_eur numeric)
 language sql stable as $$
-  with m as (
-    select amount_cents from money_donations
-    where user_id = auth.uid() and status = 'succeeded'
-  ),
-   month as (
+  with month as (
     select coalesce(sum(amount_cents),0)/100.0 as v from money_donations
     where user_id = auth.uid() and status = 'succeeded'
       and created_at >= date_trunc('month', now())

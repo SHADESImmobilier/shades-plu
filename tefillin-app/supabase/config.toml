@@ -50,3 +50,7 @@ verify_jwt = true
 # clear_rewards : déclenchée par un cron/scheduler avec la clé service — pas de JWT utilisateur.
 [functions.clear_rewards]
 verify_jwt = false
+
+# stripe_webhook : appelée par Stripe (signature vérifiée dans la fonction) — pas de JWT.
+[functions.stripe_webhook]
+verify_jwt = false

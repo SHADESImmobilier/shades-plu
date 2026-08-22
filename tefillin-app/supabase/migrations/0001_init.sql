@@ -226,18 +226,36 @@ create table redemptions (
 -- ROW LEVEL SECURITY
 -- ============================================================================
 alter table profiles            enable row level security;
+alter table organizations       enable row level security;
 alter table devices             enable row level security;
 alter table poseur_availability enable row level security;
 alter table tefillin_requests   enable row level security;
 alter table mivtza_sessions     enable row level security;
+alter table beneficiaries       enable row level security;
+alter table fraud_signals       enable row level security;
 alter table rewards             enable row level security;
 alter table reward_ledger       enable row level security;
+alter table partners            enable row level security;
+alter table partner_offers      enable row level security;
 alter table redemptions         enable row level security;
 
--- Profils : lecture publique limitée (carte), écriture de soi uniquement.
-create policy "profiles self read"   on profiles for select using (true);
+-- Profils : chaque utilisateur ne lit/écrit QUE son propre profil. Les données
+-- de carte (poseurs proches) passent par la RPC nearby_poseurs (SECURITY DEFINER),
+-- qui n'expose que display_name / trust / coordonnées — jamais le phone_hash ni
+-- l'empreinte faciale. On ne met donc PAS de lecture publique sur profiles.
+create policy "profiles self read"   on profiles for select using (auth.uid() = id);
 create policy "profiles self update" on profiles for update using (auth.uid() = id);
 create policy "profiles self insert" on profiles for insert with check (auth.uid() = id);
+
+-- Catalogue public en lecture ; écriture réservée au service role (aucune policy
+-- d'écriture => insert/update/delete client refusés).
+create policy "orgs read"           on organizations  for select using (true);
+create policy "partners read"       on partners       for select using (is_active);
+create policy "partner_offers read" on partner_offers for select using (is_active);
+
+-- beneficiaries (posés anonymes : phone_hash, empreinte d'appareil) et
+-- fraud_signals (données anti-fraude) : RLS activée SANS policy client => accès
+-- réservé au service role (Edge Functions). Ni lecture ni écriture côté client.
 
 -- Appareils : strictement privés.
 create policy "devices owner" on devices

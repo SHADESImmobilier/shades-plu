@@ -29,10 +29,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.70.0";
 import { encodeBase64 } from "https://deno.land/std@0.224.0/encoding/base64.ts";
 
-const REWARD_POINTS = 100;
-const FACE_MATCH_THRESHOLD = 0.85;    // similarité cosinus -> même posé
+const REWARD_POINTS = 100;             // récompense du poseur
+const BENEFICIARY_REWARD_POINTS = 50;  // récompense du posé (configurable)
+const FACE_MATCH_THRESHOLD = 0.85;     // similarité cosinus -> même posé
 const POSEUR_MATCH_MIN_CONFIDENCE = 0.7; // confiance mini du modèle vision
 const VISION_MODEL = "claude-opus-5";
+
+// pgvector attend la représentation texte "[v1,v2,...]" via PostgREST.
+function toVec(v: number[]): string {
+  return "[" + v.join(",") + "]";
+}
 
 type Body = {
   session_id: string;
@@ -125,8 +131,24 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const { data: session } = await admin
+    // --- Autorisation : l'appelant doit être LE POSEUR de la session ----------
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const asUser = createClient(
+      Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const { data: u } = await asUser.auth.getUser();
+    if (!u.user) return json({ ok: false, reason: "not_authenticated" }, 401);
+
+    const { data: session, error: sErr } = await admin
       .from("mivtza_sessions").select("*").eq("id", body.session_id).single();
+    if (sErr || !session) return json({ ok: false, reason: "session_not_found" }, 404);
+    if (session.poseur_id !== u.user.id) return json({ ok: false, reason: "forbidden" }, 403);
+    // La preuve doit se trouver dans le dossier de l'appelant (préfixe = son uid).
+    if (!body.photo_path.startsWith(`${u.user.id}/`)) {
+      return json({ ok: false, reason: "invalid_photo_path" }, 400);
+    }
+
     const { data: poseur } = await admin
       .from("profiles").select("id, face_ref_path, face_enrolled, trust")
       .eq("id", session.poseur_id).single();
@@ -193,8 +215,10 @@ Deno.serve(async (req) => {
     let dedupUnavailable = false;
     const benefEmbedding = await beneficiaryEmbedding(miseFile);
     if (benefEmbedding) {
+      // pgvector attend la forme texte "[...]" via PostgREST (pas un tableau JSON).
+      const vec = toVec(benefEmbedding);
       const { data: match } = await admin.rpc("match_beneficiary_face", {
-        query: benefEmbedding, threshold: FACE_MATCH_THRESHOLD,
+        query: vec, threshold: FACE_MATCH_THRESHOLD,
       });
       const existing = Array.isArray(match) ? match[0] : match;
       if (existing) {
@@ -205,7 +229,7 @@ Deno.serve(async (req) => {
         }
       } else {
         const { data: created } = await admin
-          .from("beneficiary_faces").insert({ embedding: benefEmbedding }).select("id").single();
+          .from("beneficiary_faces").insert({ embedding: vec }).select("id").single();
         faceId = created?.id ?? null;
       }
     } else {
@@ -241,18 +265,32 @@ Deno.serve(async (req) => {
       risk, risk_score: score, beneficiary_confirmed_at: new Date().toISOString(),
     }).eq("id", session.id);
 
-    // 3) Récompense en attente (jamais créditée directement) + verrou 1×/jour.
+    // 3) Récompenses en attente (jamais créditées directement) + verrou 1×/jour.
     // Seulement quand la mise est CONFIRMÉE (une revue manuelle créditera après coup).
+    // Le POSEUR est récompensé, et le POSÉ aussi s'il a un compte (beneficiary_id).
     if (status === "confirmed") {
-      await admin.from("rewards").insert({
+      const rewardsToInsert: Record<string, unknown>[] = [{
         session_id: session.id, poseur_id: session.poseur_id,
+        recipient_id: session.poseur_id, role: "poseur",
         points: REWARD_POINTS, status: "pending",
-      });
+      }];
+      if (session.beneficiary_id) {
+        rewardsToInsert.push({
+          session_id: session.id, poseur_id: session.poseur_id,
+          recipient_id: session.beneficiary_id, role: "beneficiary",
+          points: BENEFICIARY_REWARD_POINTS, status: "pending",
+        });
+      }
+      await admin.from("rewards").insert(rewardsToInsert);
+
       if (faceId) {
+        // On compte le nombre de mises validées pour ce visage (incrément).
+        const { data: bf } = await admin
+          .from("beneficiary_faces").select("reward_count").eq("id", faceId).single();
         await admin.from("beneficiary_faces").update({
           last_rewarded_at: new Date().toISOString(),
           last_reward_date: today,
-          reward_count: 1,
+          reward_count: (bf?.reward_count ?? 0) + 1,
         }).eq("id", faceId);
       }
     }
@@ -262,7 +300,8 @@ Deno.serve(async (req) => {
       scene_ok: sceneOk, poseur_verified: poseurVerified, already_today: alreadyToday,
     });
   } catch (e) {
-    return json({ ok: false, reason: String(e) }, 500);
+    console.error("submit_session error:", e);
+    return json({ ok: false, reason: "internal_error" }, 500);
   }
 });
 
@@ -286,7 +325,9 @@ async function analyzeScene(mise: Blob | null, reference: Blob | null): Promise<
 
   const msg = await client.messages.create({
     model: VISION_MODEL,
-    max_tokens: 1024,
+    // Marge confortable : sur opus-5 le raisonnement adaptatif consomme du budget
+    // de sortie ; 1024 pouvait être épuisé avant l'émission du JSON.
+    max_tokens: 4096,
     output_config: { format: { type: "json_schema", schema: SCENE_SCHEMA } },
     messages: [{
       role: "user",
