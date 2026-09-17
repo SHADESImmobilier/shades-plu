@@ -1,0 +1,35 @@
+# ~/.config/paybybot3.yml  — à remplir puis : chmod 600 ~/.config/paybybot3.yml
+# Une entrée par véhicule NON référencé Handi'Stat (même compte PayByPhone, plaque différente).
+# Ne mets JAMAIS ce fichier dans un dépôt Git ni dans un e-mail.
+
+voiture1:
+  plate: AB123CD                 # plaque telle qu'elle apparaît dans PayByPhone (sans tirets)
+  paybyphone:
+    login: "+33612345678"        # numéro de téléphone du compte PayByPhone, format international
+    password: "MOT_DE_PASSE"     # mot de passe PayByPhone
+  # Obligatoire pour la commande pay, même si le tarif HANDI est gratuit.
+  # Récupère-le avec : paybybot3 payment-accounts voiture1   (champ paymentAccountId)
+  paymentAccountId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+  apprise:
+    services:
+      # Exemple e-mail via Gmail (mot de passe d'application, pas ton mot de passe Gmail) :
+      - mail:
+          service_url: "mailtos://TON_ADRESSE:MOT_DE_PASSE_APPLICATION@gmail.com?to=TON_ADRESSE&name=PayByPhone%20HANDI"
+          tag:
+            - "broadcast-warning"
+            - "broadcast-failure"
+      # Autres services possibles (Telegram, Pushover, Discord, SMS…) :
+      # https://github.com/caronc/apprise/wiki#notification-services
+
+# Deuxième véhicule non référencé : copie le bloc, change la clé et la plaque.
+# voiture2:
+#   plate: EF456GH
+#   paybyphone:
+#     login: "+33612345678"
+#     password: "MOT_DE_PASSE"
+#   paymentAccountId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+#   apprise:
+#     services:
+#       - mail:
+#           service_url: "mailtos://..."
+#           tag: ["broadcast-warning", "broadcast-failure"]
